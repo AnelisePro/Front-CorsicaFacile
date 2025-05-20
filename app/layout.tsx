@@ -1,4 +1,5 @@
 import './globals.scss'
+import 'leaflet/dist/leaflet.css'  // <-- ajoute cette ligne ici
 import { ReactNode } from 'react'
 import Navbar from '../app/components/Navbar'
 import Footer from '../app/components/Footer'
@@ -25,6 +26,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
     </html>
   )
 }
+
 
 
 
