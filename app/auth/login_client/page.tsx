@@ -14,13 +14,11 @@ export default function ClientConnexion() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
-    // Validation de base
     if (!email || !password) {
       setError('Veuillez remplir tous les champs.')
       return
     }
 
-    // Effacer les anciennes erreurs
     setError('')
 
     try {
@@ -40,7 +38,6 @@ export default function ClientConnexion() {
       const data = await response.json()
 
       if (response.ok) {
-        // Récupérer le token JWT dans l'en-tête Authorization
         const authHeader = response.headers.get('Authorization') || response.headers.get('authorization')
 
         if (!authHeader) {
@@ -48,16 +45,19 @@ export default function ClientConnexion() {
           return
         }
 
-        const token = authHeader.split(' ')[1] // format "Bearer <token>"
+        const token = authHeader.split(' ')[1]
 
-        // Stocker le token et les infos utilisateur
+        const user = {
+          email: data.client.email,
+          role: 'client' as const,
+          avatar_url: data.client.avatar_url || null,
+        }
+
         localStorage.setItem('clientToken', token)
-        localStorage.setItem('user', JSON.stringify({ email: data.client.email, role: 'client' }))
-        setUser({ email: data.client.email, role: 'client' })
+        localStorage.setItem('user', JSON.stringify(user))
+        setUser(user)
 
         console.log('Connexion réussie', data)
-
-        // Redirection vers le dashboard client
         window.location.href = '/dashboard/client'
       } else {
         setError(data.message || "Une erreur s'est produite.")
@@ -111,6 +111,8 @@ export default function ClientConnexion() {
     </div>
   )
 }
+
+
 
 
 

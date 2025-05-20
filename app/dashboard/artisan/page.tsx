@@ -17,6 +17,7 @@ interface Artisan {
   password_confirmation?: string
   kbis_url?: string
   insurance_url?: string
+  avatar_url?: string | null
 }
 
 interface PlanInfo {
@@ -62,7 +63,8 @@ export default function ArtisanDashboard() {
   const [isEditing, setIsEditing] = useState(false)
   const [kbisFile, setKbisFile] = useState<File | null>(null)
   const [insuranceFile, setInsuranceFile] = useState<File | null>(null)
-  const { logout } = useAuth()
+  const [avatarFile, setAvatarFile] = useState<File | null>(null)
+  const { logout, setUser } = useAuth()
 
   useEffect(() => {
     const fetchArtisan = async () => {
@@ -121,6 +123,8 @@ export default function ArtisanDashboard() {
       setKbisFile(file)
     } else if (e.target.name === 'insurance') {
       setInsuranceFile(file)
+    } else if (e.target.name === 'avatar') {
+      setAvatarFile(file)
     }
   }
 
@@ -133,7 +137,7 @@ export default function ArtisanDashboard() {
 
       // Ajouter les champs artisan dans formData (sauf URLs documents)
       for (const [key, value] of Object.entries(artisan)) {
-        if (key === 'kbis_url' || key === 'insurance_url') continue
+        if (key === 'kbis_url' || key === 'insurance_url' || key === 'avatar_url') continue
         if (value !== undefined && value !== null) {
           formData.append(`artisan[${key}]`, String(value))
         }
@@ -142,6 +146,7 @@ export default function ArtisanDashboard() {
       // Ajouter les fichiers si présents
       if (kbisFile) formData.append('artisan[kbis]', kbisFile)
       if (insuranceFile) formData.append('artisan[insurance]', insuranceFile)
+      if (avatarFile) formData.append('artisan[avatar]', avatarFile)
 
       const response = await axios.put('http://localhost:3001/artisans/me', formData, {
         headers: {
@@ -156,8 +161,23 @@ export default function ArtisanDashboard() {
         setArtisan(response.data.artisan)
         setKbisFile(null)
         setInsuranceFile(null)
+        setAvatarFile(null)
         setIsEditing(false)
         alert('Profil mis à jour avec succès.')
+
+        const resp = await axios.get('http://localhost:3001/artisans/me', {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+      const updatedArtisan = resp.data.artisan
+
+      const updatedUser = {
+        email: updatedArtisan.email,
+        role: 'artisan' as 'artisan',
+        avatar_url: updatedArtisan.avatar_url || null,
+      }
+
+      setUser(updatedUser)
+      localStorage.setItem('user', JSON.stringify(updatedUser))
       }
     } catch (error: any) {
       console.error('Erreur lors de la mise à jour :', error)
@@ -186,6 +206,38 @@ export default function ArtisanDashboard() {
   return (
     <div className="p-6 max-w-lg mx-auto">
       <h1 className="text-2xl font-bold mb-4">Bonjour, {artisan.company_name || 'Artisan'} 👷‍♂️</h1>
+
+      {/* Avatar */}
+      <div className="mb-4">
+        {avatarFile ? (
+          <img
+            src={URL.createObjectURL(avatarFile)}
+            alt="Nouvel avatar"
+            className="w-24 h-24 rounded-full object-cover mb-2"
+          />
+        ) : artisan.avatar_url ? (
+          <img
+            src={`${artisan.avatar_url}?t=${Date.now()}`}
+            alt="Avatar"
+            className="w-24 h-24 rounded-full object-cover mb-2"
+          />
+        ) : (
+          <img
+            src="/images/avatar.svg"
+            alt="Avatar par défaut"
+            width={96}
+            height={96}
+            className="rounded-full object-cover mb-2"
+          />
+        )}
+
+        {isEditing && (
+          <>
+            <label className="block font-semibold mb-1">Changer la photo de profil :</label>
+            <input type="file" name="avatar" accept="image/*" onChange={handleFileChange} />
+          </>
+        )}
+      </div>
 
       <div className="space-y-4">
         {/* Champ infos artisan */}

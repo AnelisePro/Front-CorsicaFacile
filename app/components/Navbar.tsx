@@ -96,17 +96,43 @@ export default function Navbar() {
               Annonces
             </Link>
           </li>
+
           <li>
-            <Link
-              href={espaceLink}
-              className={`${styles.cta} ${
-                pathname.startsWith('/dashboard') || pathname === '/mon-espace'
-                  ? styles.active
-                  : ''
-              }`}
-            >
-              Mon Espace
-            </Link>
+            {user ? (
+              <Link href={espaceLink} className={styles.avatarLink}>
+                {user.avatar_url ? (
+                  <img
+                    src={`${user.avatar_url}?${Date.now()}`}
+                    alt="Avatar utilisateur"
+                    width={40}
+                    height={40}
+                    style={{ borderRadius: '50%', objectFit: 'cover' }}
+                    onError={(e) => {
+                      (e.currentTarget as HTMLImageElement).src = '/images/avatar.svg'
+                    }}
+                  />
+                ) : (
+                  <Image
+                    src="/images/avatar.svg"
+                    alt="Avatar par défaut"
+                    width={40}
+                    height={40}
+                    style={{ borderRadius: '50%', objectFit: 'cover' }}
+                  />
+                )}
+              </Link>
+            ) : (
+              <Link
+                href="/mon-espace"
+                className={`${styles.cta} ${
+                  pathname.startsWith('/dashboard') || pathname === '/mon-espace'
+                    ? styles.active
+                    : ''
+                }`}
+              >
+                Mon Espace
+              </Link>
+            )}
           </li>
 
           {user && (
@@ -121,5 +147,8 @@ export default function Navbar() {
     </header>
   )
 }
+
+
+
 
 
