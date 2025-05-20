@@ -4,6 +4,8 @@ import { useEffect, useState } from 'react'
 import axios from 'axios'
 import { useAuth } from '../../auth/AuthContext'
 import { loadStripe } from '@stripe/stripe-js'
+import styles from './page.module.scss'
+import { ToastContainer, toast } from 'react-toastify'
 
 interface Artisan {
   company_name: string
@@ -81,6 +83,7 @@ export default function ArtisanDashboard() {
         setArtisan(response.data.artisan)
       } catch (error) {
         console.error('Erreur de chargement du profil artisan :', error)
+        toast.error('Impossible de charger votre profil.')
         setArtisan(null)
       } finally {
         setLoading(false)
@@ -90,7 +93,6 @@ export default function ArtisanDashboard() {
     fetchArtisan()
   }, [])
 
-  // Récupération du prix + fréquence du plan
   useEffect(() => {
     const fetchPlanInfo = async () => {
       const token = localStorage.getItem('artisanToken')
@@ -135,7 +137,6 @@ export default function ArtisanDashboard() {
     try {
       const formData = new FormData()
 
-      // Ajouter les champs artisan dans formData (sauf URLs documents)
       for (const [key, value] of Object.entries(artisan)) {
         if (key === 'kbis_url' || key === 'insurance_url' || key === 'avatar_url') continue
         if (value !== undefined && value !== null) {
@@ -143,7 +144,6 @@ export default function ArtisanDashboard() {
         }
       }
 
-      // Ajouter les fichiers si présents
       if (kbisFile) formData.append('artisan[kbis]', kbisFile)
       if (insuranceFile) formData.append('artisan[insurance]', insuranceFile)
       if (avatarFile) formData.append('artisan[avatar]', avatarFile)
@@ -163,25 +163,31 @@ export default function ArtisanDashboard() {
         setInsuranceFile(null)
         setAvatarFile(null)
         setIsEditing(false)
-        alert('Profil mis à jour avec succès.')
+
+        toast.success('Profil mis à jour avec succès.')
+
+        // Toast avatar si modifié
+        if (avatarFile) {
+          toast.success('Avatar mis à jour avec succès.')
+        }
 
         const resp = await axios.get('http://localhost:3001/artisans/me', {
-        headers: { Authorization: `Bearer ${token}` }
-      })
-      const updatedArtisan = resp.data.artisan
+          headers: { Authorization: `Bearer ${token}` }
+        })
+        const updatedArtisan = resp.data.artisan
 
-      const updatedUser = {
-        email: updatedArtisan.email,
-        role: 'artisan' as 'artisan',
-        avatar_url: updatedArtisan.avatar_url || null,
-      }
+        const updatedUser = {
+          email: updatedArtisan.email,
+          role: 'artisan' as 'artisan',
+          avatar_url: updatedArtisan.avatar_url || null,
+        }
 
-      setUser(updatedUser)
-      localStorage.setItem('user', JSON.stringify(updatedUser))
+        setUser(updatedUser)
+        localStorage.setItem('user', JSON.stringify(updatedUser))
       }
-    } catch (error: any) {
+    } catch (error) {
       console.error('Erreur lors de la mise à jour :', error)
-      alert('Erreur lors de la mise à jour.')
+      toast.error('Erreur lors de la mise à jour.')
     }
   }
 
@@ -194,9 +200,10 @@ export default function ArtisanDashboard() {
       await axios.delete('http://localhost:3001/artisans/me', {
         headers: { Authorization: `Bearer ${token}` },
       })
+      toast.success('Compte supprimé avec succès.')
       logout()
     } catch (error) {
-      alert('Erreur lors de la suppression du compte.')
+      toast.error('Erreur lors de la suppression du compte.')
     }
   }
 
@@ -213,13 +220,13 @@ export default function ArtisanDashboard() {
           <img
             src={URL.createObjectURL(avatarFile)}
             alt="Nouvel avatar"
-            className="w-24 h-24 rounded-full object-cover mb-2"
+            className={`${styles.avatar} rounded-full object-cover mb-2`}
           />
         ) : artisan.avatar_url ? (
           <img
             src={`${artisan.avatar_url}?t=${Date.now()}`}
             alt="Avatar"
-            className="w-24 h-24 rounded-full object-cover mb-2"
+            className={`${styles.avatar} rounded-full object-cover mb-2`}
           />
         ) : (
           <img
@@ -409,6 +416,18 @@ export default function ArtisanDashboard() {
           )}
         </div>
       </div>
+      <ToastContainer 
+      position="top-right" 
+      autoClose={3000} 
+      hideProgressBar={false} 
+      newestOnTop={false} 
+      closeOnClick 
+      rtl={false} 
+      pauseOnFocusLoss 
+      draggable 
+      pauseOnHover 
+      theme="light"
+    />
     </div>
   )
 }

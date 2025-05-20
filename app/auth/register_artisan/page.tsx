@@ -3,8 +3,12 @@
 import { useState } from 'react'
 import styles from './page.module.scss'
 import { loadStripe } from '@stripe/stripe-js'
+import { toast, ToastContainer } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css'
+import { useRouter } from 'next/navigation'
 
 export default function ArtisanInscription() {
+  const router = useRouter()
   const [companyName, setCompanyName] = useState('')
   const [streetNumber, setStreetNumber] = useState('')
   const [streetName, setStreetName] = useState('')
@@ -36,16 +40,19 @@ export default function ArtisanInscription() {
       !phone || !password || !confirmPassword || !membershipPlan
     ) {
       setError('Veuillez remplir tous les champs et choisir un plan.')
+      toast.error('Veuillez remplir tous les champs et choisir un plan.')
       return
     }
 
     if (password !== confirmPassword) {
       setError('Les mots de passe ne correspondent pas.')
+      toast.error('Les mots de passe ne correspondent pas.')
       return
     }
 
     if (!stripePublishableKey) {
       setError('Clé publique Stripe manquante.')
+      toast.error('Clé publique Stripe manquante.')
       return
     }
 
@@ -77,28 +84,39 @@ export default function ArtisanInscription() {
           setSessionId(data.session_id)
           setStep(2) // Passage à l’étape paiement
         } else {
-          setError('Session Stripe non créée.')
+          toast.success('Inscription réussie !', {
+            autoClose: 3000,
+            onClose: () => {
+              router.push('/auth/login_artisan') // redirection vers le form de connexion artisan
+            }
+          })
         }
       } else {
-        setError(data.errors?.join(', ') || data.message || 'Erreur inconnue')
+        const message = data.errors?.join(', ') || data.message || 'Erreur inconnue'
+        setError(message)
+        toast.error(message)
       }
     } catch {
       setError("Erreur lors de l'envoi au serveur.")
+      toast.error("Erreur lors de l'envoi au serveur.")
     }
   }
 
   const handlePayment = async () => {
     if (!stripePublishableKey) {
       setError('Clé publique Stripe manquante.')
+      toast.error('Clé publique Stripe manquante.')
       return
     }
     if (!sessionId) {
       setError('Session de paiement manquante.')
+      toast.error('Session de paiement manquante.')
       return
     }
     const stripe = await loadStripe(stripePublishableKey)
     if (!stripe) {
       setError('Erreur lors du chargement de Stripe.')
+      toast.error('Erreur lors du chargement de Stripe.')
       return
     }
     await stripe.redirectToCheckout({ sessionId })
@@ -387,6 +405,19 @@ export default function ArtisanInscription() {
           </button>
         </div>
       )}
+
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+      />
     </div>
   )
 }

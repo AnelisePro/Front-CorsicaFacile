@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import axios from 'axios'
 import { useAuth } from '../../auth/AuthContext'
 import styles from './page.module.scss'
+import { toast, ToastContainer } from 'react-toastify'
 
 interface Client {
   first_name: string
@@ -22,8 +23,11 @@ export default function ClientDashboard() {
   const [isEditing, setIsEditing] = useState(false)
   const [avatarFile, setAvatarFile] = useState<File | null>(null)
   const { logout, setUser } = useAuth()
+  const [isClient, setIsClient] = useState(false)
 
   useEffect(() => {
+    setIsClient(true)
+
     const fetchClient = async () => {
       const token = localStorage.getItem('clientToken')
       if (!token) {
@@ -83,7 +87,7 @@ export default function ClientDashboard() {
         },
       })
 
-      alert('Profil mis à jour avec succès.')
+      toast.success('Profil mis à jour avec succès.')
       setIsEditing(false)
       setAvatarFile(null)
 
@@ -93,7 +97,6 @@ export default function ClientDashboard() {
       const updatedClient = response.data.client
       setClient(updatedClient)
 
-      // ✅ Mettre à jour localStorage et AuthContext
       const updatedUser = {
         email: updatedClient.email,
         role: 'client' as const,
@@ -102,27 +105,58 @@ export default function ClientDashboard() {
 
       localStorage.setItem('user', JSON.stringify(updatedUser))
       setUser(updatedUser)
-
     } catch (error) {
       console.error('Erreur lors de la mise à jour du profil :', error)
-      alert('Erreur lors de la mise à jour.')
+      toast.error('Erreur lors de la mise à jour.')
     }
+  }
+
+  const confirmDelete = () => {
+    toast.info(
+      <div>
+        <p>Êtes-vous sûr de vouloir supprimer votre compte ? Cette action est irréversible.</p>
+        <div className="mt-2 flex justify-end gap-2">
+          <button
+            onClick={() => {
+              toast.dismiss()
+              handleDelete()
+            }}
+            className="bg-red-600 text-white px-3 py-1 rounded"
+          >
+            Oui, supprimer
+          </button>
+          <button
+            onClick={() => toast.dismiss()}
+            className="bg-gray-400 text-white px-3 py-1 rounded"
+          >
+            Annuler
+          </button>
+        </div>
+      </div>,
+      {
+        position: 'top-center',
+        autoClose: false,
+        closeOnClick: false,
+        closeButton: false,
+        draggable: false,
+        pauseOnHover: false,
+      }
+    )
   }
 
   const handleDelete = async () => {
     const token = localStorage.getItem('clientToken')
     if (!token) return
 
-    if (!confirm('Êtes-vous sûr de vouloir supprimer votre compte ? Cette action est irréversible.')) return
-
     try {
       await axios.delete('http://localhost:3001/clients/me', {
         headers: { Authorization: `Bearer ${token}` },
       })
+      toast.success('Compte supprimé avec succès.')
       logout()
     } catch (error) {
       console.error('Erreur lors de la suppression du compte :', error)
-      alert('Erreur lors de la suppression.')
+      toast.error('Erreur lors de la suppression.')
     }
   }
 
@@ -130,100 +164,118 @@ export default function ClientDashboard() {
   if (!client) return <p>Impossible de charger les informations client.</p>
 
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold mb-4">Bonjour, {client.first_name} 👋</h1>
+    <>
+      <div className="p-6">
+        <h1 className="text-2xl font-bold mb-4">Bonjour, {client.first_name} 👋</h1>
 
-      {/* Photo de profil */}
-      <div className="mb-4">
-        {avatarFile ? (
-          <img
-            src={URL.createObjectURL(avatarFile)}
-            alt="Nouvel avatar"
-            className={`${styles.avatar} rounded-full object-cover mb-2`}
-          />
-        ) : client.avatar_url ? (
-          <img
-            src={`${client.avatar_url}?t=${Date.now()}`}
-            alt="Avatar"
-            className={`${styles.avatar} rounded-full object-cover mb-2`}
-          />
-        ) : (
-          <img
-            src="/images/avatar.svg"
-            alt="Avatar par défaut"
-            width={96}
-            height={96}
-            className="rounded-full object-cover mb-2"
-          />
-        )}
+        <div className="mb-4">
+          {avatarFile ? (
+            <img
+              src={URL.createObjectURL(avatarFile)}
+              alt="Nouvel avatar"
+              className={`${styles.avatar} rounded-full object-cover mb-2`}
+            />
+          ) : client.avatar_url ? (
+            <img
+              src={`${client.avatar_url}?t=${Date.now()}`}
+              alt="Avatar"
+              className={`${styles.avatar} rounded-full object-cover mb-2`}
+            />
+          ) : (
+            <img
+              src="/images/avatar.svg"
+              alt="Avatar par défaut"
+              width={96}
+              height={96}
+              className="rounded-full object-cover mb-2"
+            />
+          )}
 
-        {(isEditing || !client.avatar_url) && (
-          <>
-            <label className="block font-semibold mb-1">Changer la photo de profil :</label>
-            <input type="file" accept="image/*" onChange={handleAvatarChange} />
-          </>
-        )}
-      </div>
-
-      <div className="space-y-2">
-        {['first_name', 'last_name', 'email', 'phone', 'birthdate'].map((field) => (
-          <div key={field}>
-            <label className="block font-semibold capitalize">{field.replace('_', ' ')}:</label>
-            {isEditing ? (
-              <input
-                type="text"
-                name={field}
-                value={(client as any)[field]}
-                onChange={handleChange}
-                className="border p-1 rounded w-full"
-              />
-            ) : (
-              <p>{(client as any)[field]}</p>
-            )}
-          </div>
-        ))}
-      </div>
-
-      {isEditing && (
-        <div className="mt-4 space-y-2">
-          <label className="block font-semibold">Nouveau mot de passe :</label>
-          <input
-            type="password"
-            name="password"
-            onChange={handleChange}
-            className="border p-1 rounded w-full"
-          />
-          <label className="block font-semibold">Confirmation du mot de passe :</label>
-          <input
-            type="password"
-            name="password_confirmation"
-            onChange={handleChange}
-            className="border p-1 rounded w-full"
-          />
+          {(isEditing || !client.avatar_url) && (
+            <>
+              <label className="block font-semibold mb-1">Changer la photo de profil :</label>
+              <input type="file" accept="image/*" onChange={handleAvatarChange} />
+            </>
+          )}
         </div>
-      )}
 
-      <div className="mt-6 flex gap-4">
-        {isEditing ? (
-          <>
-            <button onClick={handleUpdate} className="bg-green-500 text-white px-4 py-2 rounded">
-              Enregistrer
-            </button>
-            <button onClick={() => setIsEditing(false)} className="bg-gray-400 text-white px-4 py-2 rounded">
-              Annuler
-            </button>
-          </>
-        ) : (
-          <button onClick={() => setIsEditing(true)} className="bg-blue-500 text-white px-4 py-2 rounded">
-            Modifier mes informations
-          </button>
+        <div className="space-y-2">
+          {['first_name', 'last_name', 'email', 'phone', 'birthdate'].map((field) => (
+            <div key={field}>
+              <label className="block font-semibold capitalize">{field.replace('_', ' ')}:</label>
+              {isEditing ? (
+                <input
+                  type="text"
+                  name={field}
+                  value={(client as any)[field]}
+                  onChange={handleChange}
+                  className="border p-1 rounded w-full"
+                />
+              ) : (
+                <p>{(client as any)[field]}</p>
+              )}
+            </div>
+          ))}
+        </div>
+
+        {isEditing && (
+          <div className="mt-4 space-y-2">
+            <label className="block font-semibold">Nouveau mot de passe :</label>
+            <input
+              type="password"
+              name="password"
+              onChange={handleChange}
+              className="border p-1 rounded w-full"
+            />
+            <label className="block font-semibold">Confirmation du mot de passe :</label>
+            <input
+              type="password"
+              name="password_confirmation"
+              onChange={handleChange}
+              className="border p-1 rounded w-full"
+            />
+          </div>
         )}
-        <button onClick={handleDelete} className="bg-red-500 text-white px-4 py-2 rounded">
-          Supprimer mon compte
-        </button>
+
+        <div className="mt-6 flex gap-4">
+          {isEditing ? (
+            <>
+              <button onClick={handleUpdate} className="bg-green-500 text-white px-4 py-2 rounded">
+                Enregistrer
+              </button>
+              <button onClick={() => setIsEditing(false)} className="bg-gray-400 text-white px-4 py-2 rounded">
+                Annuler
+              </button>
+            </>
+          ) : (
+            <button onClick={() => setIsEditing(true)} className="bg-blue-500 text-white px-4 py-2 rounded">
+              Modifier mes informations
+            </button>
+          )}
+          <button onClick={confirmDelete} className="bg-red-500 text-white px-4 py-2 rounded">
+            Supprimer mon compte
+          </button>
+        </div>
       </div>
-    </div>
+
+      {isClient && (
+        <ToastContainer
+          position="top-right"
+          autoClose={3000}
+          hideProgressBar={false}
+          newestOnTop={false}
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+          theme="light"
+        />
+      )}
+    </>
   )
 }
+
+
 
 
