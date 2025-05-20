@@ -6,6 +6,7 @@ import { useAuth } from '../../auth/AuthContext'
 import { loadStripe } from '@stripe/stripe-js'
 import styles from './page.module.scss'
 import { ToastContainer, toast } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css'
 
 interface Artisan {
   company_name: string
@@ -415,6 +416,28 @@ export default function ArtisanDashboard() {
             </>
           )}
         </div>
+
+         {/* Tableau de bord des missions */}
+          <section className="border p-4 rounded shadow-sm">
+            <h2 className="text-xl font-semibold mb-3">Tableau de bord des missions</h2>
+            <ul className="list-disc ml-6 text-gray-700">
+              <li>Prestations passées : {/* nombre ici */}</li>
+              <li>Prestations en cours : {/* nombre ici */}</li>
+              <li>Prestations futures : {/* nombre ici */}</li>
+            </ul>
+          </section>
+
+          {/* Notifications de nouvelles missions */}
+          <section className="border p-4 rounded shadow-sm">
+            <h2 className="text-xl font-semibold mb-3">Notifications de nouvelles missions</h2>
+            <p className="italic text-gray-600">Aucune nouvelle notification pour le moment.</p>
+          </section>
+
+          {/* Commentaires et notes reçus */}
+          <section className="border p-4 rounded shadow-sm">
+            <h2 className="text-xl font-semibold mb-3">Commentaires et notes reçus</h2>
+            <p className="italic text-gray-600">Aucun commentaire pour le moment.</p>
+          </section>
       </div>
       <ToastContainer 
       position="top-right" 

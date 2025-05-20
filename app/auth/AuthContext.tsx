@@ -26,52 +26,61 @@ const AuthContext = createContext<AuthContextType>({
 })
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | null>(null)
+  const [user, setUserState] = useState<User | null>(null)
   const router = useRouter()
 
-  // Charger l'utilisateur depuis localStorage au montage
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const storedUser = localStorage.getItem('user')
       if (storedUser) {
         try {
-          setUser(JSON.parse(storedUser))
-        } catch {
-          setUser(null)
+          const parsedUser: User = JSON.parse(storedUser)
+          // fallback par défaut
+          if (!parsedUser.avatar_url) {
+            parsedUser.avatar_url = '/images/avatar.svg'
+          }
+          setUserState(parsedUser)
+        } catch (error) {
+          console.error('Erreur lors du parsing du user depuis localStorage', error)
+          setUserState(null)
+          localStorage.removeItem('user')
         }
       }
     }
   }, [])
 
-  // Sauvegarder l'utilisateur dans localStorage quand il change
-  useEffect(() => {
+  const setUser = (user: User | null) => {
     if (user) {
+      if (!user.avatar_url) {
+        user.avatar_url = '/images/avatar.svg'
+      }
+      setUserState(user)
       localStorage.setItem('user', JSON.stringify(user))
     } else {
+      setUserState(null)
       localStorage.removeItem('user')
     }
-  }, [user])
+  }
 
   const logout = () => {
     localStorage.removeItem('user')
     localStorage.removeItem('clientToken')
     localStorage.removeItem('artisanToken')
-    setUser(null)
-    router.push('/')
+    setUserState(null)
+    //router.push('/')
   }
 
   const value = useMemo(() => ({ user, setUser, logout }), [user])
 
-  return (
-    <AuthContext.Provider value={value}>
-      {children}
-    </AuthContext.Provider>
-  )
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }
 
 export function useAuth() {
   return useContext(AuthContext)
 }
+
+
+
 
 
 

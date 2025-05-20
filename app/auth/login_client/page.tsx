@@ -5,6 +5,7 @@ import Link from 'next/link'
 import styles from './page.module.scss'
 import { useAuth } from '@/app/auth/AuthContext'
 import { toast, ToastContainer } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css'
 import { useRouter } from 'next/navigation'
 
 export default function ClientConnexion() {
@@ -108,7 +109,7 @@ export default function ClientConnexion() {
           <button type="submit" className={styles.submitButton}>Se connecter</button>
 
           <div className={styles.links}>
-            <Link href="/mot-de-passe-oublie" className={styles.link}>Mot de passe oublié ?</Link>
+            <Link href="/auth/passwords/client" className={styles.link}>Mot de passe oublié ?</Link>
             <Link href="/auth/register_client" className={styles.link}>Pas encore inscrit ? Inscrivez-vous</Link>
           </div>
         </form>

@@ -5,6 +5,7 @@ import axios from 'axios'
 import { useAuth } from '../../auth/AuthContext'
 import styles from './page.module.scss'
 import { toast, ToastContainer } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css'
 
 interface Client {
   first_name: string
@@ -100,7 +101,7 @@ export default function ClientDashboard() {
       const updatedUser = {
         email: updatedClient.email,
         role: 'client' as const,
-        avatar_url: updatedClient.avatar_url || null,
+        avatar_url: updatedClient.avatar_url || '/images/avatar.svg',
       }
 
       localStorage.setItem('user', JSON.stringify(updatedUser))
@@ -165,97 +166,143 @@ export default function ClientDashboard() {
 
   return (
     <>
-      <div className="p-6">
+      <div className="p-6 max-w-5xl mx-auto">
         <h1 className="text-2xl font-bold mb-4">Bonjour, {client.first_name} 👋</h1>
 
-        <div className="mb-4">
-          {avatarFile ? (
-            <img
-              src={URL.createObjectURL(avatarFile)}
-              alt="Nouvel avatar"
-              className={`${styles.avatar} rounded-full object-cover mb-2`}
-            />
-          ) : client.avatar_url ? (
-            <img
-              src={`${client.avatar_url}?t=${Date.now()}`}
-              alt="Avatar"
-              className={`${styles.avatar} rounded-full object-cover mb-2`}
-            />
-          ) : (
-            <img
-              src="/images/avatar.svg"
-              alt="Avatar par défaut"
-              width={96}
-              height={96}
-              className="rounded-full object-cover mb-2"
-            />
-          )}
+        {/* Profil et édition */}
+        <section className="mb-8">
+          <div className="mb-4 flex items-center gap-4">
+            {avatarFile ? (
+              <img
+                src={URL.createObjectURL(avatarFile)}
+                alt="Nouvel avatar"
+                className={`${styles.avatar} rounded-full object-cover mb-2`}
+                width={96}
+                height={96}
+              />
+            ) : client.avatar_url ? (
+              <img
+                src={`${client.avatar_url}?t=${Date.now()}`}
+                alt="Avatar"
+                className={`${styles.avatar} rounded-full object-cover mb-2`}
+                width={96}
+                height={96}
+              />
+            ) : (
+              <img
+                src="/images/avatar.svg"
+                alt="Avatar par défaut"
+                width={96}
+                height={96}
+                className="rounded-full object-cover mb-2"
+              />
+            )}
 
-          {(isEditing || !client.avatar_url) && (
-            <>
-              <label className="block font-semibold mb-1">Changer la photo de profil :</label>
-              <input type="file" accept="image/*" onChange={handleAvatarChange} />
-            </>
-          )}
-        </div>
-
-        <div className="space-y-2">
-          {['first_name', 'last_name', 'email', 'phone', 'birthdate'].map((field) => (
-            <div key={field}>
-              <label className="block font-semibold capitalize">{field.replace('_', ' ')}:</label>
-              {isEditing ? (
-                <input
-                  type="text"
-                  name={field}
-                  value={(client as any)[field]}
-                  onChange={handleChange}
-                  className="border p-1 rounded w-full"
-                />
-              ) : (
-                <p>{(client as any)[field]}</p>
-              )}
-            </div>
-          ))}
-        </div>
-
-        {isEditing && (
-          <div className="mt-4 space-y-2">
-            <label className="block font-semibold">Nouveau mot de passe :</label>
-            <input
-              type="password"
-              name="password"
-              onChange={handleChange}
-              className="border p-1 rounded w-full"
-            />
-            <label className="block font-semibold">Confirmation du mot de passe :</label>
-            <input
-              type="password"
-              name="password_confirmation"
-              onChange={handleChange}
-              className="border p-1 rounded w-full"
-            />
+            {(isEditing || !client.avatar_url) && (
+              <div>
+                <label className="block font-semibold mb-1">Changer la photo de profil :</label>
+                <input type="file" accept="image/*" onChange={handleAvatarChange} />
+              </div>
+            )}
           </div>
-        )}
 
-        <div className="mt-6 flex gap-4">
-          {isEditing ? (
-            <>
-              <button onClick={handleUpdate} className="bg-green-500 text-white px-4 py-2 rounded">
-                Enregistrer
-              </button>
-              <button onClick={() => setIsEditing(false)} className="bg-gray-400 text-white px-4 py-2 rounded">
-                Annuler
-              </button>
-            </>
-          ) : (
-            <button onClick={() => setIsEditing(true)} className="bg-blue-500 text-white px-4 py-2 rounded">
-              Modifier mes informations
-            </button>
+          <div className="space-y-2">
+            {['first_name', 'last_name', 'email', 'phone', 'birthdate'].map((field) => (
+              <div key={field}>
+                <label className="block font-semibold capitalize">{field.replace('_', ' ')}:</label>
+                {isEditing ? (
+                  <input
+                    type="text"
+                    name={field}
+                    value={(client as any)[field]}
+                    onChange={handleChange}
+                    className="border p-1 rounded w-full"
+                  />
+                ) : (
+                  <p>{(client as any)[field]}</p>
+                )}
+              </div>
+            ))}
+          </div>
+
+          {isEditing && (
+            <div className="mt-4 space-y-2">
+              <label className="block font-semibold">Nouveau mot de passe :</label>
+              <input
+                type="password"
+                name="password"
+                onChange={handleChange}
+                className="border p-1 rounded w-full"
+              />
+              <label className="block font-semibold">Confirmation du mot de passe :</label>
+              <input
+                type="password"
+                name="password_confirmation"
+                onChange={handleChange}
+                className="border p-1 rounded w-full"
+              />
+            </div>
           )}
-          <button onClick={confirmDelete} className="bg-red-500 text-white px-4 py-2 rounded">
-            Supprimer mon compte
-          </button>
-        </div>
+
+          <div className="mt-6 flex gap-4">
+            {isEditing ? (
+              <>
+                <button onClick={handleUpdate} className="bg-green-500 text-white px-4 py-2 rounded">
+                  Enregistrer
+                </button>
+                <button onClick={() => setIsEditing(false)} className="bg-gray-400 text-white px-4 py-2 rounded">
+                  Annuler
+                </button>
+              </>
+            ) : (
+              <button onClick={() => setIsEditing(true)} className="bg-blue-500 text-white px-4 py-2 rounded">
+                Modifier mes informations
+              </button>
+            )}
+            <button onClick={confirmDelete} className="bg-red-500 text-white px-4 py-2 rounded">
+              Supprimer mon compte
+            </button>
+          </div>
+        </section>
+
+        {/* Espaces fonctionnels */}
+        <section className="space-y-8">
+          {/* Annonces postées */}
+          <div className="border p-4 rounded shadow-sm">
+            <h2 className="text-xl font-semibold mb-2">Mes annonces</h2>
+            <p className="text-gray-600 italic">Aucune annonce pour le moment.</p>
+            {/* Ici tu pourras afficher la liste des annonces du client */}
+          </div>
+
+          {/* Suivi des interventions */}
+          <div className="border p-4 rounded shadow-sm">
+            <h2 className="text-xl font-semibold mb-2">Suivi des interventions</h2>
+            <ul className="list-disc ml-6 text-gray-700">
+              <li>En attente : 0</li>
+              <li>En cours : 0</li>
+              <li>Validées : 0</li>
+            </ul>
+            {/* Remplace ces valeurs par de vraies données */}
+          </div>
+
+          {/* Suivi des points gagnés */}
+          <div className="border p-4 rounded shadow-sm">
+            <h2 className="text-xl font-semibold mb-2">Mes points gagnés</h2>
+            <p className="text-gray-700 font-bold text-2xl">0</p>
+            {/* Affiche ici le total des points du client */}
+          </div>
+
+          {/* Historique des interventions */}
+          <div className="border p-4 rounded shadow-sm">
+            <h2 className="text-xl font-semibold mb-2">Historique des interventions</h2>
+            <ul className="list-disc ml-6 text-gray-700">
+              <li>Passées : 0</li>
+              <li>En cours : 0</li>
+              <li>Futures : 0</li>
+            </ul>
+            {/* À compléter avec les interventions historiques */}
+          </div>
+        </section>
       </div>
 
       {isClient && (
@@ -275,6 +322,7 @@ export default function ClientDashboard() {
     </>
   )
 }
+
 
 
 

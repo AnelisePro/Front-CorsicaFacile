@@ -83,6 +83,23 @@ export default function ClientInscription() {
       <div className={styles.container}>
         <h1 className={styles.title}>Inscription - Client</h1>
 
+      {/* Espace explicatif d'information sur l'inscription et les points */}
+        <section className={styles.infoBox} style={{ marginBottom: '1.5rem', padding: '1rem', border: '1px solid #ccc', borderRadius: '6px' }}>
+          <p>
+            L'inscription est <strong>totalement gratuite</strong>. À chaque intervention validée comme terminée, vous
+            récoltez des points qui vous donnent droit à des cadeaux ou réductions chez nos partenaires (catalogue en cours de création).
+          </p>
+          <p>
+            Par exemple : <br />
+            - 1 intervention validée = 10 points <br />
+            - 100 points = 1 bon d'achat chez un partenaire <br />
+            - +5 points gagnés si vous laissez un avis à l'artisan
+          </p>
+          <p>
+            Profitez pleinement de nos services et récompenses !
+          </p>
+        </section>
+
         {error && <p className={styles.error}>{error}</p>}
 
         <form onSubmit={handleSubmit} className={styles.form}>

@@ -3,6 +3,7 @@ import { ReactNode } from 'react'
 import Navbar from '../app/components/Navbar'
 import Footer from '../app/components/Footer'
 import { AuthProvider } from './auth/AuthContext'
+import ToastProvider from './ToastProvider'
 import 'react-toastify/dist/ReactToastify.css'
 
 export const metadata = {
@@ -18,10 +19,12 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           <Navbar />
           <main>{children}</main>
           <Footer />
+          <ToastProvider />
         </AuthProvider>
       </body>
     </html>
   )
 }
+
 
 
