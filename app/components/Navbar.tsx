@@ -91,7 +91,7 @@ export default function Navbar() {
             <li>
               {user ? (
                 <Link href={espaceLink} className={styles.avatarLink}>
-                  <img
+                  <Image
                     src={avatarUrl}
                     alt="Avatar utilisateur"
                     width={40}

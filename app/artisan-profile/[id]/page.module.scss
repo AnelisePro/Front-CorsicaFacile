@@ -1,0 +1,8 @@
+.projectImageWrapper {
+  position: relative;
+  width: 150px;  // petite taille fixe, tu peux ajuster
+  height: 100px; // hauteur fixe, ajustable aussi
+  border-radius: 0.5rem; // équivalent rounded
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); // équivalent shadow
+}

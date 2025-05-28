@@ -21,6 +21,8 @@ interface Artisan {
   kbis_url?: string
   insurance_url?: string
   avatar_url?: string | null
+  description?: string
+  images_urls?: string[]
 }
 
 interface PlanInfo {
@@ -62,56 +64,74 @@ const stripePromise = loadStripe('pk_test_51RO446Rs43niZdSJN0YjPjgq7HdFlhdFqqUqp
 export default function ArtisanDashboard() {
   const [artisan, setArtisan] = useState<Artisan | null>(null)
   const [planInfo, setPlanInfo] = useState<PlanInfo | null>(null)
+  const [previousMembershipPlan, setPreviousMembershipPlan] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const [isEditing, setIsEditing] = useState(false)
   const [kbisFile, setKbisFile] = useState<File | null>(null)
   const [insuranceFile, setInsuranceFile] = useState<File | null>(null)
   const [avatarFile, setAvatarFile] = useState<File | null>(null)
+  const [newImages, setNewImages] = useState<File[]>([])
   const { logout, setUser } = useAuth()
+  const [paymentPending, setPaymentPending] = useState(false)
+  const [deletedImageUrls, setDeletedImageUrls] = useState<string[]>([])
 
   useEffect(() => {
-    const fetchArtisan = async () => {
-      const token = localStorage.getItem('artisanToken')
-      if (!token) {
-        setLoading(false)
-        return
-      }
+    fetchArtisanData()
+  }, [])
 
-      try {
-        const response = await axios.get('http://localhost:3001/artisans/me', {
+  const fetchArtisanData = async () => {
+    const token = localStorage.getItem('artisanToken')
+    if (!token) {
+      setLoading(false)
+      return
+    }
+
+    try {
+      const response = await axios.get('http://localhost:3001/artisans/me', {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      setArtisan(response.data.artisan)
+      setPreviousMembershipPlan(response.data.artisan.membership_plan)
+
+      const planResp = await axios.get('http://localhost:3001/artisans/me/plan_info', {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      setPlanInfo(planResp.data.price_info)
+    } catch (error) {
+      console.error('Erreur de chargement du profil artisan :', error)
+      toast.error('Impossible de charger votre profil.')
+      setArtisan(null)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const refreshArtisanData = async () => {
+    const token = localStorage.getItem('artisanToken')
+    if (!token) return
+    setLoading(true)
+    try {
+      const [artisanResp, planResp] = await Promise.all([
+        axios.get('http://localhost:3001/artisans/me', {
           headers: { Authorization: `Bearer ${token}` },
-        })
-        setArtisan(response.data.artisan)
-      } catch (error) {
-        console.error('Erreur de chargement du profil artisan :', error)
-        toast.error('Impossible de charger votre profil.')
-        setArtisan(null)
-      } finally {
-        setLoading(false)
-      }
+        }),
+        axios.get('http://localhost:3001/artisans/me/plan_info', {
+          headers: { Authorization: `Bearer ${token}` },
+        }),
+      ])
+
+      setArtisan(artisanResp.data.artisan)
+      setPreviousMembershipPlan(artisanResp.data.artisan.membership_plan)
+      setPlanInfo(planResp.data.price_info)
+
+      toast.success("Profil mis à jour après validation du paiement.")
+      setPaymentPending(false)
+    } catch {
+      toast.error("Impossible de récupérer le profil. Veuillez réessayer.")
+    } finally {
+      setLoading(false)
     }
-
-    fetchArtisan()
-  }, [])
-
-  useEffect(() => {
-    const fetchPlanInfo = async () => {
-      const token = localStorage.getItem('artisanToken')
-      if (!token) return
-
-      try {
-        const response = await axios.get('http://localhost:3001/artisans/me/plan_info', {
-          headers: { Authorization: `Bearer ${token}` }
-        })
-        setPlanInfo(response.data.price_info)
-      } catch (error) {
-        console.error('Erreur chargement plan info:', error)
-        setPlanInfo(null)
-      }
-    }
-
-    fetchPlanInfo()
-  }, [])
+  }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     if (!artisan) return
@@ -131,6 +151,30 @@ export default function ArtisanDashboard() {
     }
   }
 
+  const handleImagesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files || !artisan) return
+    const filesArray = Array.from(e.target.files)
+    const totalImages = (artisan.images_urls?.length || 0) + newImages.length + filesArray.length
+    if (totalImages > 10) {
+      toast.error('Vous ne pouvez pas avoir plus de 10 images au total.')
+      return
+    }
+    setNewImages(prev => [...prev, ...filesArray])
+  }
+
+  const removeExistingImage = (url: string) => {
+    if (!artisan) return
+    setDeletedImageUrls(prev => [...prev, url])
+    setArtisan({
+      ...artisan,
+      images_urls: artisan.images_urls?.filter(imgUrl => imgUrl !== url) || [],
+    })
+  }
+
+  const removeNewImage = (index: number) => {
+    setNewImages(prev => prev.filter((_, i) => i !== index))
+  }
+
   const handleUpdate = async () => {
     const token = localStorage.getItem('artisanToken')
     if (!token || !artisan) return
@@ -139,7 +183,7 @@ export default function ArtisanDashboard() {
       const formData = new FormData()
 
       for (const [key, value] of Object.entries(artisan)) {
-        if (key === 'kbis_url' || key === 'insurance_url' || key === 'avatar_url') continue
+        if (['kbis_url', 'insurance_url', 'avatar_url', 'images_urls'].includes(key)) continue
         if (value !== undefined && value !== null) {
           formData.append(`artisan[${key}]`, String(value))
         }
@@ -148,39 +192,41 @@ export default function ArtisanDashboard() {
       if (kbisFile) formData.append('artisan[kbis]', kbisFile)
       if (insuranceFile) formData.append('artisan[insurance]', insuranceFile)
       if (avatarFile) formData.append('artisan[avatar]', avatarFile)
+      newImages.forEach(file => {
+        formData.append('artisan[project_images][]', file)
+      })
+      deletedImageUrls.forEach(url => {
+        formData.append('artisan[deleted_image_urls][]', url)
+      })
 
       const response = await axios.put('http://localhost:3001/artisans/me', formData, {
         headers: {
           Authorization: `Bearer ${token}`,
-          'Content-Type': 'multipart/form-data'
-        }
+          'Content-Type': 'multipart/form-data',
+        },
       })
 
-      if (response.data.checkout_url) {
+      const planChanged = previousMembershipPlan && artisan.membership_plan !== previousMembershipPlan
+
+      if (planChanged && response.data.checkout_url) {
         window.open(response.data.checkout_url, '_blank', 'width=500,height=700')
+        toast.info("Veuillez finaliser le paiement dans la nouvelle fenêtre Stripe.")
+        setPaymentPending(true)
       } else {
+        toast.success('Profil mis à jour avec succès.')
         setArtisan(response.data.artisan)
+        setPreviousMembershipPlan(response.data.artisan.membership_plan)
         setKbisFile(null)
         setInsuranceFile(null)
         setAvatarFile(null)
+        setNewImages([])
+        setDeletedImageUrls([])
         setIsEditing(false)
 
-        toast.success('Profil mis à jour avec succès.')
-
-        // Toast avatar si modifié
-        if (avatarFile) {
-          toast.success('Avatar mis à jour avec succès.')
-        }
-
-        const resp = await axios.get('http://localhost:3001/artisans/me', {
-          headers: { Authorization: `Bearer ${token}` }
-        })
-        const updatedArtisan = resp.data.artisan
-
         const updatedUser = {
-          email: updatedArtisan.email,
+          email: response.data.artisan.email,
           role: 'artisan' as 'artisan',
-          avatar_url: updatedArtisan.avatar_url || null,
+          avatar_url: response.data.artisan.avatar_url || null,
         }
 
         setUser(updatedUser)
@@ -212,158 +258,160 @@ export default function ArtisanDashboard() {
   if (!artisan) return <p>Impossible de charger les informations artisan.</p>
 
   return (
-    <div className="p-6 max-w-lg mx-auto">
-      <h1 className="text-2xl font-bold mb-4">Bonjour, {artisan.company_name || 'Artisan'} 👷‍♂️</h1>
+  <div className={styles.container}>
+    {/* Nom de l'entreprise centré en haut */}
+    <header className={styles.header}>
+      <h1>{artisan.company_name || 'Artisan'}</h1>
+    </header>
 
-      {/* Avatar */}
-      <div className="mb-4">
-        {avatarFile ? (
-          <img
-            src={URL.createObjectURL(avatarFile)}
-            alt="Nouvel avatar"
-            className={`${styles.avatar} rounded-full object-cover mb-2`}
-          />
-        ) : artisan.avatar_url ? (
-          <img
-            src={`${artisan.avatar_url}?t=${Date.now()}`}
-            alt="Avatar"
-            className={`${styles.avatar} rounded-full object-cover mb-2`}
-          />
-        ) : (
-          <img
-            src="/images/avatar.svg"
-            alt="Avatar par défaut"
-            width={96}
-            height={96}
-            className="rounded-full object-cover mb-2"
-          />
-        )}
+    <main className={styles.main}>
+      {/* Colonne gauche : tout le reste */}
+      <section className={styles.leftColumn}>
+        {/* Avatar */}
+        <div className={styles.avatarWrapper}>
+          {avatarFile ? (
+            <img
+              src={URL.createObjectURL(avatarFile)}
+              alt="Nouvel avatar"
+              className={styles.avatar}
+            />
+          ) : artisan.avatar_url ? (
+            <img
+              src={`${artisan.avatar_url}?t=${Date.now()}`}
+              alt="Avatar"
+              className={styles.avatar}
+            />
+          ) : (
+            <img
+              src="/images/avatar.svg"
+              alt="Avatar par défaut"
+              className={styles.avatar}
+            />
+          )}
 
-        {isEditing && (
-          <>
-            <label className="block font-semibold mb-1">Changer la photo de profil :</label>
-            <input type="file" name="avatar" accept="image/*" onChange={handleFileChange} />
-          </>
-        )}
-      </div>
+          {isEditing && (
+            <>
+              <label>Changer la photo de profil :</label>
+              <input type="file" name="avatar" accept="image/*" onChange={handleFileChange} />
+            </>
+          )}
+        </div>
 
-      <div className="space-y-4">
-        {/* Champ infos artisan */}
-        <div>
-          <label className="block font-semibold">Nom de l'entreprise</label>
+        {/* Formulaire infos artisan */}
+        <div className={styles.formGroup}>
+          <label>Nom de l'entreprise</label>
           <input
             name="company_name"
             value={artisan.company_name}
             onChange={handleChange}
             disabled={!isEditing}
-            className="border rounded px-2 py-1 w-full"
           />
         </div>
 
-        <div>
-          <label className="block font-semibold">Adresse</label>
+        <div className={styles.formGroup}>
+          <label>Adresse</label>
           <textarea
             name="address"
             value={artisan.address}
             onChange={handleChange}
             disabled={!isEditing}
-            className="border rounded px-2 py-1 w-full"
           />
         </div>
 
-        <div>
-          <label className="block font-semibold">Expertise</label>
+        <div className={styles.formGroup}>
+          <label>Expertise</label>
           <select
             name="expertise"
             value={artisan.expertise}
             onChange={handleChange}
             disabled={!isEditing}
-            className="border rounded px-2 py-1 w-full"
           >
             <option value="">Sélectionnez une expertise</option>
-            {expertises.map((ex) => (
+            {expertises.map(ex => (
               <option key={ex} value={ex}>{ex}</option>
             ))}
           </select>
         </div>
 
-        <div>
-          <label className="block font-semibold">SIREN</label>
+        <div className={styles.formGroup}>
+          <label>Description de l'entreprise</label>
+          <textarea
+            name="description"
+            value={artisan.description || ''}
+            onChange={handleChange}
+            disabled={!isEditing}
+            rows={4}
+          />
+        </div>
+
+        <div className={styles.formGroup}>
+          <label>SIREN</label>
           <input
             name="siren"
             value={artisan.siren}
             onChange={handleChange}
             disabled={!isEditing}
-            className="border rounded px-2 py-1 w-full"
           />
         </div>
 
-        <div>
-          <label className="block font-semibold">Email</label>
+        <div className={styles.formGroup}>
+          <label>Email</label>
           <input
             name="email"
             type="email"
             value={artisan.email}
             onChange={handleChange}
             disabled={!isEditing}
-            className="border rounded px-2 py-1 w-full"
           />
         </div>
 
-        <div>
-          <label className="block font-semibold">Téléphone</label>
+        <div className={styles.formGroup}>
+          <label>Téléphone</label>
           <input
             name="phone"
             value={artisan.phone}
             onChange={handleChange}
             disabled={!isEditing}
-            className="border rounded px-2 py-1 w-full"
           />
         </div>
 
-        <div>
-          <label className="block font-semibold">Formule d’abonnement</label>
+        <div className={styles.formGroup}>
+          <label>Formule d’abonnement</label>
           <select
             name="membership_plan"
             value={artisan.membership_plan}
             onChange={handleChange}
             disabled={!isEditing}
-            className="border rounded px-2 py-1 w-full"
           >
-            {membershipPlans.map((plan) => (
+            {membershipPlans.map(plan => (
               <option key={plan} value={plan}>{plan}</option>
             ))}
           </select>
         </div>
 
-        {/* Affichage prix + fréquence du plan */}
         {planInfo && (
-          <div className="mt-4 p-3 bg-gray-100 rounded">
-            <h3 className="font-semibold mb-1">Détails du plan actuel</h3>
-            <p>
-              Prix : {(planInfo.amount / 100).toFixed(2)} {planInfo.currency.toUpperCase()}
-            </p>
-            <p>
-              Fréquence de paiement : {intervalTranslations[planInfo.interval] || planInfo.interval}
-            </p>
+          <div className={styles.planDetails}>
+            <h3>Détails du plan actuel</h3>
+            <p>Prix : {(planInfo.amount / 100).toFixed(2)} {planInfo.currency.toUpperCase()}</p>
+            <p>Fréquence de paiement : {intervalTranslations[planInfo.interval] || planInfo.interval}</p>
           </div>
         )}
 
         {!isEditing && (
-          <div className="mb-4">
+          <div>
             {artisan.kbis_url && (
-              <p>KBIS: <a href={artisan.kbis_url} target="_blank" rel="noreferrer" className="text-blue-600 underline">Voir le document</a></p>
+              <p>KBIS: <a href={artisan.kbis_url} target="_blank" rel="noreferrer" className={styles.link}>Voir le document</a></p>
             )}
             {artisan.insurance_url && (
-              <p>Assurance: <a href={artisan.insurance_url} target="_blank" rel="noreferrer" className="text-blue-600 underline">Voir le document</a></p>
+              <p>Assurance: <a href={artisan.insurance_url} target="_blank" rel="noreferrer" className={styles.link}>Voir le document</a></p>
             )}
           </div>
         )}
 
         {isEditing && (
           <>
-            <div>
-              <label className="block font-semibold">KBIS (PDF uniquement)</label>
+            <div className={styles.formGroup}>
+              <label>KBIS (PDF uniquement)</label>
               <input
                 type="file"
                 name="kbis"
@@ -371,8 +419,8 @@ export default function ArtisanDashboard() {
                 onChange={handleFileChange}
               />
             </div>
-            <div>
-              <label className="block font-semibold">Assurance (PDF uniquement)</label>
+            <div className={styles.formGroup}>
+              <label>Assurance (PDF uniquement)</label>
               <input
                 type="file"
                 name="insurance"
@@ -383,63 +431,78 @@ export default function ArtisanDashboard() {
           </>
         )}
 
-        <div className="flex space-x-4 mt-6">
+        {/* Images de réalisations */}
+        <div className={styles.imagesSection}>
+          <label>Images de réalisations existantes :</label>
+          <div className={styles.imagesGrid}>
+            {artisan.images_urls && artisan.images_urls.length > 0 ? (
+              artisan.images_urls.map((url, idx) => (
+                <div key={idx} className={styles.imageWrapper}>
+                  <img src={`${url}?t=${Date.now()}`} alt={`Réalisation ${idx + 1}`} className={styles.images} />
+                  {isEditing && (
+                    <button onClick={() => removeExistingImage(url)} className={styles.deleteImageBtn} aria-label="Supprimer cette image">×</button>
+                  )}
+                </div>
+              ))
+            ) : (
+              <p>Aucune image enregistrée.</p>
+            )}
+          </div>
+        </div>
+
+        {/* Boutons modifier/enregistrer */}
+        <div className={styles.buttons}>
           {!isEditing ? (
             <>
-              <button
-                onClick={() => setIsEditing(true)}
-                className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-              >
-                Modifier
-              </button>
-              <button
-                onClick={handleDelete}
-                className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
-              >
-                Supprimer mon compte
-              </button>
+              <button onClick={() => setIsEditing(true)} className={styles.btnPrimary}>Modifier</button>
+              <button onClick={handleDelete} className={styles.btnDanger}>Supprimer mon compte</button>
             </>
           ) : (
             <>
-              <button
-                onClick={handleUpdate}
-                className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
-              >
-                Enregistrer
-              </button>
-              <button
-                onClick={() => setIsEditing(false)}
-                className="px-4 py-2 bg-gray-400 text-white rounded hover:bg-gray-500"
-              >
-                Annuler
-              </button>
+              <button onClick={handleUpdate} className={styles.btnSuccess}>Enregistrer</button>
+              <button onClick={() => setIsEditing(false)} className={styles.btnSecondary}>Annuler</button>
             </>
           )}
         </div>
 
-         {/* Tableau de bord des missions */}
-          <section className="border p-4 rounded shadow-sm">
-            <h2 className="text-xl font-semibold mb-3">Tableau de bord des missions</h2>
-            <ul className="list-disc ml-6 text-gray-700">
-              <li>Prestations passées : {/* nombre ici */}</li>
-              <li>Prestations en cours : {/* nombre ici */}</li>
-              <li>Prestations futures : {/* nombre ici */}</li>
-            </ul>
-          </section>
+        {/* Ici on intègre le message / bouton pour paiement en attente */}
+          {paymentPending && (
+            <div className={styles.paymentPending}>
+              <p>Le paiement est en attente de validation. Merci de finaliser le paiement dans la fenêtre ouverte.</p>
+              <button onClick={() => {
+                refreshArtisanData()
+              }}>
+                Rafraîchir le profil
+              </button>
+            </div>
+          )}
+      </section>
 
-          {/* Notifications de nouvelles missions */}
-          <section className="border p-4 rounded shadow-sm">
-            <h2 className="text-xl font-semibold mb-3">Notifications de nouvelles missions</h2>
-            <p className="italic text-gray-600">Aucune nouvelle notification pour le moment.</p>
-          </section>
+      {/* Colonne droite : tableau de bord, notifications, commentaires */}
+      <aside className={styles.rightColumn}>
+        <section className={styles.card}>
+          <h2>Tableau de bord des missions</h2>
+          <ul>
+            <li>Prestations passées : {/* nombre */}</li>
+            <li>Prestations en cours : {/* nombre */}</li>
+            <li>Prestations futures : {/* nombre */}</li>
+          </ul>
+        </section>
 
-          {/* Commentaires et notes reçus */}
-          <section className="border p-4 rounded shadow-sm">
-            <h2 className="text-xl font-semibold mb-3">Commentaires et notes reçus</h2>
-            <p className="italic text-gray-600">Aucun commentaire pour le moment.</p>
-          </section>
-      </div>
-      <ToastContainer 
+        <section className={styles.card}>
+          <h2>Notifications de nouvelles missions</h2>
+          <p>Aucune nouvelle notification pour le moment.</p>
+        </section>
+
+        <section className={styles.card}>
+          <h2>Commentaires et notes reçus</h2>
+          <p>Aucun commentaire pour le moment.</p>
+        </section>
+      </aside>
+
+    </main>
+
+    <ToastContainer 
       position="top-right" 
       autoClose={3000} 
       hideProgressBar={false} 
@@ -451,9 +514,9 @@ export default function ArtisanDashboard() {
       pauseOnHover 
       theme="light"
     />
-    </div>
-  )
-}
+  </div>
+)}
+
 
 
 

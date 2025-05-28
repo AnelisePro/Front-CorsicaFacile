@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import axios from 'axios'
+import Image from 'next/image'
 import { useAuth } from '../../auth/AuthContext'
 import styles from './page.module.scss'
 import { toast, ToastContainer } from 'react-toastify'
@@ -173,7 +174,7 @@ export default function ClientDashboard() {
         <section className="mb-8">
           <div className="mb-4 flex items-center gap-4">
             {avatarFile ? (
-              <img
+              <Image
                 src={URL.createObjectURL(avatarFile)}
                 alt="Nouvel avatar"
                 className={`${styles.avatar} rounded-full object-cover mb-2`}
@@ -181,7 +182,7 @@ export default function ClientDashboard() {
                 height={96}
               />
             ) : client.avatar_url ? (
-              <img
+              <Image
                 src={`${client.avatar_url}?t=${Date.now()}`}
                 alt="Avatar"
                 className={`${styles.avatar} rounded-full object-cover mb-2`}
@@ -189,7 +190,7 @@ export default function ClientDashboard() {
                 height={96}
               />
             ) : (
-              <img
+              <Image
                 src="/images/avatar.svg"
                 alt="Avatar par défaut"
                 width={96}
