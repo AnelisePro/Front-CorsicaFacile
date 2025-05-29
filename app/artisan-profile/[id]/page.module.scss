@@ -1,8 +1,72 @@
+.form {
+  margin-top: 2%;
+  margin-bottom: 2%;
+}
+
+.contactForm {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  max-width: 40%;
+
+  label {
+    display: block;
+    margin-bottom: 0.2rem;
+    font-weight: 600;
+    color: #4b5563; // gray-700
+    font-size: 0.875rem; // un peu plus petit
+  }
+
+  input,
+  textarea {
+    width: 100%;
+    border: 1px solid #d1d5db; // gray-300
+    border-radius: 0.375rem;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.875rem; // plus petit
+    color: #1f2937;
+    background-color: #fff;
+    transition: box-shadow 0.2s ease, border-color 0.2s ease;
+
+    &::placeholder {
+      color: #9ca3af;
+      font-size: 0.85rem;
+    }
+
+    &:focus {
+      outline: none;
+      border-color: #3b82f6; // blue-500
+      box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5);
+    }
+  }
+
+  textarea {
+    resize: none;
+    min-height: 90px;
+  }
+
+  button {
+    width: 100%;
+    background-color: #81A04A; // blue-600
+    color: #fff;
+    font-weight: 600;
+    padding: 0.5rem 1rem;
+    border-radius: 0.375rem;
+    cursor: pointer;
+    font-size: 0.9rem;
+
+    &:active {
+      background-color: #1e40af; // blue-800
+    }
+  }
+}
+
 .projectImageWrapper {
   position: relative;
-  width: 150px;  // petite taille fixe, tu peux ajuster
-  height: 100px; // hauteur fixe, ajustable aussi
-  border-radius: 0.5rem; // équivalent rounded
+  width: 150px;
+  height: 100px;
+  border-radius: 0.5rem;
   overflow: hidden;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); // équivalent shadow
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
+

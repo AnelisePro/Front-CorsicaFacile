@@ -31,6 +31,12 @@ interface PlanInfo {
   interval: string
 }
 
+interface AvailabilitySlot {
+  id: number
+  start_time: string
+  end_time: string
+}
+
 const expertises = [
   "Antenniste", "Assainisseur", "Spécialiste balnéo", "Ingénieur en bâtiment", "Opérateur de centrale à béton",
   "Calorifugeur", "Canalisateur", "Chapiste", "Charpentier", "Chef de chantier", "Chauffagiste",
@@ -75,10 +81,17 @@ export default function ArtisanDashboard() {
   const [paymentPending, setPaymentPending] = useState(false)
   const [deletedImageUrls, setDeletedImageUrls] = useState<string[]>([])
 
+  // Gestion des créneaux
+  const [slots, setSlots] = useState<AvailabilitySlot[]>([])
+  const [newSlot, setNewSlot] = useState<{ day?: string; start_time: string; end_time: string }>({ day: 'Lundi', start_time: '', end_time: '' });
+  const [editingSlotId, setEditingSlotId] = useState<number | null>(null)
+
   useEffect(() => {
     fetchArtisanData()
+    fetchSlots()
   }, [])
 
+  // Chargement profil artisan
   const fetchArtisanData = async () => {
     const token = localStorage.getItem('artisanToken')
     if (!token) {
@@ -106,6 +119,7 @@ export default function ArtisanDashboard() {
     }
   }
 
+  // Rafraîchir données après paiement
   const refreshArtisanData = async () => {
     const token = localStorage.getItem('artisanToken')
     if (!token) return
@@ -133,6 +147,7 @@ export default function ArtisanDashboard() {
     }
   }
 
+  // Gestion formulaire artisan
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     if (!artisan) return
     const { name, value } = e.target
@@ -175,6 +190,7 @@ export default function ArtisanDashboard() {
     setNewImages(prev => prev.filter((_, i) => i !== index))
   }
 
+  // Mise à jour artisan
   const handleUpdate = async () => {
     const token = localStorage.getItem('artisanToken')
     if (!token || !artisan) return
@@ -214,19 +230,19 @@ export default function ArtisanDashboard() {
         setPaymentPending(true)
       } else {
         toast.success('Profil mis à jour avec succès.')
-        setArtisan(response.data.artisan)
-        setPreviousMembershipPlan(response.data.artisan.membership_plan)
+        const updatedArtisan = response.data.artisan
+        setArtisan(updatedArtisan)
+        setPreviousMembershipPlan(updatedArtisan.membership_plan)
         setKbisFile(null)
         setInsuranceFile(null)
         setAvatarFile(null)
         setNewImages([])
         setDeletedImageUrls([])
-        setIsEditing(false)
 
         const updatedUser = {
-          email: response.data.artisan.email,
-          role: 'artisan' as 'artisan',
-          avatar_url: response.data.artisan.avatar_url || null,
+          email: updatedArtisan.email,
+          role: 'artisan' as const,
+          avatar_url: updatedArtisan.avatar_url || null,
         }
 
         setUser(updatedUser)
@@ -238,6 +254,7 @@ export default function ArtisanDashboard() {
     }
   }
 
+  // Suppression compte artisan
   const handleDelete = async () => {
     if (!confirm('Êtes-vous sûr de vouloir supprimer votre compte ? Cette action est irréversible.')) return
     const token = localStorage.getItem('artisanToken')
@@ -251,6 +268,150 @@ export default function ArtisanDashboard() {
       logout()
     } catch (error) {
       toast.error('Erreur lors de la suppression du compte.')
+    }
+  }
+
+  // ----- Gestion des créneaux de disponibilité -----
+  const formatSlot = (startISO: string, endISO: string) => {
+  const days = ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
+  const start = new Date(startISO);
+  const end = new Date(endISO);
+
+  const dayName = days[start.getDay()];
+
+  // Format heures et minutes en "8h00" style
+  const formatHour = (date: Date) => {
+      const h = date.getHours();
+      const m = date.getMinutes();
+      return `${h}h${m.toString().padStart(2, '0')}`;
+    };
+
+    return `${dayName} ${formatHour(start)} - ${formatHour(end)}`;
+  };
+
+  const fetchSlots = async () => {
+    const token = localStorage.getItem('artisanToken')
+    if (!token) return
+    try {
+      const res = await axios.get('http://localhost:3001/artisans/availability_slots', {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      setSlots(res.data)
+    } catch {
+      toast.error("Erreur lors du chargement des créneaux.")
+    }
+  }
+
+  const dayToIndex: Record<'Dimanche' | 'Lundi' | 'Mardi' | 'Mercredi' | 'Jeudi' | 'Vendredi' | 'Samedi', number> = {
+    Dimanche: 0,
+    Lundi: 1,
+    Mardi: 2,
+    Mercredi: 3,
+    Jeudi: 4,
+    Vendredi: 5,
+    Samedi: 6,
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    const { day, start_time, end_time } = newSlot;
+
+    if (!day || !start_time || !end_time) {
+      toast.error("Veuillez renseigner le jour et les horaires.");
+      return;
+    }
+
+    const now = new Date();
+    const dayOfWeek = now.getDay();
+    const monday = new Date(now);
+    monday.setDate(now.getDate() - ((dayOfWeek + 6) % 7));
+
+    // Cast day pour TS
+    const dayIndex = dayToIndex[day as keyof typeof dayToIndex];
+
+    if (dayIndex === undefined) {
+      toast.error("Jour invalide");
+      return;
+    }
+
+    const slotDate = new Date(monday);
+    slotDate.setDate(monday.getDate() + (dayIndex - 1));
+
+    const [startHour, startMinute] = start_time.split(':').map(Number);
+    const [endHour, endMinute] = end_time.split(':').map(Number);
+
+    const startDate = new Date(slotDate);
+    startDate.setHours(startHour, startMinute, 0, 0);
+
+    const endDate = new Date(slotDate);
+    endDate.setHours(endHour, endMinute, 0, 0);
+
+    if (startDate >= endDate) {
+      toast.error("L'heure de début doit être avant l'heure de fin.");
+      return;
+    }
+
+    const token = localStorage.getItem('artisanToken');
+    if (!token) {
+      toast.error("Utilisateur non authentifié.");
+      return;
+    }
+
+    try {
+      const slotToSend = {
+        start_time: startDate.toISOString(),
+        end_time: endDate.toISOString(),
+      };
+
+      if (editingSlotId) {
+        await axios.put(`http://localhost:3001/artisans/availability_slots/${editingSlotId}`, slotToSend, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        toast.success("Créneau modifié !");
+        setEditingSlotId(null);
+        fetchSlots();
+      } else {
+        const res = await axios.post("http://localhost:3001/artisans/availability_slots", slotToSend, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        toast.success("Créneau ajouté !");
+        setSlots(prev => [...prev, res.data]);
+        setEditingSlotId(null);
+      }
+      setNewSlot({ day: 'Lundi', start_time: '', end_time: '' });
+    } catch (err: any) {
+      const msg = err?.response?.data?.errors?.join(", ") || "Erreur inconnue";
+      toast.error(msg);
+    }
+  };
+
+
+  const handleEditSlot = (slot: AvailabilitySlot) => {
+    const days = ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
+    const startDate = new Date(slot.start_time);
+    const dayName = days[startDate.getDay()];
+
+    setNewSlot({
+      day: dayName,
+      start_time: slot.start_time.slice(11, 16), // format "HH:MM"
+      end_time: slot.end_time.slice(11, 16),
+    });
+    setEditingSlotId(slot.id);
+  };
+
+  const deleteSlot = async (id: number) => {
+    const token = localStorage.getItem('artisanToken')
+    if (!token) return
+    try {
+      await axios.delete(`http://localhost:3001/artisans/availability_slots/${id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      setSlots(prev => prev.filter(slot => slot.id !== id))
+      setEditingSlotId(null);
+      toast.success('Créneau supprimé.')
+    } catch {
+      toast.error("Erreur lors de la suppression du créneau.")
     }
   }
 
@@ -480,6 +641,90 @@ export default function ArtisanDashboard() {
 
       {/* Colonne droite : tableau de bord, notifications, commentaires */}
       <aside className={styles.rightColumn}>
+       <section className={styles.card}>
+          <h2>Liste des créneaux</h2>
+          <ul>
+            {slots.map((slot) => (
+              <li key={slot.id} className={styles.slotItem}>
+                <span>{formatSlot(slot.start_time, slot.end_time)}</span>
+
+                {/* Boutons uniquement en mode édition */}
+                {isEditing && (
+                  <>
+                    <button
+                      onClick={() => handleEditSlot(slot)}
+                      className={styles.btnEdit}
+                      aria-label={`Modifier créneau ${slot.id}`}
+                    >
+                      Modifier
+                    </button>
+                    <button
+                      onClick={() => deleteSlot(slot.id)}
+                      className={styles.btnDelete}
+                      aria-label={`Supprimer créneau ${slot.id}`}
+                    >
+                      Supprimer
+                    </button>
+                  </>
+                )}
+              </li>
+            ))}
+          </ul>
+
+          {/* Formulaire d’ajout/édition uniquement en mode édition */}
+          {isEditing && (
+            <div className={styles.formGroup}>
+              <h3>{editingSlotId ? 'Modifier un créneau' : 'Ajouter un créneau'}</h3>
+              <form onSubmit={handleSubmit}>
+                <label>
+                  Jour :
+                  <select
+                    value={newSlot.day || 'Lundi'}
+                    onChange={(e) =>
+                      setNewSlot({ ...newSlot, day: e.target.value })
+                    }
+                    required
+                  >
+                    <option value="Lundi">Lundi</option>
+                    <option value="Mardi">Mardi</option>
+                    <option value="Mercredi">Mercredi</option>
+                    <option value="Jeudi">Jeudi</option>
+                    <option value="Vendredi">Vendredi</option>
+                    <option value="Samedi">Samedi</option>
+                    <option value="Dimanche">Dimanche</option>
+                  </select>
+                </label>
+
+                <label>
+                  Début :
+                  <input
+                    type="time"
+                    value={newSlot.start_time || ''}
+                    onChange={(e) =>
+                      setNewSlot({ ...newSlot, start_time: e.target.value })
+                    }
+                    required
+                  />
+                </label>
+
+                <label>
+                  Fin :
+                  <input
+                    type="time"
+                    value={newSlot.end_time || ''}
+                    onChange={(e) =>
+                      setNewSlot({ ...newSlot, end_time: e.target.value })
+                    }
+                    required
+                  />
+                </label>
+
+                <button type="submit">{editingSlotId ? 'Modifier' : 'Ajouter'}</button>
+              </form>
+            </div>
+          )}
+        </section>
+
         <section className={styles.card}>
           <h2>Tableau de bord des missions</h2>
           <ul>
