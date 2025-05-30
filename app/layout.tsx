@@ -16,16 +16,19 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="fr">
       <body>
-        <AuthProvider>
-          <Navbar />
-          <main>{children}</main>
-          <Footer />
-          <ToastProvider />
-        </AuthProvider>
+        <div className="layout-wrapper">
+          <AuthProvider>
+            <Navbar />
+            <main>{children}</main>
+            <Footer />
+            <ToastProvider />
+          </AuthProvider>
+        </div>
       </body>
     </html>
   )
 }
+
 
 
 

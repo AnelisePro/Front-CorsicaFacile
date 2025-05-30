@@ -611,6 +611,28 @@ export default function ArtisanDashboard() {
           </div>
         </div>
 
+        {isEditing && (
+            <div className={styles.formGroup}>
+              <label>Ajouter des nouvelles images :</label>
+              <input
+                type="file"
+                accept="image/*"
+                multiple
+                onChange={handleImagesChange}
+              />
+              <div className={styles.imagesGrid}>
+                {newImages.map((file, idx) => (
+                  <img
+                    key={idx}
+                    src={URL.createObjectURL(file)}
+                    alt={`Prévisualisation ${idx + 1}`}
+                    className={styles.images}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
+
         {/* Boutons modifier/enregistrer */}
         <div className={styles.buttons}>
           {!isEditing ? (

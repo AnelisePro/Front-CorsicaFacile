@@ -74,63 +74,77 @@ export default function ClientConnexion() {
     }
   }
 
-  return (
-    <>
-      <div className={styles.container}>
-        <h1 className={styles.title}>Connexion - Particulier</h1>
-
-        {error && <p className={styles.error}>{error}</p>}
-
-        <form onSubmit={handleSubmit} className={styles.form}>
-          <div className={styles.inputGroup}>
-            <label htmlFor="email">Email</label>
-            <input
-              type="email"
-              id="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              placeholder="Votre email"
-            />
-          </div>
-
-          <div className={styles.inputGroup}>
-            <label htmlFor="password">Mot de passe</label>
-            <input
-              type="password"
-              id="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              placeholder="Votre mot de passe"
-            />
-          </div>
-
-          <button type="submit" className={styles.submitButton}>Se connecter</button>
-
-          <div className={styles.links}>
-            <Link href="/auth/passwords/client" className={styles.link}>Mot de passe oublié ?</Link>
-            <Link href="/auth/register_client" className={styles.link}>Pas encore inscrit ? Inscrivez-vous</Link>
-          </div>
-        </form>
-
-        <Link href="/mon-espace" className={styles.backButton}>Retour à l'écran de choix</Link>
+return (
+  <>
+    <div className={styles.splitContainer}>
+      <div className={styles.leftSide}>
+        <img
+          src="/images/landscape1.jpg"
+          alt="Illustration de connexion"
+          className={styles.image}
+        />
       </div>
 
-      <ToastContainer
-        position="top-right"
-        autoClose={3000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        theme="light"
-      />
-    </>
-  )
+      <div className={styles.rightSide}>
+        <div className={styles.card}>
+          <h1 className={styles.title}>Connexion</h1>
+
+          {error && <p className={styles.error}>{error}</p>}
+
+          <form onSubmit={handleSubmit} className={styles.form}>
+            <div className={styles.inputGroup}>
+              <label htmlFor="email">Email</label>
+              <input
+                type="email"
+                id="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                placeholder="Votre email"
+              />
+            </div>
+
+            <div className={styles.inputGroup}>
+              <label htmlFor="password">Mot de passe</label>
+              <input
+                type="password"
+                id="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                placeholder="Votre mot de passe"
+              />
+            </div>
+
+            <button type="submit" className={styles.submitButton}>Se connecter</button>
+
+            <div className={styles.links}>
+              <Link href="/auth/passwords/client" className={styles.link}>Mot de passe oublié ?</Link>
+              <Link href="/auth/register_client" className={styles.link}>Pas encore inscrit ? Inscrivez-vous</Link>
+            </div>
+          </form>
+
+          <Link href="/mon-espace" className={styles.backButton}>
+            Retour à l'écran de choix
+          </Link>
+        </div>
+      </div>
+    </div>
+
+    <ToastContainer
+      position="top-right"
+      autoClose={3000}
+      hideProgressBar={false}
+      newestOnTop={false}
+      closeOnClick
+      rtl={false}
+      pauseOnFocusLoss
+      draggable
+      pauseOnHover
+      theme="light"
+    />
+  </>
+)
 }
 
 

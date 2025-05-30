@@ -17,7 +17,7 @@ export default function ClientInscription() {
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [error, setError] = useState('')
-  const [loading, setLoading] = useState(false) // <-- loader state
+  const [loading, setLoading] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -35,7 +35,7 @@ export default function ClientInscription() {
       return
     }
 
-    setLoading(true) // début du chargement
+    setLoading(true)
 
     try {
       const response = await fetch('http://localhost:3001/clients', {
@@ -60,9 +60,7 @@ export default function ClientInscription() {
         localStorage.setItem('token', data.token)
         toast.success('Inscription réussie !', {
           autoClose: 3000,
-          onClose: () => {
-            router.push('/auth/login_client')
-          },
+          onClose: () => router.push('/auth/login_client'),
         })
       } else {
         const message = data.errors?.join(', ') || data.message || 'Erreur inconnue'
@@ -74,144 +72,150 @@ export default function ClientInscription() {
       setError('Erreur lors de la connexion au serveur.')
       toast.error('Erreur lors de la connexion au serveur.')
     } finally {
-      setLoading(false) // fin du chargement
+      setLoading(false)
     }
   }
 
   return (
     <>
-      <div className={styles.container}>
-        <h1 className={styles.title}>Inscription - Client</h1>
+      <div className={styles.splitContainer}>
+        <div className={styles.leftSide}>
+          <img
+            src="/images/landscape1.jpg"
+            alt="Illustration d'inscription"
+            className={styles.image}
+          />
+        </div>
 
-      {/* Espace explicatif d'information sur l'inscription et les points */}
-        <section className={styles.infoBox} style={{ marginBottom: '1.5rem', padding: '1rem', border: '1px solid #ccc', borderRadius: '6px' }}>
-          <p>
-            L'inscription est <strong>totalement gratuite</strong>. À chaque intervention validée comme terminée, vous
-            récoltez des points qui vous donnent droit à des cadeaux ou réductions chez nos partenaires (catalogue en cours de création).
-          </p>
-          <p>
-            Par exemple : <br />
-            - 1 intervention validée = 10 points <br />
-            - 100 points = 1 bon d'achat chez un partenaire <br />
-            - +5 points gagnés si vous laissez un avis à l'artisan
-          </p>
-          <p>
-            Profitez pleinement de nos services et récompenses !
-          </p>
-        </section>
+        <div className={styles.rightSide}>
+          <div className={styles.card}>
+            <h1 className={styles.title}>Inscription</h1>
 
-        {error && <p className={styles.error}>{error}</p>}
+            {error && <p className={styles.error}>{error}</p>}
 
-        <form onSubmit={handleSubmit} className={styles.form}>
-          <div className={styles.inputGroup}>
-            <label htmlFor="firstName">Prénom</label>
-            <input
-              type="text"
-              id="firstName"
-              value={firstName}
-              onChange={(e) => setFirstName(e.target.value)}
-              required
-              disabled={loading}
-            />
+            <form onSubmit={handleSubmit} className={styles.form}>
+              <div className={styles.inputGroup}>
+                <label htmlFor="firstName">Prénom</label>
+                <input
+                  type="text"
+                  id="firstName"
+                  value={firstName}
+                  onChange={(e) => setFirstName(e.target.value)}
+                  required
+                  disabled={loading}
+                />
+              </div>
+
+              <div className={styles.inputGroup}>
+                <label htmlFor="lastName">Nom</label>
+                <input
+                  type="text"
+                  id="lastName"
+                  value={lastName}
+                  onChange={(e) => setLastName(e.target.value)}
+                  required
+                  disabled={loading}
+                />
+              </div>
+
+              <div className={styles.inputGroup}>
+                <label htmlFor="email">Email</label>
+                <input
+                  type="email"
+                  id="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  disabled={loading}
+                />
+              </div>
+
+              <div className={styles.inputGroup}>
+                <label htmlFor="phone">Téléphone</label>
+                <input
+                  type="tel"
+                  id="phone"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  required
+                  disabled={loading}
+                />
+              </div>
+
+              <div className={styles.inputGroup}>
+                <label htmlFor="birthdate">Date de naissance</label>
+                <input
+                  type="date"
+                  id="birthdate"
+                  value={birthdate}
+                  onChange={(e) => setBirthdate(e.target.value)}
+                  required
+                  disabled={loading}
+                />
+              </div>
+
+              <div className={styles.inputGroup}>
+                <label htmlFor="password">Mot de passe</label>
+                <input
+                  type="password"
+                  id="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  disabled={loading}
+                />
+              </div>
+
+              <div className={styles.inputGroup}>
+                <label htmlFor="confirmPassword">Confirmation du mot de passe</label>
+                <input
+                  type="password"
+                  id="confirmPassword"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  required
+                  disabled={loading}
+                />
+              </div>
+
+              <button type="submit" className={styles.submitButton} disabled={loading}>
+                {loading ? 'Inscription en cours...' : "S'inscrire"}
+              </button>
+
+              <Link href="/auth/login_client" className={styles.backButton}>
+                Retour vers la connexion
+              </Link>
+            </form>
           </div>
 
-          <div className={styles.inputGroup}>
-            <label htmlFor="lastName">Nom</label>
-            <input
-              type="text"
-              id="lastName"
-              value={lastName}
-              onChange={(e) => setLastName(e.target.value)}
-              required
-              disabled={loading}
-            />
+          {/* Carte d'informations en dehors du formulaire */}
+          <div className={styles.infoCard}>
+            <div className={styles.infoBox}>
+              <p>
+                L'inscription est <strong>totalement gratuite</strong>. À chaque intervention validée comme terminée, vous
+                récoltez des points qui vous donnent droit à des cadeaux ou réductions chez nos partenaires (catalogue en cours de création).
+              </p>
+              <br />
+              <p>
+                Par exemple : <br />
+                - 1 intervention validée = 10 points <br />
+                - 100 points = 1 bon d'achat chez un partenaire <br />
+                - +5 points gagnés si vous laissez un avis à l'artisan
+              </p>
+              <p>
+                Profitez pleinement de nos services et récompenses !
+              </p>
+            </div>
           </div>
-
-          <div className={styles.inputGroup}>
-            <label htmlFor="email">Email</label>
-            <input
-              type="email"
-              id="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              disabled={loading}
-            />
-          </div>
-
-          <div className={styles.inputGroup}>
-            <label htmlFor="phone">Téléphone</label>
-            <input
-              type="tel"
-              id="phone"
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-              required
-              disabled={loading}
-            />
-          </div>
-
-          <div className={styles.inputGroup}>
-            <label htmlFor="birthdate">Date de naissance</label>
-            <input
-              type="date"
-              id="birthdate"
-              value={birthdate}
-              onChange={(e) => setBirthdate(e.target.value)}
-              required
-              disabled={loading}
-            />
-          </div>
-
-          <div className={styles.inputGroup}>
-            <label htmlFor="password">Mot de passe</label>
-            <input
-              type="password"
-              id="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              disabled={loading}
-            />
-          </div>
-
-          <div className={styles.inputGroup}>
-            <label htmlFor="confirmPassword">Confirmation du mot de passe</label>
-            <input
-              type="password"
-              id="confirmPassword"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              required
-              disabled={loading}
-            />
-          </div>
-
-          <button type="submit" className={styles.submitButton} disabled={loading}>
-            {loading ? 'Inscription en cours...' : "S'inscrire"}
-          </button>
-
-          <Link href="/auth/login_client" className={styles.backButton} tabIndex={loading ? -1 : 0}>
-            Retour vers la connexion
-          </Link>
-        </form>
+        </div>
       </div>
 
-      <ToastContainer
-        position="top-right"
-        autoClose={3000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        theme="light"
-      />
+      <ToastContainer position="top-right" autoClose={3000} theme="light" />
     </>
   )
 }
+
+
 
 
 

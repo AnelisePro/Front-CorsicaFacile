@@ -1,0 +1,117 @@
+@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@400;700&display=swap');
+
+.splitContainer {
+  display: flex;
+  min-height: 100vh;
+  flex-direction: row;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+  }
+}
+
+.leftSide {
+  width: 50%;
+  background-color: #f3f4f6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  @media (max-width: 768px) {
+    width: 100%;
+    height: 200px;
+  }
+}
+
+.image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.rightSide {
+  width: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+
+  @media (max-width: 768px) {
+    width: 100%;
+  }
+}
+
+.card {
+  width: 100%;
+  max-width: 400px;
+  background: white;
+  padding: 2rem;
+  border-radius: 1rem;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.title {
+  text-align: center;
+  font-size: 1.8rem;
+  color: #81A04A;
+  font-family: 'Quicksand', sans-serif;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.inputGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.inputGroup input {
+  padding: 0.75rem 1rem;
+  border: 1px solid #81A04A;
+  border-radius: 0.5rem;
+  font-size: 1rem;
+}
+
+.submitButton {
+  background: #0F78B1;
+  font-weight: 700;
+  font-size: 1rem;
+  color: #FEFBF4;
+  padding: 0.75rem;
+  border: none;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.links {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  text-align: center;
+}
+
+.link {
+  color: #81A04A;
+  text-decoration: none;
+  font-size: 0.9rem;
+}
+
+.backButton {
+  text-align: center;
+  color: #0F78B1;
+  font-size: 0.9rem;
+  text-decoration: underline;
+}
+
+.error {
+  color: #dc2626;
+  text-align: center;
+}

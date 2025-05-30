@@ -35,37 +35,49 @@ export default function ForgottenPasswordArtisan() {
 
   return (
     <>
-      <div className={styles.container}>
-        <h1 className={styles.title}>Mot de passe oublié - Artisan</h1>
+      <div className={styles.splitContainer}>
+        <div className={styles.leftSide}>
+          <img
+            src="/images/landscape1.jpg"
+            alt="Illustration mot de passe oublié artisan"
+            className={styles.image}
+          />
+        </div>
 
-        <p style={{ marginBottom: '1rem' }}>
-          Entrez votre adresse mail et nous vous enverrons un lien pour récupérer votre compte.
-        </p>
+        <div className={styles.rightSide}>
+          <div className={styles.card}>
+            <h1 className={styles.title}>Mot de passe oublié</h1>
 
-        {error && <p className={styles.error}>{error}</p>}
+            <p style={{ marginBottom: '1rem', textAlign: 'center' }}>
+              Entrez votre adresse email et nous vous enverrons un lien pour récupérer votre compte.
+            </p>
 
-        <form onSubmit={handleSubmit} className={styles.form}>
-          <div className={styles.inputGroup}>
-            <label htmlFor="email">Adresse email</label>
-            <input
-              type="email"
-              id="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              disabled={loading}
-              placeholder="Votre adresse email"
-            />
+            {error && <p className={styles.error}>{error}</p>}
+
+            <form onSubmit={handleSubmit} className={styles.form}>
+              <div className={styles.inputGroup}>
+                <label htmlFor="email">Adresse email</label>
+                <input
+                  type="email"
+                  id="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  disabled={loading}
+                  placeholder="Votre adresse email"
+                />
+              </div>
+
+              <button type="submit" className={styles.submitButton} disabled={loading}>
+                {loading ? 'Envoi en cours...' : 'Réinitialiser'}
+              </button>
+
+              <Link href="/auth/login_artisan" className={styles.backButton}>
+                Retour à la connexion
+              </Link>
+            </form>
           </div>
-
-          <button type="submit" className={styles.submitButton} disabled={loading}>
-            {loading ? 'Envoi en cours...' : 'Réinitialiser'}
-          </button>
-
-          <Link href="/auth/login_artisan" className={styles.backButton}>
-            Retour à la connexion artisan
-          </Link>
-        </form>
+        </div>
       </div>
 
       <ToastContainer position="top-right" autoClose={3000} theme="light" />

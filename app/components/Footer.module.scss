@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@400;700&display=swap');
+
 .footer {
   background-color: #5E3E23;
   padding: 2rem;
@@ -26,6 +28,7 @@
     h3 {
       font-weight: bold;
       margin-bottom: 1rem;
+      font-family: 'Quicksand', sans-serif;
     }
 
     ul {
@@ -51,6 +54,8 @@
 .logo {
   display: block;
   margin-bottom: 1rem;
+  border-radius: 50%; 
+  overflow: hidden;
 }
 
 .bottomLine {

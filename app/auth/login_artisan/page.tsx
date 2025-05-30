@@ -19,14 +19,12 @@ export default function ArtisanConnexion() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
-    // Validation de base
     if (!email || !password || !siren) {
       setError('Veuillez remplir tous les champs.')
       toast.error('Veuillez remplir tous les champs.')
       return
     }
 
-    // Effacer les erreurs précédentes
     setError('')
 
     try {
@@ -36,24 +34,35 @@ export default function ArtisanConnexion() {
         body: JSON.stringify({ artisan: { email, password, siren } }),
       })
 
-      const text = await response.text()
-      let data
-      try {
-        data = JSON.parse(text)
-      } catch {
-        data = {}
-      }
+      const data = await response.json()
 
       if (response.ok) {
-        localStorage.setItem('artisanToken', data.token)
-        localStorage.setItem('user', JSON.stringify({ email: data.artisan.email, role: 'artisan' }))
-        setUser({ email: data.artisan.email, role: 'artisan' })
+        const authHeader = response.headers.get('Authorization') || response.headers.get('authorization')
 
+        if (!authHeader) {
+          setError('Jeton non reçu du serveur.')
+          toast.error('Jeton non reçu du serveur.')
+          return
+        }
+
+        const token = authHeader.split(' ')[1]
+
+        const user = {
+          email: data.artisan.email,
+          role: 'artisan' as const,
+          avatar_url: data.artisan.avatar_url || null,
+        }
+
+        localStorage.setItem('artisanToken', token)
+        localStorage.setItem('user', JSON.stringify(user))
+        setUser(user)
+
+        // Toast avec callback onClose pour redirection
         toast.success('Connexion réussie', {
-          autoClose: 3000,
           onClose: () => {
             router.push('/dashboard/artisan')
           },
+          autoClose: 3000,
         })
       } else {
         setError(data.message || "Une erreur s'est produite.")
@@ -68,57 +77,77 @@ export default function ArtisanConnexion() {
 
   return (
     <>
-      <div className={styles.container}>
-        <h1 className={styles.title}>Connexion - Artisan</h1>
+      <div className={styles.splitContainer}>
+        <div className={styles.leftSide}>
+          <img
+            src="/images/landscape1.jpg"
+            alt="Illustration de connexion"
+            className={styles.image}
+          />
+        </div>
 
-        {error && <p className={styles.error}>{error}</p>}
+        <div className={styles.rightSide}>
+          <div className={styles.card}>
+            <h1 className={styles.title}>Connexion</h1>
 
-        <form onSubmit={handleSubmit} className={styles.form}>
-          <div className={styles.inputGroup}>
-            <label htmlFor="email">Email</label>
-            <input
-              type="email"
-              id="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              placeholder="Votre email"
-            />
+            {error && <p className={styles.error}>{error}</p>}
+
+            <form onSubmit={handleSubmit} className={styles.form}>
+              <div className={styles.inputGroup}>
+                <label htmlFor="email">Email</label>
+                <input
+                  type="email"
+                  id="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  placeholder="Votre email"
+                />
+              </div>
+
+              <div className={styles.inputGroup}>
+                <label htmlFor="siren">Numéro SIREN</label>
+                <input
+                  type="text"
+                  id="siren"
+                  value={siren}
+                  onChange={(e) => setSiren(e.target.value)}
+                  required
+                  placeholder="Ex: 123456789"
+                />
+              </div>
+
+              <div className={styles.inputGroup}>
+                <label htmlFor="password">Mot de passe</label>
+                <input
+                  type="password"
+                  id="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  placeholder="Votre mot de passe"
+                />
+              </div>
+
+              <button type="submit" className={styles.submitButton}>
+                Se connecter
+              </button>
+
+              <div className={styles.links}>
+                <Link href="/auth/passwords/artisan" className={styles.link}>
+                  Mot de passe oublié ?
+                </Link>
+                <Link href="/auth/register_artisan" className={styles.link}>
+                  Pas encore inscrit ? Inscrivez-vous
+                </Link>
+              </div>
+            </form>
+
+            <Link href="/mon-espace" className={styles.backButton}>
+              Retour à l'écran de choix
+            </Link>
           </div>
-
-          <div className={styles.inputGroup}>
-            <label htmlFor="password">Mot de passe</label>
-            <input
-              type="password"
-              id="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              placeholder="Votre mot de passe"
-            />
-          </div>
-
-          <div className={styles.inputGroup}>
-            <label htmlFor="siren">Numéro de SIREN</label>
-            <input
-              type="text"
-              id="siren"
-              value={siren}
-              onChange={(e) => setSiren(e.target.value)}
-              required
-              placeholder="Votre numéro de SIREN"
-            />
-          </div>
-
-          <button type="submit" className={styles.submitButton}>Se connecter</button>
-
-          <div className={styles.links}>
-            <Link href="/auth/passwords/artisan" className={styles.link}>Mot de passe oublié ?</Link>
-            <Link href="/auth/register_artisan" className={styles.link}>Pas encore inscrit ? Inscrivez-vous</Link>
-          </div>
-        </form>
-
-        <Link href="/mon-espace" className={styles.backButton}>Retour à l'écran de choix</Link>
+        </div>
       </div>
 
       <ToastContainer
@@ -136,6 +165,7 @@ export default function ArtisanConnexion() {
     </>
   )
 }
+
 
 
 

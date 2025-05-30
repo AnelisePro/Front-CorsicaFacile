@@ -94,9 +94,9 @@ export default function Navbar() {
                   <Image
                     src={avatarUrl}
                     alt="Avatar utilisateur"
-                    width={40}
-                    height={40}
-                    style={{ borderRadius: '50%', objectFit: 'cover' }}
+                    width={50}
+                    height={50}
+                    className={styles.avatar}
                     onError={(e) => {
                       (e.currentTarget as HTMLImageElement).src = '/images/avatar.svg'
                     }}

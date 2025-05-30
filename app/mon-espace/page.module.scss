@@ -1,38 +1,83 @@
+@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@400;700&display=swap');
+
 .container {
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 4rem 2rem;
-  text-align: center;
+  min-height: 100vh;
 }
 
+.imageContainer {
+  flex: 1;
+  position: relative;
+  height: 100vh;
+}
+
+.image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 3rem 2rem;
+  text-align: center;
+  background-color: #FEFBF4;
+  height: 100vh;
+}
+
+
 .title {
-  font-size: 2rem;
+  font-size: 2.5rem;
+  font-family: 'Quicksand', sans-serif;
+  font-weight: 700;
   margin-bottom: 2rem;
-  font-weight: 600;
+  color: #81A04A;
 }
 
 .options {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
-  width: 100%;
-  max-width: 400px;
 }
 
 .card {
   display: block;
   padding: 1.25rem 2rem;
-  background-color: #1e40af;
-  color: white;
+  background-color: #0F78B1;
+  color: #FEFBF4;
   border-radius: 0.75rem;
-  font-size: 1.1rem;
-  font-weight: 500;
+  font-size: 1.2rem;
+  font-weight: 700;
   text-decoration: none;
   text-align: center;
   transition: background-color 0.3s ease;
 }
 
 .card:hover {
-  background-color: #1c3ca0;
+  background-color: darken(#0F78B1, 10%);
 }
+
+/* Responsive */
+@media (max-width: 768px) {
+  .container {
+    flex-direction: column;
+  }
+  .imageContainer {
+    height: 200px;
+    width: 100%;
+  }
+  .image {
+    width: 100%;
+    height: 100%;
+  }
+  .content {
+    height: auto;
+    padding: 2rem 1rem;
+  }
+}
+
+
