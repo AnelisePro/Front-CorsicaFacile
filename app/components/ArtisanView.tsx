@@ -55,38 +55,79 @@ export default function ArtisanView({
 
       {/* Card 2 : infos */}
       <div className={styles.cardInfo}>
-        <p><strong>Adresse:</strong> {artisan.address}</p>
-        <p>  <strong>Expertises:</strong> {artisan.expertise_names.length > 0 ? artisan.expertise_names.join(', ') : 'Non spécifié'}</p>
-        {artisan.description && <p><strong>Description:</strong> {artisan.description}</p>}
-        <p><strong>SIREN:</strong> {artisan.siren}</p>
-        <p><strong>Email:</strong> {artisan.email}</p>
-        <p><strong>Téléphone:</strong> {artisan.phone}</p>
-        <p><strong>Plan d’adhésion:</strong> {artisan.membership_plan}</p>
+        <div className={styles.infoField}>
+          <label className={styles.label}>Adresse</label>
+          <p className={styles.value}>{artisan.address}</p>
+        </div>
+
+        <div className={styles.infoField}>
+          <label className={styles.label}>Domaine d'Expertise</label>
+          <p className={styles.value}>
+            {artisan.expertise_names.length > 0 ? artisan.expertise_names.join(', ') : 'Non spécifié'}
+          </p>
+        </div>
+
+        {artisan.description && (
+          <div className={styles.infoField}>
+            <label className={styles.label}>Description</label>
+            <p className={styles.value}>{artisan.description}</p>
+          </div>
+        )}
+
+        <div className={styles.infoField}>
+          <label className={styles.label}>SIREN</label>
+          <p className={styles.value}>{artisan.siren}</p>
+        </div>
+
+        <div className={styles.infoField}>
+          <label className={styles.label}>Email</label>
+          <p className={styles.value}>{artisan.email}</p>
+        </div>
+
+        <div className={styles.infoField}>
+          <label className={styles.label}>Téléphone</label>
+          <p className={styles.value}>{artisan.phone}</p>
+        </div>
+
+        <div className={styles.infoField}>
+          <label className={styles.label}>Abonnement</label>
+          <p className={styles.value}>{artisan.membership_plan}</p>
+        </div>
 
         {planInfo && (
-          <p>
-            Coût: {planInfo.amount / 100} {planInfo.currency.toUpperCase()} /{' '}
-            {intervalTranslations[planInfo.interval] || planInfo.interval}
-          </p>
+          <div className={styles.infoField}>
+            <label className={styles.label}>Tarif</label>
+            <p className={styles.value}>
+              {planInfo.amount / 100} {planInfo.currency.toUpperCase()} /{' '}
+              {intervalTranslations[planInfo.interval] || planInfo.interval}
+            </p>
+          </div>
         )}
 
         <div className={styles.documents}>
           {artisan.kbis_url && (
-            <p>
-              <a href={artisan.kbis_url} target="_blank" rel="noopener noreferrer">
-                KBIS
-              </a>
-            </p>
+            <a
+              href={artisan.kbis_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={styles.button}
+            >
+              Voir le KBIS
+            </a>
           )}
           {artisan.insurance_url && (
-            <p>
-              <a href={artisan.insurance_url} target="_blank" rel="noopener noreferrer">
-                Assurance
-              </a>
-            </p>
+            <a
+              href={artisan.insurance_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={styles.button}
+            >
+              Voir l'Assurance Pro
+            </a>
           )}
         </div>
       </div>
+
 
       {/* Card 3 : galerie d’images */}
       <div className={styles.cardGallery}>
@@ -111,4 +152,5 @@ export default function ArtisanView({
     </div>
   )
 }
+
 

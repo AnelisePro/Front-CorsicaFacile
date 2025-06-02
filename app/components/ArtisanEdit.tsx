@@ -89,13 +89,16 @@ export default function ArtisanEdit({
         </div>
 
         <div className={styles.formGroup}>
-          <label htmlFor="avatar">Changer la photo de profil</label>
+          <label htmlFor="avatar" className={styles.fileLabel}>
+            Changer la photo de profil
+          </label>
           <input
             id="avatar"
             type="file"
             name="avatar"
             accept="image/*"
             onChange={handleFileChange}
+            className={styles.fileInput}
           />
           {avatarFile && (
             <img
@@ -204,25 +207,31 @@ export default function ArtisanEdit({
         </div>
 
         <div className={styles.formGroup}>
-          <label htmlFor="kbis">KBIS (PDF uniquement)</label>
+          <label htmlFor="kbis" className={styles.fileLabel}>
+            Choisir un fichier KBIS (PDF uniquement)
+          </label>
           <input
             id="kbis"
             type="file"
             name="kbis"
             accept="application/pdf"
             onChange={handleFileChange}
+            className={styles.fileInput} // cacher l'input
           />
           {kbisFile && <p>Fichier sélectionné : {kbisFile.name}</p>}
         </div>
 
         <div className={styles.formGroup}>
-          <label htmlFor="insurance">Assurance (PDF uniquement)</label>
+          <label htmlFor="insurance" className={styles.fileLabel}>
+            Choisir un fichier Assurance (PDF uniquement)
+          </label>
           <input
             id="insurance"
             type="file"
             name="insurance"
             accept="application/pdf"
             onChange={handleFileChange}
+            className={styles.fileInput}
           />
           {insuranceFile && <p>Fichier sélectionné : {insuranceFile.name}</p>}
         </div>
@@ -284,13 +293,16 @@ export default function ArtisanEdit({
         </div>
 
         <div className={styles.formGroup}>
-          <label htmlFor="newImages">Ajouter des nouvelles images</label>
+          <label htmlFor="newImages" className={styles.fileLabel}>
+            Ajouter de nouvelles images
+          </label>
           <input
             id="newImages"
             type="file"
             accept="image/*"
             multiple
             onChange={handleImagesChange}
+            className={styles.fileInput}
           />
           <div className={styles.imagesGrid}>
             {newImages.map((file, idx) => (

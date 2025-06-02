@@ -9,6 +9,7 @@ import { toast, ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 
 interface Client {
+  id?: number
   first_name: string
   last_name: string
   email: string
@@ -17,6 +18,12 @@ interface Client {
   password?: string
   password_confirmation?: string
   avatar_url?: string | null
+}
+
+const fieldLabels: Record<string, string> = {
+  email: 'Email',
+  phone: 'Téléphone',
+  birthdate: 'Date de naissance',
 }
 
 export default function ClientDashboard() {
@@ -65,6 +72,12 @@ export default function ClientDashboard() {
     }
   }
 
+  const isValidDate = (dateStr: string) => {
+    if (!dateStr) return false
+    const d = new Date(dateStr)
+    return !isNaN(d.getTime())
+  }
+
   const handleUpdate = async () => {
     const token = localStorage.getItem('clientToken')
     if (!token || !client) return
@@ -73,9 +86,13 @@ export default function ClientDashboard() {
       const formData = new FormData()
 
       Object.entries(client).forEach(([key, value]) => {
-        if (key !== 'avatar_url' && value !== undefined && value !== null) {
-          formData.append(`client[${key}]`, value as string)
+        if (key === 'avatar_url' || key === 'id' || value === undefined || value === null) return
+
+        if (key === 'birthdate' && !isValidDate(value as string)) {
+          return
         }
+
+        formData.append(`client[${key}]`, value as string)
       })
 
       if (avatarFile) {
@@ -162,75 +179,93 @@ export default function ClientDashboard() {
     }
   }
 
+  const formatDateFr = (dateString: string) => {
+    const date = new Date(dateString)
+    return date.toLocaleDateString('fr-FR', {
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric',
+    })
+  }
+
   if (loading) return <p>Chargement...</p>
   if (!client) return <p>Impossible de charger les informations client.</p>
 
   return (
     <>
       <div className={styles.container}>
-        <h1 className={styles.greeting}>Bonjour, {client.first_name} 👋</h1>
-
         <div className={styles.dashboardGrid}>
-          {/* Infos à gauche */}
           <section className={styles.profileSection}>
-            {/* Card 1 : avatar + nom */}
             <div className={styles.card}>
-              <div className={styles.avatarWrapper}>
-                {avatarFile ? (
-                  <Image
-                    src={URL.createObjectURL(avatarFile)}
-                    alt="Nouvel avatar"
-                    className={styles.avatar}
-                    width={96}
-                    height={96}
-                  />
-                ) : client.avatar_url ? (
-                  <Image
-                    src={`${client.avatar_url}?t=${Date.now()}`}
-                    alt="Avatar"
-                    className={styles.avatar}
-                    width={96}
-                    height={96}
-                  />
-                ) : (
-                  <Image
-                    src="/images/avatar.svg"
-                    alt="Avatar par défaut"
-                    width={96}
-                    height={96}
-                    className={styles.avatar}
-                  />
-                )}
+              <div className={styles.avatarAndName}>
+                <div className={styles.avatarWrapper}>
+                  {avatarFile ? (
+                    <Image
+                      src={URL.createObjectURL(avatarFile)}
+                      alt="Nouvel avatar"
+                      className={styles.avatar}
+                      width={96}
+                      height={96}
+                    />
+                  ) : client.avatar_url ? (
+                    <Image
+                      src={`${client.avatar_url}?t=${Date.now()}`}
+                      alt="Avatar"
+                      className={styles.avatar}
+                      width={96}
+                      height={96}
+                    />
+                  ) : (
+                    <Image
+                      src="/images/avatar.svg"
+                      alt="Avatar par défaut"
+                      width={96}
+                      height={96}
+                      className={styles.avatar}
+                    />
+                  )}
 
-                {(isEditing || !client.avatar_url) && (
-                  <div className={styles.avatarInput}>
-                    <label>Changer la photo de profil :</label>
-                    <input type="file" accept="image/*" onChange={handleAvatarChange} />
-                  </div>
-                )}
+                  {isEditing && (
+                    <div className={styles.avatarInput}>
+                      <label htmlFor="avatar-upload" className={styles.fileButton}>
+                        Changer la photo de profil
+                      </label>
+                      <input
+                        id="avatar-upload"
+                        type="file"
+                        accept="image/*"
+                        onChange={handleAvatarChange}
+                        className={styles.hiddenFileInput}
+                      />
+                    </div>
+                  )}
+                </div>
+
+                <h1 className={styles.clientName}>
+                  {client.first_name} {client.last_name}
+                </h1>
               </div>
-
-              <h2 className={styles.clientName}>
-                {client.first_name} {client.last_name}
-              </h2>
             </div>
 
-            {/* Card 2 : infos */}
             <div className={styles.card}>
               <div className={styles.infoFields}>
                 {['email', 'phone', 'birthdate'].map((field) => (
                   <div key={field} className={styles.infoField}>
-                    <label className={styles.label}>{field.replace('_', ' ')} :</label>
+                    <label className={styles.label}>{fieldLabels[field]}</label>
                     {isEditing ? (
                       <input
-                        type="text"
+                        type={field === 'birthdate' ? 'date' : 'text'}
                         name={field}
-                        value={(client as any)[field]}
+                        value={(client as any)[field] || ''}
                         onChange={handleChange}
-                        className="border p-1 rounded w-full"
+                        className={styles.input}
                       />
                     ) : (
-                      <p className={styles.text}>{(client as any)[field]}</p>
+                      <p className={styles.text}>
+                        {field === 'birthdate'
+                          ? formatDateFr((client as any)[field])
+                          : (client as any)[field]}
+                      </p>
                     )}
                   </div>
                 ))}
@@ -238,14 +273,14 @@ export default function ClientDashboard() {
 
               {isEditing && (
                 <div className={styles.passwordFields}>
-                  <label>Nouveau mot de passe :</label>
+                  <label>Nouveau mot de passe</label>
                   <input
                     type="password"
                     name="password"
                     onChange={handleChange}
                     className={styles.input}
                   />
-                  <label>Confirmation du mot de passe :</label>
+                  <label>Confirmation du mot de passe</label>
                   <input
                     type="password"
                     name="password_confirmation"
@@ -256,7 +291,6 @@ export default function ClientDashboard() {
               )}
             </div>
 
-            {/* Boutons hors des cards */}
             <div className={styles.actions}>
               {isEditing ? (
                 <>
@@ -280,7 +314,6 @@ export default function ClientDashboard() {
             </div>
           </section>
 
-        {/* Informations à droite */}
           <section className={styles.rightSection}>
             <div className={styles.card}>
               <h2>Mes annonces</h2>
@@ -330,6 +363,8 @@ export default function ClientDashboard() {
     </>
   )
 }
+
+
 
 
 

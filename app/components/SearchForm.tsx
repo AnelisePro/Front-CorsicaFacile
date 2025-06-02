@@ -2,45 +2,48 @@
 
 import { useState, useEffect, useRef } from 'react'
 import { useRouter } from 'next/navigation'
+import { FiMapPin, FiSearch } from 'react-icons/fi'
+import { FaBriefcase } from 'react-icons/fa'
 import styles from './SearchForm.module.scss'
+
+type Commune = {
+  nom: string
+  codesPostaux: string[]
+}
+
+async function fetchJSON<T>(url: string): Promise<T> {
+  const res = await fetch(url)
+  if (!res.ok) throw new Error('Erreur réseau')
+  return res.json()
+}
 
 export default function SearchForm({ defaultExpertise = '', defaultLocation = '' }) {
   const router = useRouter()
 
-  // État des expertises récupérées depuis l'API
   const [expertises, setExpertises] = useState<string[]>([])
-
-  // États pour les champs du formulaire
   const [selectedExpertise, setSelectedExpertise] = useState(defaultExpertise)
   const [location, setLocation] = useState(defaultLocation)
-
-  // Suggestions et affichage pour expertise
   const [expertiseSuggestions, setExpertiseSuggestions] = useState<string[]>([])
   const [showExpertiseSuggestions, setShowExpertiseSuggestions] = useState(false)
-
-  // Suggestions et affichage pour location
   const [locationSuggestions, setLocationSuggestions] = useState<string[]>([])
   const [showLocationSuggestions, setShowLocationSuggestions] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
 
-  // Refs pour gérer les clics hors des zones de saisie
   const expertiseRef = useRef<HTMLDivElement>(null)
   const locationRef = useRef<HTMLDivElement>(null)
 
-  // Récupération des expertises au montage du composant
   useEffect(() => {
     const fetchExpertises = async () => {
       try {
-        const res = await fetch("http://localhost:3001/api/expertises")
-        const data = await res.json()
+        const data = await fetchJSON<string[]>('http://localhost:3001/api/expertises')
         setExpertises(data)
       } catch (err) {
-        console.error("Erreur récupération expertises :", err)
+        console.error('Erreur récupération expertises :', err)
       }
     }
     fetchExpertises()
   }, [])
 
-  // Mise à jour des valeurs par défaut si elles changent
   useEffect(() => {
     setSelectedExpertise(defaultExpertise)
   }, [defaultExpertise])
@@ -49,7 +52,6 @@ export default function SearchForm({ defaultExpertise = '', defaultLocation = ''
     setLocation(defaultLocation)
   }, [defaultLocation])
 
-  // Fermer les suggestions si clic hors des champs
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (expertiseRef.current && !expertiseRef.current.contains(event.target as Node)) {
@@ -60,19 +62,17 @@ export default function SearchForm({ defaultExpertise = '', defaultLocation = ''
       }
     }
     document.addEventListener('click', handleClickOutside)
-    return () => {
-      document.removeEventListener('click', handleClickOutside)
-    }
+    return () => document.removeEventListener('click', handleClickOutside)
   }, [])
 
-  // Soumission du formulaire
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!selectedExpertise || !location) return
+
+    setIsLoading(true)
     router.push(`/search-bar?expertise=${selectedExpertise}&location=${location}`)
   }
 
-  // Gestion de la saisie expertise et suggestions
   const handleExpertiseChange = (value: string) => {
     setSelectedExpertise(value)
     if (value.length >= 1) {
@@ -91,63 +91,37 @@ export default function SearchForm({ defaultExpertise = '', defaultLocation = ''
     setShowExpertiseSuggestions(true)
   }
 
-  // Gestion de la saisie location et suggestions
   const handleLocationChange = async (value: string) => {
     setLocation(value)
-
-    if (value.length < 2) {
-      setShowLocationSuggestions(false)
-      return
-    }
+    if (value.length < 2) return setShowLocationSuggestions(false)
 
     try {
-      let communes: any[] = []
-
       const isPostalCode = /^\d+$/.test(value)
+      const endpoint = isPostalCode
+        ? `https://geo.api.gouv.fr/communes?codePostal=${value}&fields=nom,codesPostaux&limit=10`
+        : `https://geo.api.gouv.fr/communes?nom=${value}&fields=nom,codesPostaux&limit=10`
 
-      if (isPostalCode) {
-        const res = await fetch(`https://geo.api.gouv.fr/communes?codePostal=${value}&fields=nom,codesPostaux&limit=10`)
-        communes = await res.json()
+      const data = await fetchJSON<Commune[]>(endpoint)
 
-        const formatted = communes.flatMap((commune: any) =>
-          commune.codesPostaux
-            .filter((cp: string) => cp.startsWith(value))
-        )
+      const formatted = isPostalCode
+        ? [...new Set(data.flatMap((c) => c.codesPostaux.filter(cp => cp.startsWith(value))))]
+        : [...new Set(data.map((c) => c.nom))]
 
-        setLocationSuggestions([...new Set(formatted)]) // Liste unique de codes postaux
-      } else {
-        const res = await fetch(`https://geo.api.gouv.fr/communes?nom=${value}&fields=nom,codesPostaux&limit=10`)
-        communes = await res.json()
-
-        const formatted = communes.map((commune: any) => commune.nom)
-        setLocationSuggestions([...new Set(formatted)]) // Liste unique de villes
-      }
-
+      setLocationSuggestions(formatted)
       setShowLocationSuggestions(true)
     } catch (err) {
-      console.error('Erreur de récupération des communes :', err)
+      console.error('Erreur communes :', err)
       setLocationSuggestions([])
     }
-  }
-
-  // Sélection d’une suggestion expertise
-  const handleExpertiseSelect = (value: string) => {
-    setSelectedExpertise(value)
-    setShowExpertiseSuggestions(false)
-  }
-
-  // Sélection d’une suggestion location
-  const handleLocationSelect = (value: string) => {
-    setLocation(value)
-    setShowLocationSuggestions(false)
   }
 
   return (
     <form className={styles.searchForm} onSubmit={handleSubmit} autoComplete="off">
       <div className={styles.row}>
 
-        {/* Champ expertise */}
+        {/* Expertise */}
         <div className={styles.autocomplete} ref={expertiseRef}>
+          <FaBriefcase className={styles.icon} />
           <input
             type="text"
             placeholder="Quel pro recherchez-vous ?"
@@ -159,16 +133,18 @@ export default function SearchForm({ defaultExpertise = '', defaultLocation = ''
           {showExpertiseSuggestions && (
             <ul className={styles.suggestions}>
               {expertiseSuggestions.map((sug) => (
-                <li key={sug} onClick={() => handleExpertiseSelect(sug)}>
-                  {sug}
-                </li>
+                <li key={sug} onClick={() => {
+                  setSelectedExpertise(sug)
+                  setShowExpertiseSuggestions(false)
+                }}>{sug}</li>
               ))}
             </ul>
           )}
         </div>
 
-        {/* Champ ville ou code postal */}
+        {/* Localisation */}
         <div className={styles.autocomplete} ref={locationRef}>
+          <FiMapPin className={styles.icon} />
           <input
             type="text"
             placeholder="Ville ou code postal"
@@ -179,18 +155,26 @@ export default function SearchForm({ defaultExpertise = '', defaultLocation = ''
           {showLocationSuggestions && (
             <ul className={styles.suggestions}>
               {locationSuggestions.map((entry) => (
-                <li key={entry} onClick={() => handleLocationSelect(entry)}>
-                  {entry}
-                </li>
+                <li key={entry} onClick={() => {
+                  setLocation(entry)
+                  setShowLocationSuggestions(false)
+                }}>{entry}</li>
               ))}
             </ul>
           )}
         </div>
 
-        <button type="submit">Rechercher 🔍</button>
+        <button type="submit" disabled={isLoading}>
+          {isLoading
+            ? <span className={styles.loader}></span>
+            : <>Rechercher <FiSearch /></>
+          }
+        </button>
       </div>
     </form>
   )
 }
+
+
 
 

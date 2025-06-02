@@ -11,11 +11,50 @@
   font-weight: 700;
   font-size: 1.5rem;
   margin-bottom: 1rem;
-  color: #333;
+  color: #81A04A;
 }
+
+.fileInput {
+  display: none;
+}
+
+.fileLabel {
+  display: inline-block;
+  text-align: center;
+  background-color: #0F78B1;
+  color: #FEFBF4;
+  padding: 0.6rem 1.5rem;
+  border-radius: 6px;
+  font-weight: 600;
+  font-family: 'Raleway', sans-serif;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  user-select: none;
+
+  &:hover {
+    background-color: #0d618e;
+  }
+}
+
+.avatarPreview {
+  margin-top: 1rem;
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  object-fit: cover;
+  box-shadow: 0 2px 6px rgb(0 0 0 / 0.15);
+  border: 2px solid #81A04A;
+}
+
 
 .formGroup {
   margin-bottom: 1rem;
+
+  label {
+    font-weight: 700;
+    display: block;
+    margin-bottom: 0.4rem;
+  }
 
   input,
   select,
@@ -32,7 +71,7 @@
   input:focus,
   select:focus,
   textarea:focus {
-    border-color: #1e90ff;
+    border-color: #0F78B1;
     outline: none;
   }
 }
@@ -82,14 +121,19 @@
 }
 
 .saveBtn {
-  background-color: #1e90ff;
-  color: white;
+  background-color: #0F78B1;
+  color: #FEFBF4;
   border: none;
   padding: 0.6rem 1.5rem;
   border-radius: 6px;
   cursor: pointer;
   font-weight: 600;
   font-family: 'Raleway', sans-serif;
+  transition: background-color 0.3s ease;
+
+  &:hover {
+    background-color: #0d618e;
+  }
 }
 
 .saveBtn:disabled {
@@ -99,11 +143,17 @@
 
 .cancelBtn {
   background-color: #ccc;
-  color: #333;
+  color: #FEFBF4;
+  font-weight: 600;
   border: none;
   padding: 0.6rem 1.5rem;
   border-radius: 6px;
   cursor: pointer;
   font-family: 'Raleway', sans-serif;
+  transition: background-color 0.3s ease;
+
+  &:hover {
+    background-color: #ababab;
+  }
 }
 

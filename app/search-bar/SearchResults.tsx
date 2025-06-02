@@ -187,7 +187,7 @@ export default function RecherchePage() {
                           }}
                           aria-label={`Contacter ${artisan.company_name}`}
                         >
-                          Contacter
+                          Voir le profil
                         </button>
                       </div>
                     </div>

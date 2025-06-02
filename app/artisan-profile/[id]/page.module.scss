@@ -172,6 +172,30 @@
   }
 }
 
+.availabilityRow {
+  display: flex;
+  justify-content: space-between;
+  padding-bottom: 0.5rem;
+  padding-top: 0.5rem;
+  border-bottom: 1px solid #ccc;
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.day {
+  text-align: left;
+  font-weight: 400;
+  color: #212121;
+}
+
+.slot {
+  text-align: right;
+  color: #212121;
+}
+
+
 /* POPUP STYLES — design sobre et élégant */
 
 .popupOverlay {
@@ -275,6 +299,43 @@
   border-radius: 3px;
 }
 
+.loginButton {
+  background: #0F78B1;
+  color: #FEFBF4;
+  font-weight: 700;
+  border: none;
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  width: 100%;
+  font-family: 'Raleway', sans-serif;
+
+  &:hover {
+    background: #0c618f;
+  }
+}
+
+.blueIcon {
+  color: #0F78B1;
+}
+
+.contactInfo {
+  font-family: 'Raleway', sans-serif;
+  color: #212121;
+  line-height: 1.5;
+  font-size: 1rem;
+
+  p {
+    margin: 0.5rem 0;
+    font-weight: 500;
+
+    a {
+      color: #0F78B1;
+      text-decoration: none;
+      font-weight: 400;
+    }
+  }
+}
 
 
 

@@ -1,9 +1,9 @@
 .container {
   display: flex;
-  flex-direction: row; /* changer column en row */
+  flex-direction: row;
   padding: 1rem;
   padding-bottom: 120px;
-  gap: 1rem; /* espace entre colonnes (optionnel) */
+  gap: 1rem;
 }
 
 .leftColumn {
@@ -15,4 +15,14 @@
   min-width: 280px;
 }
 
+@media (max-width: 768px) {
+  .container {
+    flex-direction: column;
+  }
+
+  .rightColumn {
+    min-width: auto;
+    margin-top: 1rem;
+  }
+}
 

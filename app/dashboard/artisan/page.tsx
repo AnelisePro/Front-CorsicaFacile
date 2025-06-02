@@ -31,10 +31,10 @@ type PlanInfo = {
 
 const membershipPlans = ['Standard', 'Pro', 'Premium']
 const intervalTranslations = {
-  day: 'journalière',
-  week: 'hebdomadaire',
-  month: 'mensuelle',
-  year: 'annuelle',
+  day: 'jour',
+  week: 'semaine',
+  month: 'mois',
+  year: 'an',
 }
 
 export default function ArtisanDashboard() {
@@ -44,9 +44,7 @@ export default function ArtisanDashboard() {
   const [artisan, setArtisan] = useState<Artisan | null>(null) // ARTISAN PEUT ÊTRE NULL
   const [planInfo, setPlanInfo] = useState<PlanInfo | null>(null)
   const [isEditing, setIsEditing] = useState(false)
-
   const [expertises, setExpertises] = useState<string[]>([])
-
   const [kbisFile, setKbisFile] = useState<File | null>(null)
   const [insuranceFile, setInsuranceFile] = useState<File | null>(null)
   const [avatarFile, setAvatarFile] = useState<File | null>(null)
@@ -82,8 +80,8 @@ export default function ArtisanDashboard() {
       })
       setArtisan(res.data.artisan)
 
-      if (res.data.planInfo) {
-        const apiPlanInfo = res.data.planInfo
+      if (res.data.plan_info) {
+        const apiPlanInfo = res.data.plan_info
         setPlanInfo({
           amount: apiPlanInfo.amount,
           currency: apiPlanInfo.currency,

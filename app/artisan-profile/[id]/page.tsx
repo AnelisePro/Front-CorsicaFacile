@@ -6,11 +6,14 @@ import axios from 'axios'
 import { FaMapMarkerAlt } from 'react-icons/fa'
 import Image from 'next/image'
 import styles from './page.module.scss'
+import { useAuth } from '../../auth/AuthContext'
 
 type ArtisanDetails = {
   id: string
   company_name: string
   address: string
+  email: string 
+  phone: string 
   expertise_names: string[]
   avatar_url?: string | null
   description?: string
@@ -27,6 +30,7 @@ type AvailabilitySlotType = {
 export default function ArtisanProfilePage() {
   const params = useParams()
   const router = useRouter()
+  const { user } = useAuth()
 
   const [artisan, setArtisan] = useState<ArtisanDetails | null>(null)
   const [availabilitySlots, setAvailabilitySlots] = useState<AvailabilitySlotType[]>([])
@@ -53,6 +57,7 @@ export default function ArtisanProfilePage() {
       })
   }, [params?.id])
 
+  // Modif : formatSlot renvoie objet { dayName, slotText } sans ":"
   const formatSlot = (startISO: string, endISO: string) => {
     const days = ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi']
     const start = new Date(startISO)
@@ -66,17 +71,17 @@ export default function ArtisanProfilePage() {
       end.getMinutes() === 0 &&
       end.getTime() - start.getTime() === 24 * 60 * 60 * 1000
 
-    if (isFullDay) {
-      return `${dayName} : Indisponible`
-    }
-
     const formatHour = (date: Date) => {
       const h = date.getHours()
       const m = date.getMinutes()
       return `${h}h${m.toString().padStart(2, '0')}`
     }
 
-    return `${dayName} ${formatHour(start)} - ${formatHour(end)}`
+    if (isFullDay) {
+      return { dayName, slotText: "Indisponible" }
+    }
+
+    return { dayName, slotText: `${formatHour(start)} - ${formatHour(end)}` }
   }
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -140,7 +145,7 @@ export default function ArtisanProfilePage() {
               <div>
                 <h1>{artisan.company_name}</h1>
                 <p>
-                  <FaMapMarkerAlt /> {artisan.address}
+                  <FaMapMarkerAlt className={styles.blueIcon}/> {artisan.address}
                 </p>
                 <span className={styles.expertise}>{artisan.expertise_names?.join(', ')}</span>
               </div>
@@ -186,7 +191,7 @@ export default function ArtisanProfilePage() {
         <div className={styles.rightColumn}>
           {availabilitySlots.length > 0 && (
             <div className={styles.card}>
-              <h2>Créneaux de disponibilité</h2>
+              <h2>Créneaux disponibles</h2>
               <div>
                 {availabilitySlots
                   .slice()
@@ -201,27 +206,34 @@ export default function ArtisanProfilePage() {
 
                     return new Date(a.start_time).getTime() - new Date(b.start_time).getTime()
                   })
-                  .map(slot => (
-                    <p key={slot.id}>{formatSlot(slot.start_time, slot.end_time)}</p>
-                  ))}
+                  .map(slot => {
+                    const { dayName, slotText } = formatSlot(slot.start_time, slot.end_time)
+                    return (
+                      <div key={slot.id} className={styles.availabilityRow}>
+                        <span className={styles.day}>{dayName}</span>
+                        <span className={styles.slot}>{slotText}</span>
+                      </div>
+                    )
+                  })}
               </div>
             </div>
           )}
 
           <div className={styles.card}>
             <h2>Contacter l'artisan</h2>
-            <form className={styles.contactForm} onSubmit={handleSubmit} noValidate>
-              <div>
-                <input id="name" name="name" type="text" required placeholder="Votre nom" />
+            {user && user.role === 'client' ? (
+              <div className={styles.contactInfo}>
+                <p>Email : <a href={`mailto:${artisan.email}`}>{artisan.email}</a></p>
+                <p>Téléphone : <a href={`tel:${artisan.phone}`}>{artisan.phone}</a></p>
               </div>
-              <div>
-                <input id="email" name="email" type="email" required placeholder="Votre email" />
-              </div>
-              <div>
-                <textarea id="message" name="message" required placeholder="Votre message" rows={5} />
-              </div>
-              <button type="submit">Envoyer</button>
-            </form>
+            ) : (
+              <button
+                className={styles.loginButton}
+                onClick={() => router.push('/auth/login_client')}
+              >
+                Connectez-vous pour voir les coordonnées
+              </button>
+            )}
           </div>
         </div>
       </div>
@@ -271,6 +283,7 @@ export default function ArtisanProfilePage() {
     </div>
   )
 }
+
 
 
 

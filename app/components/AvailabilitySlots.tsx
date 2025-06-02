@@ -39,6 +39,7 @@ export default function AvailabilitySlots({ isEditing }: Props) {
     fetchSlots()
   }, [])
 
+  // Ici formatSlot renvoie JSX avec <strong> autour du jour et ":" fixe après le jour
   const formatSlot = (startISO: string, endISO: string) => {
     const start = new Date(startISO)
     const end = new Date(endISO)
@@ -46,7 +47,7 @@ export default function AvailabilitySlots({ isEditing }: Props) {
 
     const formatHour = (date: Date) => `${date.getHours()}h${date.getMinutes().toString().padStart(2, '0')}`
 
-    // Si créneau couvre toute la journée (00:00 à 00:00 du lendemain), afficher "Indisponible toute la journée"
+    // Si créneau couvre toute la journée (00:00 à 00:00 du lendemain)
     const isFullDay =
       start.getHours() === 0 &&
       start.getMinutes() === 0 &&
@@ -54,9 +55,18 @@ export default function AvailabilitySlots({ isEditing }: Props) {
       end.getMinutes() === 0 &&
       (end.getTime() - start.getTime() === 24 * 60 * 60 * 1000)
 
-    if (isFullDay) return `${dayName} : Indisponible`
+    if (isFullDay)
+      return (
+        <span>
+          <strong>{dayName} :</strong> Indisponible
+        </span>
+      )
 
-    return `${dayName} ${formatHour(start)} - ${formatHour(end)}`
+    return (
+      <span>
+        <strong>{dayName} :</strong> {formatHour(start)} - {formatHour(end)}
+      </span>
+    )
   }
 
   const fetchSlots = async () => {
@@ -193,7 +203,7 @@ export default function AvailabilitySlots({ isEditing }: Props) {
   }
 
   return (
-    <section>
+    <section className={styles.container}>
       <h2 className={styles.title}>Liste des créneaux</h2>
       <div className={styles.cardsContainer}>
         {slots.map(slot => (
@@ -222,62 +232,71 @@ export default function AvailabilitySlots({ isEditing }: Props) {
       </div>
 
       {isEditing && (
-        <div className={styles.formGroup}>
+        <div className={styles.formGroupCard}>
           <h3>{editingSlotId ? 'Modifier un créneau' : 'Ajouter un créneau'}</h3>
-          <form onSubmit={handleSubmit}>
-            <label>
-              Jour :
-              <select
-                value={newSlot.day}
-                onChange={e => setNewSlot({ ...newSlot, day: e.target.value })}
-                required
-              >
-                {days.slice(1).concat(days[0]).map(day => (
-                  <option key={day} value={day}>
-                    {day}
-                  </option>
-                ))}
-              </select>
-            </label>
+          <form onSubmit={handleSubmit} className={styles.form}>
+            <div className={styles.row}>
+              <label className={styles.label}>
+                Jour
+                <select
+                  value={newSlot.day}
+                  onChange={e => setNewSlot({ ...newSlot, day: e.target.value })}
+                  required
+                  className={styles.select}
+                >
+                  {days.slice(1).concat(days[0]).map(day => (
+                    <option key={day} value={day}>
+                      {day}
+                    </option>
+                  ))}
+                </select>
+              </label>
 
-            <label>
-              <input
-                type="checkbox"
-                checked={isFullDayUnavailable}
-                onChange={e => setIsFullDayUnavailable(e.target.checked)}
-              />
-              Indisponible
-            </label>
+              <label className={styles.checkboxLabel}>
+                <input
+                  type="checkbox"
+                  checked={isFullDayUnavailable}
+                  onChange={e => setIsFullDayUnavailable(e.target.checked)}
+                  className={styles.checkbox}
+                />
+                Indisponible
+              </label>
+            </div>
 
             {!isFullDayUnavailable && (
-              <>
-                <label>
-                  Début :
+              <div className={styles.row}>
+                <label className={styles.label}>
+                  Début
                   <input
                     type="time"
                     value={newSlot.start_time}
                     onChange={e => setNewSlot({ ...newSlot, start_time: e.target.value })}
                     required={!isFullDayUnavailable}
+                    className={styles.input}
                   />
                 </label>
 
-                <label>
-                  Fin :
+                <label className={styles.label}>
+                  Fin
                   <input
                     type="time"
                     value={newSlot.end_time}
                     onChange={e => setNewSlot({ ...newSlot, end_time: e.target.value })}
                     required={!isFullDayUnavailable}
+                    className={styles.input}
                   />
                 </label>
-              </>
+              </div>
             )}
 
-            <button type="submit">{editingSlotId ? 'Modifier' : 'Ajouter'}</button>
+            <button type="submit" className={styles.submitBtn}>
+              {editingSlotId ? 'Modifier' : 'Ajouter'}
+            </button>
           </form>
         </div>
       )}
     </section>
   )
 }
+
 

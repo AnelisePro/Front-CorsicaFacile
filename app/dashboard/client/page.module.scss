@@ -1,16 +1,8 @@
 .container {
-  
   margin: 0 auto;
   padding: 1.5rem;
   font-family: 'Raleway', sans-serif;
-  color: #333;
-}
-
-.greeting {
-  font-size: 2rem;
-  font-weight: 700;
-  margin-bottom: 2rem;
-  font-family: 'Quicksand', sans-serif;
+  color: #212121;
 }
 
 .dashboardGrid {
@@ -23,6 +15,19 @@
   flex: 2;
   display: flex;
   flex-direction: column;
+  gap: 1.5rem;
+}
+
+.clientName {
+  font-family: 'Quicksand', sans-serif;
+  font-weight: 700;
+  font-size: 2rem;
+  color: #81A04A;
+}
+
+.avatarAndName {
+  display: flex;
+  align-items: center;
   gap: 1.5rem;
 }
 
@@ -45,8 +50,33 @@
   font-weight: 600;
   font-size: 0.9rem;
 
-  input[type="file"] {
+  .hiddenFileInput {
+    display: none;
+  }
+
+  .fileButton {
+    display: inline-block;
     margin-top: 0.3rem;
+    padding: 0.5rem 1rem;
+    border: 2px solid #0F78B1;
+    border-radius: 6px;
+    background-color: white;
+    color: #0F78B1;
+    font-weight: 600;
+    cursor: pointer;
+    user-select: none;
+    text-align: center;
+    transition: background-color 0.2s ease, color 0.2s ease;
+
+    &:hover {
+      background-color: #0F78B1;
+      color: white;
+    }
+
+    &:focus {
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(51, 113, 213, 0.5)
+    }
   }
 }
 
@@ -62,9 +92,10 @@
 }
 
 .label {
-  font-weight: 600;
+  font-weight: 700;
   text-transform: capitalize;
-  margin-bottom: 0.3rem;
+  margin-bottom: 0.5rem;
+  display: inline-block;
 }
 
 .input {
@@ -76,20 +107,21 @@
   transition: border-color 0.2s ease;
 
   &:focus {
-    border-color: #1e90ff;
+    border-color: #0F78B1;
     outline: none;
   }
 }
 
 .text {
   font-size: 1rem;
-  color: #444;
+  color: #212121;
 }
 
 .passwordFields {
+  margin-top: 2%;
   display: flex;
   flex-direction: column;
-  gap: 0.7rem;
+  gap: 0.5rem;
 
   label {
     font-weight: 600;
@@ -112,17 +144,17 @@
     transition: background-color 0.25s ease;
 
     &.saveBtn {
-      background-color: #22c55e;
-      color: white;
+      background-color: #81A04A;
+      color: #FEFBF4;
 
       &:hover {
-        background-color: #16a34a;
+        background-color: #68813c;
       }
     }
 
     &.cancelBtn {
       background-color: #9ca3af;
-      color: white;
+      color: #FEFBF4;
 
       &:hover {
         background-color: #6b7280;
@@ -130,17 +162,17 @@
     }
 
     &.editBtn {
-      background-color: #3b82f6;
-      color: white;
+      background-color: #0F78B1;
+      color: #FEFBF4;
 
       &:hover {
-        background-color: #2563eb;
+        background-color: #0c6594;
       }
     }
 
     &.deleteBtn {
       background-color: #ef4444;
-      color: white;
+      color: #FEFBF4;
 
       &:hover {
         background-color: #b91c1c;
@@ -188,5 +220,13 @@
 .points {
   font-size: 2rem;
   font-weight: 700;
-  color: #22c55e;
+  color: #81A04A;
 }
+
+
+@media (max-width: 768px) {
+  .dashboardGrid {
+    flex-direction: column;
+  }
+}
+
