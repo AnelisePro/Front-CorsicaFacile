@@ -8,7 +8,6 @@ $blur-bg: rgba(255, 255, 255, 0.35);
   padding: 2rem 1rem;
   display: flex;
   justify-content: center;
-  backdrop-filter: blur(6px);
 }
 
 .icon {
@@ -100,12 +99,14 @@ $blur-bg: rgba(255, 255, 255, 0.35);
 
 .suggestions li {
   padding: 0.85rem 1.2rem;
+  color: #0F78B1;
+  font-weight: 800;
   margin-bottom: 0.5rem;
   border-radius: 0.75rem;
   cursor: pointer;
   font-size: 0.95rem;
   transition: background 0.2s ease, color 0.2s ease;
-  background: #ffffff; // élément bien détaché
+  background: #ffffff; 
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
 }
 

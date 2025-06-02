@@ -30,6 +30,11 @@ type ArtisanViewProps = {
   onDelete: () => void
 }
 
+function capitalizeFirstOnly(text: string) {
+  if (!text) return ''
+  return text.charAt(0).toUpperCase() + text.slice(1).toLowerCase()
+}
+
 export default function ArtisanView({
   artisan,
   planInfo,
@@ -56,47 +61,51 @@ export default function ArtisanView({
       {/* Card 2 : infos */}
       <div className={styles.cardInfo}>
         <div className={styles.infoField}>
-          <label className={styles.label}>Adresse</label>
+          <label className={styles.label}>{capitalizeFirstOnly('adresse')}</label>
           <p className={styles.value}>{artisan.address}</p>
         </div>
 
         <div className={styles.infoField}>
-          <label className={styles.label}>Domaine d'Expertise</label>
+          <label className={styles.label}>{capitalizeFirstOnly("domaine d'expertise")}</label>
           <p className={styles.value}>
-            {artisan.expertise_names.length > 0 ? artisan.expertise_names.join(', ') : 'Non spécifié'}
+            {artisan.expertise_names.length > 0
+              ? artisan.expertise_names.join(', ')
+              : 'Non spécifié'}
           </p>
         </div>
 
         {artisan.description && (
           <div className={styles.infoField}>
-            <label className={styles.label}>Description</label>
+            <label className={styles.label}>
+              {capitalizeFirstOnly("à propos de l'entreprise")}
+            </label>
             <p className={styles.value}>{artisan.description}</p>
           </div>
         )}
 
         <div className={styles.infoField}>
-          <label className={styles.label}>SIREN</label>
+          <label className={styles.label}>{capitalizeFirstOnly('siren')}</label>
           <p className={styles.value}>{artisan.siren}</p>
         </div>
 
         <div className={styles.infoField}>
-          <label className={styles.label}>Email</label>
+          <label className={styles.label}>{capitalizeFirstOnly('email')}</label>
           <p className={styles.value}>{artisan.email}</p>
         </div>
 
         <div className={styles.infoField}>
-          <label className={styles.label}>Téléphone</label>
+          <label className={styles.label}>{capitalizeFirstOnly('téléphone')}</label>
           <p className={styles.value}>{artisan.phone}</p>
         </div>
 
         <div className={styles.infoField}>
-          <label className={styles.label}>Abonnement</label>
+          <label className={styles.label}>{capitalizeFirstOnly('abonnement')}</label>
           <p className={styles.value}>{artisan.membership_plan}</p>
         </div>
 
         {planInfo && (
           <div className={styles.infoField}>
-            <label className={styles.label}>Tarif</label>
+            <label className={styles.label}>{capitalizeFirstOnly('tarif')}</label>
             <p className={styles.value}>
               {planInfo.amount / 100} {planInfo.currency.toUpperCase()} /{' '}
               {intervalTranslations[planInfo.interval] || planInfo.interval}
@@ -128,7 +137,6 @@ export default function ArtisanView({
         </div>
       </div>
 
-
       {/* Card 3 : galerie d’images */}
       <div className={styles.cardGallery}>
         <div className={styles.imagesGallery}>
@@ -146,11 +154,16 @@ export default function ArtisanView({
 
       {/* Actions */}
       <div className={styles.actions}>
-        <button onClick={onEdit} className={styles.editBtn}>Modifier</button>
-        <button onClick={onDelete} className={styles.deleteBtn}>Supprimer le compte</button>
+        <button onClick={onEdit} className={styles.editBtn}>
+          Modifier
+        </button>
+        <button onClick={onDelete} className={styles.deleteBtn}>
+          Supprimer le compte
+        </button>
       </div>
     </div>
   )
 }
+
 
 
