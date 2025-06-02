@@ -45,8 +45,8 @@ export default function Navbar() {
 
     // délai avant redirection pour laisser le temps à la toast de s'afficher
     setTimeout(() => {
-      router.push('/') // redirige vers la page d'accueil après 1.5s
-    }, 3000)
+      router.push('/')
+    }, 1000)
   }
 
   return (

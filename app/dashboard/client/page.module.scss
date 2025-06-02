@@ -1,6 +1,192 @@
+.container {
+  
+  margin: 0 auto;
+  padding: 1.5rem;
+  font-family: 'Raleway', sans-serif;
+  color: #333;
+}
+
+.greeting {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 2rem;
+  font-family: 'Quicksand', sans-serif;
+}
+
+.dashboardGrid {
+  display: flex;
+  gap: 2rem;
+}
+
+/* Colonne gauche : profil + infos */
+.profileSection {
+  flex: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.avatarWrapper {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
 .avatar {
-  width: 48px;
-  height: 48px;
+  width: 96px;
+  height: 96px;
   border-radius: 50%;
   object-fit: cover;
+}
+
+.avatarInput {
+  display: flex;
+  flex-direction: column;
+  font-weight: 600;
+  font-size: 0.9rem;
+
+  input[type="file"] {
+    margin-top: 0.3rem;
+  }
+}
+
+.infoFields {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.infoField {
+  display: flex;
+  flex-direction: column;
+}
+
+.label {
+  font-weight: 600;
+  text-transform: capitalize;
+  margin-bottom: 0.3rem;
+}
+
+.input {
+  padding: 0.5rem 0.7rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-family: 'Raleway', sans-serif;
+  font-size: 1rem;
+  transition: border-color 0.2s ease;
+
+  &:focus {
+    border-color: #1e90ff;
+    outline: none;
+  }
+}
+
+.text {
+  font-size: 1rem;
+  color: #444;
+}
+
+.passwordFields {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+
+  label {
+    font-weight: 600;
+  }
+}
+
+.actions {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+
+  button {
+    padding: 0.6rem 1.2rem;
+    border-radius: 6px;
+    font-family: 'Raleway', sans-serif;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: background-color 0.25s ease;
+
+    &.saveBtn {
+      background-color: #22c55e;
+      color: white;
+
+      &:hover {
+        background-color: #16a34a;
+      }
+    }
+
+    &.cancelBtn {
+      background-color: #9ca3af;
+      color: white;
+
+      &:hover {
+        background-color: #6b7280;
+      }
+    }
+
+    &.editBtn {
+      background-color: #3b82f6;
+      color: white;
+
+      &:hover {
+        background-color: #2563eb;
+      }
+    }
+
+    &.deleteBtn {
+      background-color: #ef4444;
+      color: white;
+
+      &:hover {
+        background-color: #b91c1c;
+      }
+    }
+  }
+}
+
+/* Colonne droite : annonces, historique, interventions, points */
+.rightSection {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.card {
+  background: white;
+  padding: 1.2rem 1.5rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+
+  h2 {
+    font-family: 'Quicksand', sans-serif;
+    font-weight: 700;
+    margin-bottom: 0.8rem;
+    font-size: 1.3rem;
+  }
+
+  ul {
+    margin-left: 1.5rem;
+    color: #555;
+  }
+
+  li {
+    margin-bottom: 0.4rem;
+  }
+}
+
+.empty {
+  font-style: italic;
+  color: #777;
+}
+
+.points {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #22c55e;
 }

@@ -167,143 +167,150 @@ export default function ClientDashboard() {
 
   return (
     <>
-      <div className="p-6 max-w-5xl mx-auto">
-        <h1 className="text-2xl font-bold mb-4">Bonjour, {client.first_name} 👋</h1>
+      <div className={styles.container}>
+        <h1 className={styles.greeting}>Bonjour, {client.first_name} 👋</h1>
 
-        {/* Profil et édition */}
-        <section className="mb-8">
-          <div className="mb-4 flex items-center gap-4">
-            {avatarFile ? (
-              <Image
-                src={URL.createObjectURL(avatarFile)}
-                alt="Nouvel avatar"
-                className={`${styles.avatar} rounded-full object-cover mb-2`}
-                width={96}
-                height={96}
-              />
-            ) : client.avatar_url ? (
-              <Image
-                src={`${client.avatar_url}?t=${Date.now()}`}
-                alt="Avatar"
-                className={`${styles.avatar} rounded-full object-cover mb-2`}
-                width={96}
-                height={96}
-              />
-            ) : (
-              <Image
-                src="/images/avatar.svg"
-                alt="Avatar par défaut"
-                width={96}
-                height={96}
-                className="rounded-full object-cover mb-2"
-              />
-            )}
-
-            {(isEditing || !client.avatar_url) && (
-              <div>
-                <label className="block font-semibold mb-1">Changer la photo de profil :</label>
-                <input type="file" accept="image/*" onChange={handleAvatarChange} />
-              </div>
-            )}
-          </div>
-
-          <div className="space-y-2">
-            {['first_name', 'last_name', 'email', 'phone', 'birthdate'].map((field) => (
-              <div key={field}>
-                <label className="block font-semibold capitalize">{field.replace('_', ' ')}:</label>
-                {isEditing ? (
-                  <input
-                    type="text"
-                    name={field}
-                    value={(client as any)[field]}
-                    onChange={handleChange}
-                    className="border p-1 rounded w-full"
+        <div className={styles.dashboardGrid}>
+          {/* Infos à gauche */}
+          <section className={styles.profileSection}>
+            {/* Card 1 : avatar + nom */}
+            <div className={styles.card}>
+              <div className={styles.avatarWrapper}>
+                {avatarFile ? (
+                  <Image
+                    src={URL.createObjectURL(avatarFile)}
+                    alt="Nouvel avatar"
+                    className={styles.avatar}
+                    width={96}
+                    height={96}
+                  />
+                ) : client.avatar_url ? (
+                  <Image
+                    src={`${client.avatar_url}?t=${Date.now()}`}
+                    alt="Avatar"
+                    className={styles.avatar}
+                    width={96}
+                    height={96}
                   />
                 ) : (
-                  <p>{(client as any)[field]}</p>
+                  <Image
+                    src="/images/avatar.svg"
+                    alt="Avatar par défaut"
+                    width={96}
+                    height={96}
+                    className={styles.avatar}
+                  />
+                )}
+
+                {(isEditing || !client.avatar_url) && (
+                  <div className={styles.avatarInput}>
+                    <label>Changer la photo de profil :</label>
+                    <input type="file" accept="image/*" onChange={handleAvatarChange} />
+                  </div>
                 )}
               </div>
-            ))}
-          </div>
 
-          {isEditing && (
-            <div className="mt-4 space-y-2">
-              <label className="block font-semibold">Nouveau mot de passe :</label>
-              <input
-                type="password"
-                name="password"
-                onChange={handleChange}
-                className="border p-1 rounded w-full"
-              />
-              <label className="block font-semibold">Confirmation du mot de passe :</label>
-              <input
-                type="password"
-                name="password_confirmation"
-                onChange={handleChange}
-                className="border p-1 rounded w-full"
-              />
+              <h2 className={styles.clientName}>
+                {client.first_name} {client.last_name}
+              </h2>
             </div>
-          )}
 
-          <div className="mt-6 flex gap-4">
-            {isEditing ? (
-              <>
-                <button onClick={handleUpdate} className="bg-green-500 text-white px-4 py-2 rounded">
-                  Enregistrer
-                </button>
-                <button onClick={() => setIsEditing(false)} className="bg-gray-400 text-white px-4 py-2 rounded">
-                  Annuler
-                </button>
-              </>
-            ) : (
-              <button onClick={() => setIsEditing(true)} className="bg-blue-500 text-white px-4 py-2 rounded">
-                Modifier mes informations
-              </button>
-            )}
-            <button onClick={confirmDelete} className="bg-red-500 text-white px-4 py-2 rounded">
-              Supprimer mon compte
-            </button>
-          </div>
-        </section>
+            {/* Card 2 : infos */}
+            <div className={styles.card}>
+              <div className={styles.infoFields}>
+                {['email', 'phone', 'birthdate'].map((field) => (
+                  <div key={field} className={styles.infoField}>
+                    <label className={styles.label}>{field.replace('_', ' ')} :</label>
+                    {isEditing ? (
+                      <input
+                        type="text"
+                        name={field}
+                        value={(client as any)[field]}
+                        onChange={handleChange}
+                        className="border p-1 rounded w-full"
+                      />
+                    ) : (
+                      <p className={styles.text}>{(client as any)[field]}</p>
+                    )}
+                  </div>
+                ))}
+              </div>
 
-        {/* Espaces fonctionnels */}
-        <section className="space-y-8">
-          {/* Annonces postées */}
-          <div className="border p-4 rounded shadow-sm">
-            <h2 className="text-xl font-semibold mb-2">Mes annonces</h2>
-            <p className="text-gray-600 italic">Aucune annonce pour le moment.</p>
-            {/* Ici tu pourras afficher la liste des annonces du client */}
-          </div>
+              {isEditing && (
+                <div className={styles.passwordFields}>
+                  <label>Nouveau mot de passe :</label>
+                  <input
+                    type="password"
+                    name="password"
+                    onChange={handleChange}
+                    className={styles.input}
+                  />
+                  <label>Confirmation du mot de passe :</label>
+                  <input
+                    type="password"
+                    name="password_confirmation"
+                    onChange={handleChange}
+                    className={styles.input}
+                  />
+                </div>
+              )}
+            </div>
 
-          {/* Suivi des interventions */}
-          <div className="border p-4 rounded shadow-sm">
-            <h2 className="text-xl font-semibold mb-2">Suivi des interventions</h2>
-            <ul className="list-disc ml-6 text-gray-700">
-              <li>En attente : 0</li>
-              <li>En cours : 0</li>
-              <li>Validées : 0</li>
-            </ul>
-            {/* Remplace ces valeurs par de vraies données */}
-          </div>
+            {/* Boutons hors des cards */}
+            <div className={styles.actions}>
+              {isEditing ? (
+                <>
+                  <button onClick={handleUpdate} className={styles.saveBtn}>
+                    Enregistrer
+                  </button>
+                  <button onClick={() => setIsEditing(false)} className={styles.cancelBtn}>
+                    Annuler
+                  </button>
+                </>
+              ) : (
+                <>
+                  <button onClick={() => setIsEditing(true)} className={styles.editBtn}>
+                    Modifier
+                  </button>
+                  <button onClick={confirmDelete} className={styles.deleteBtn}>
+                    Supprimer mon compte
+                  </button>
+                </>
+              )}
+            </div>
+          </section>
 
-          {/* Suivi des points gagnés */}
-          <div className="border p-4 rounded shadow-sm">
-            <h2 className="text-xl font-semibold mb-2">Mes points gagnés</h2>
-            <p className="text-gray-700 font-bold text-2xl">0</p>
-            {/* Affiche ici le total des points du client */}
-          </div>
+        {/* Informations à droite */}
+          <section className={styles.rightSection}>
+            <div className={styles.card}>
+              <h2>Mes annonces</h2>
+              <p className={styles.empty}>Aucune annonce pour le moment.</p>
+            </div>
 
-          {/* Historique des interventions */}
-          <div className="border p-4 rounded shadow-sm">
-            <h2 className="text-xl font-semibold mb-2">Historique des interventions</h2>
-            <ul className="list-disc ml-6 text-gray-700">
-              <li>Passées : 0</li>
-              <li>En cours : 0</li>
-              <li>Futures : 0</li>
-            </ul>
-            {/* À compléter avec les interventions historiques */}
-          </div>
-        </section>
+            <div className={styles.card}>
+              <h2>Suivi des interventions</h2>
+              <ul>
+                <li>En attente : 0</li>
+                <li>En cours : 0</li>
+                <li>Validées : 0</li>
+              </ul>
+            </div>
+
+            <div className={styles.card}>
+              <h2>Mes points gagnés</h2>
+              <p className={styles.points}>0</p>
+            </div>
+
+            <div className={styles.card}>
+              <h2>Historique des interventions</h2>
+              <ul>
+                <li>Passées : 0</li>
+                <li>En cours : 0</li>
+                <li>Futures : 0</li>
+              </ul>
+            </div>
+          </section>
+        </div>
       </div>
 
       {isClient && (

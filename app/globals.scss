@@ -3,6 +3,7 @@ body {
   max-width: 100vw;
   overflow-x: hidden;
   background-color: #FEFBF4;
+  height: 100%; /* nécessaire */
 }
 
 body {
@@ -26,3 +27,4 @@ body {
 main {
   flex: 1;
 }
+

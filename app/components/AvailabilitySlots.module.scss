@@ -1,0 +1,116 @@
+@import url('https://fonts.googleapis.com/css2?family=Quicksand&family=Raleway&display=swap');
+
+.container {
+  padding: 1rem;
+}
+
+.title {
+  font-family: 'Quicksand', sans-serif;
+  font-weight: 700;
+  font-size: 1.8rem;
+  margin-bottom: 1rem;
+  color: #333;
+}
+
+.cardsContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.card {
+  background-color: #fff;
+  border-radius: 10px;
+  padding: 1rem 1.5rem;
+  box-shadow: 0 4px 8px rgb(0 0 0 / 0.1);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.slotText {
+  font-family: 'Raleway', sans-serif;
+  font-size: 1rem;
+  color: #555;
+  margin: 0;
+}
+
+.actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.btnEdit,
+.btnDelete {
+  font-family: 'Raleway', sans-serif;
+  background-color: transparent;
+  border: none;
+  padding: 0.3rem 0.6rem;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  font-size: 0.9rem;
+}
+
+.btnEdit {
+  color: #1e90ff;
+}
+
+.btnEdit:hover {
+  background-color: #cce4ff;
+}
+
+.btnDelete {
+  color: #ff4d4f;
+}
+
+.btnDelete:hover {
+  background-color: #ffc6c5;
+}
+
+
+/* FormGroup reste à toi de gérer */
+.formGroup {
+  margin-top: 2rem;
+  font-family: 'Raleway', sans-serif;
+
+  h3 {
+    font-family: 'Quicksand', sans-serif;
+    font-weight: 700;
+    font-size: 1.4rem;
+    margin-bottom: 1rem;
+  }
+
+  label {
+    display: block;
+    margin-bottom: 0.5rem;
+  }
+
+  input, select {
+    padding: 0.4rem 0.6rem;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    font-size: 1rem;
+    font-family: 'Raleway', sans-serif;
+    width: 100%;
+    max-width: 300px;
+    margin-bottom: 1rem;
+  }
+
+  button[type='submit'] {
+    background-color: #1e90ff;
+    color: white;
+    border: none;
+    padding: 0.6rem 1.2rem;
+    border-radius: 5px;
+    font-family: 'Raleway', sans-serif;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+
+  button[type='submit']:hover {
+    background-color: #1a78d7;
+  }
+}
+

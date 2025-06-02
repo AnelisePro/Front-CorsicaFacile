@@ -50,6 +50,18 @@ export default function ArtisanProfilePage() {
 
     const dayName = days[start.getDay()]
 
+    // Vérifier si le créneau couvre toute la journée : de 00:00 à 00:00 du jour suivant (24h)
+    const isFullDay =
+      start.getHours() === 0 &&
+      start.getMinutes() === 0 &&
+      end.getHours() === 0 &&
+      end.getMinutes() === 0 &&
+      (end.getTime() - start.getTime() === 24 * 60 * 60 * 1000)
+
+    if (isFullDay) {
+      return `${dayName} : Indisponible`
+    }
+
     const formatHour = (date: Date) => {
       const h = date.getHours()
       const m = date.getMinutes()
@@ -65,6 +77,8 @@ export default function ArtisanProfilePage() {
   }
 
   if (!artisan) return <p>Chargement du profil…</p>
+
+  const dayIndexMondayFirst = (day: number) => (day === 0 ? 7 : day)
 
   return (
     <div className={styles.container}>
@@ -134,11 +148,24 @@ export default function ArtisanProfilePage() {
           {availabilitySlots.length > 0 && (
             <div className={styles.card}>
               <h2>Créneaux de disponibilité</h2>
-              <ul>
-                {availabilitySlots.map(slot => (
-                  <li key={slot.id}>{formatSlot(slot.start_time, slot.end_time)}</li>
-                ))}
-              </ul>
+              <div>
+                {availabilitySlots
+                  .slice()
+                  .sort((a, b) => {
+                    const dayA = new Date(a.start_time).getDay()
+                    const dayB = new Date(b.start_time).getDay()
+
+                    const adjustedA = dayIndexMondayFirst(dayA)
+                    const adjustedB = dayIndexMondayFirst(dayB)
+
+                    if (adjustedA !== adjustedB) return adjustedA - adjustedB
+
+                    return new Date(a.start_time).getTime() - new Date(b.start_time).getTime()
+                  })
+                  .map(slot => (
+                    <p key={slot.id}>{formatSlot(slot.start_time, slot.end_time)}</p>
+                  ))}
+              </div>
             </div>
           )}
 
@@ -163,6 +190,7 @@ export default function ArtisanProfilePage() {
     </div>
   )
 }
+
 
 
 
