@@ -12,7 +12,7 @@ const Map = dynamic(() => import('../components/Map'), { ssr: false })
 type Artisan = {
   id: string
   company_name: string
-  expertise?: string
+  expertise_names?: string[] 
   address: string
   latitude?: number
   longitude?: number
@@ -26,7 +26,8 @@ function isArtisan(a: Artisan | null): a is Artisan {
 export default function RecherchePage() {
   const params = useSearchParams()
   const expertise = params.get('expertise') ?? ''
-  const location = params.get('localisation') ?? ''
+  const location = params.get('location') ?? params.get('localisation') ?? ''
+
 
   const [artisans, setArtisans] = useState<Artisan[]>([])
   const [loading, setLoading] = useState(false)
@@ -176,8 +177,8 @@ export default function RecherchePage() {
                       </p>
 
                       <div className={styles.actions}>
-                        {artisan.expertise && (
-                          <span className={styles.expertiseTag}>{artisan.expertise}</span>
+                        {artisan.expertise_names && artisan.expertise_names.length > 0 && (
+                          <span className={styles.expertiseTag}>{artisan.expertise_names.join(', ')}</span>
                         )}
                         <button
                           onClick={(e) => {

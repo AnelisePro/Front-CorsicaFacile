@@ -1,3 +1,5 @@
+@use 'sass:color';
+
 .header {
   width: 100%;
   background-color: #FEFBF4;
@@ -107,7 +109,7 @@
     transition: background-color 0.3s ease;
 
     &:hover {
-      background-color: darken(#0F78B1, 8%);
+      background-color: color.scale(#0F78B1, $lightness: -8%);
     }
   }
 

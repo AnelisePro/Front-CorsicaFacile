@@ -147,38 +147,134 @@
     padding: 0.5rem 0.75rem;
     font-size: 0.875rem;
     color: #212121;
-    background-color: #fff;
-
-    &::placeholder {
-      color: #A4A7AB;
-    }
+    font-family: 'Quicksand', sans-serif;
 
     &:focus {
       outline: none;
-      border-color: #81A04A;
-      box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5);
+      border-color: #0F78B1;
+      box-shadow: 0 0 3px 1px #0F78B1;
     }
-  }
-
-  textarea {
-    resize: none;
-    min-height: 90px;
   }
 
   button {
-    background-color: #81A04A;
-    border: none;
+    background: #0F78B1;
     color: #FEFBF4;
-    font-weight: 600;
-    padding: 0.5rem 1rem;
-    border-radius: 0.375rem;
+    font-weight: 700;
+    border: none;
+    padding: 0.75rem 1rem;
+    border-radius: 0.5rem;
     cursor: pointer;
-    font-size: 0.9rem;
+    transition: background-color 0.3s ease;
 
     &:hover {
-      background-color: #6e893e;
+      background: #0c608e;
     }
   }
 }
+
+/* POPUP STYLES — design sobre et élégant */
+
+.popupOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.85);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.popupContent {
+  position: relative;
+  background: transparent;
+  padding: 0;
+  max-width: 60vw;
+  max-height: 90vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+}
+
+.popupImageWrapper {
+  position: relative;
+  width: 70vw;
+  height: 70vh;
+  border-radius: 0.75rem;
+  overflow: hidden;
+  background: #ffffff;
+  box-shadow: 0 0 30px rgba(0, 0, 0, 0.3);
+}
+
+.closeButton {
+  position: absolute;
+  top: -2rem;
+  right: -2rem;
+  width: 2.5rem;
+  height: 2.5rem;
+  border: none;
+  background: #ffffff;
+  color: #333;
+  font-size: 1.5rem;
+  font-weight: bold;
+  border-radius: 50%;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  transition: background 0.3s;
+
+  &:hover {
+    background: #f0f0f0;
+  }
+}
+
+.prevButton,
+.nextButton {
+  width: 3rem;
+  height: 3rem;
+  border: none;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.8);
+  color: #333;
+  font-size: 1.5rem;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  user-select: none;
+  transition: background-color 0.3s;
+
+  &:hover {
+    background: #ffffff;
+  }
+}
+
+.prevButton {
+  position: absolute;
+  left: -4rem;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.nextButton {
+  position: absolute;
+  right: -4rem;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+/* Scrollbar styling for horizontal image thumbnails */
+.projectImages::-webkit-scrollbar {
+  height: 6px;
+}
+.projectImages::-webkit-scrollbar-thumb {
+  background-color: #ccc;
+  border-radius: 3px;
+}
+
+
 
 

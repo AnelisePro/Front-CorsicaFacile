@@ -11,10 +11,11 @@ type ArtisanDetails = {
   id: string
   company_name: string
   address: string
-  expertise: string
+  expertise_names: string[]
   avatar_url?: string | null
   description?: string
-  images_urls?: string[]
+  images_urls: string[]
+  availability_slots: AvailabilitySlotType[]
 }
 
 type AvailabilitySlotType = {
@@ -29,14 +30,23 @@ export default function ArtisanProfilePage() {
 
   const [artisan, setArtisan] = useState<ArtisanDetails | null>(null)
   const [availabilitySlots, setAvailabilitySlots] = useState<AvailabilitySlotType[]>([])
+  const [popupIndex, setPopupIndex] = useState<number | null>(null)
 
   useEffect(() => {
     if (!params?.id) return
 
-    axios.get(`http://localhost:3001/artisans/${params.id}`)
+    axios
+      .get(`http://localhost:3001/artisans/${params.id}`)
       .then(res => {
-        setArtisan(res.data)
-        setAvailabilitySlots(res.data.availability_slots || [])
+        const data = res.data
+
+        setArtisan({
+          ...data,
+          images_urls: data.images_urls ?? [],
+          availability_slots: data.availability_slots ?? [],
+        })
+
+        setAvailabilitySlots(data.availability_slots ?? [])
       })
       .catch(err => {
         console.error('Erreur de chargement du profil:', err)
@@ -47,16 +57,14 @@ export default function ArtisanProfilePage() {
     const days = ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi']
     const start = new Date(startISO)
     const end = new Date(endISO)
-
     const dayName = days[start.getDay()]
 
-    // Vérifier si le créneau couvre toute la journée : de 00:00 à 00:00 du jour suivant (24h)
     const isFullDay =
       start.getHours() === 0 &&
       start.getMinutes() === 0 &&
       end.getHours() === 0 &&
       end.getMinutes() === 0 &&
-      (end.getTime() - start.getTime() === 24 * 60 * 60 * 1000)
+      end.getTime() - start.getTime() === 24 * 60 * 60 * 1000
 
     if (isFullDay) {
       return `${dayName} : Indisponible`
@@ -76,6 +84,30 @@ export default function ArtisanProfilePage() {
     alert("Message envoyé ! (fonctionnalité à implémenter)")
   }
 
+  const openPopup = (index: number) => {
+    setPopupIndex(index)
+  }
+
+  const closePopup = () => {
+    setPopupIndex(null)
+  }
+
+  const prevImage = () => {
+    if (artisan?.images_urls.length) {
+      setPopupIndex(prev =>
+        prev === null ? null : prev === 0 ? artisan.images_urls.length - 1 : prev - 1
+      )
+    }
+  }
+
+  const nextImage = () => {
+    if (artisan?.images_urls.length) {
+      setPopupIndex(prev =>
+        prev === null ? null : prev === artisan.images_urls.length - 1 ? 0 : prev + 1
+      )
+    }
+  }
+
   if (!artisan) return <p>Chargement du profil…</p>
 
   const dayIndexMondayFirst = (day: number) => (day === 0 ? 7 : day)
@@ -91,9 +123,7 @@ export default function ArtisanProfilePage() {
       </button>
 
       <div className={styles.grid}>
-        {/* Colonne principale */}
         <div className={styles.leftColumn}>
-          {/* Carte profil */}
           <div className={styles.card}>
             <div className={styles.profileHeader}>
               <Image
@@ -109,31 +139,42 @@ export default function ArtisanProfilePage() {
               />
               <div>
                 <h1>{artisan.company_name}</h1>
-                <p><FaMapMarkerAlt /> {artisan.address}</p>
-                <span className={styles.expertise}>{artisan.expertise}</span>
+                <p>
+                  <FaMapMarkerAlt /> {artisan.address}
+                </p>
+                <span className={styles.expertise}>{artisan.expertise_names?.join(', ')}</span>
               </div>
             </div>
           </div>
 
-          {/* À propos */}
           <div className={styles.card}>
             <h2>À propos de l'entreprise</h2>
             <p>{artisan.description || "Cet artisan n'a pas encore ajouté de description."}</p>
           </div>
 
-          {/* Réalisations */}
-          {Array.isArray(artisan.images_urls) && artisan.images_urls.length > 0 && (
+          {artisan.images_urls.length > 0 && (
             <div className={styles.card}>
               <h2>Réalisations</h2>
               <div className={styles.projectImages}>
                 {artisan.images_urls.map((url, i) => (
-                  <div key={i} className={styles.projectImageWrapper}>
+                  <div
+                    key={i}
+                    className={styles.projectImageWrapper}
+                    onClick={() => openPopup(i)}
+                    style={{ cursor: 'pointer' }}
+                    aria-label={`Voir projet ${i + 1} en grand`}
+                    role="button"
+                    tabIndex={0}
+                    onKeyDown={e => {
+                      if (e.key === 'Enter' || e.key === ' ') openPopup(i)
+                    }}
+                  >
                     <Image
                       src={`${url}?t=${Date.now()}`}
                       alt={`Projet ${i + 1}`}
                       width={200}
                       height={150}
-                      objectFit="contain"
+                      style={{ objectFit: 'contain' }}
                     />
                   </div>
                 ))}
@@ -142,9 +183,7 @@ export default function ArtisanProfilePage() {
           )}
         </div>
 
-        {/* Colonne droite */}
         <div className={styles.rightColumn}>
-          {/* Disponibilités */}
           {availabilitySlots.length > 0 && (
             <div className={styles.card}>
               <h2>Créneaux de disponibilité</h2>
@@ -169,7 +208,6 @@ export default function ArtisanProfilePage() {
             </div>
           )}
 
-          {/* Formulaire de contact */}
           <div className={styles.card}>
             <h2>Contacter l'artisan</h2>
             <form className={styles.contactForm} onSubmit={handleSubmit} noValidate>
@@ -187,9 +225,56 @@ export default function ArtisanProfilePage() {
           </div>
         </div>
       </div>
+
+      {popupIndex !== null && artisan.images_urls.length > 0 ? (
+        <div
+          className={styles.popupOverlay}
+          onClick={closePopup}
+          role="dialog"
+          aria-modal="true"
+          aria-label="Vue agrandie de l'image"
+        >
+          <div className={styles.popupContent} onClick={e => e.stopPropagation()}>
+            <button
+              className={styles.closeButton}
+              onClick={closePopup}
+              aria-label="Fermer la vue agrandie"
+            >
+              ×
+            </button>
+            <button
+              className={styles.prevButton}
+              onClick={prevImage}
+              aria-label="Image précédente"
+            >
+              ‹
+            </button>
+            <div className={styles.popupImageWrapper}>
+              <Image
+                src={`${artisan.images_urls[popupIndex]}?t=${Date.now()}`}
+                alt={`Projet ${popupIndex + 1}`}
+                fill
+                style={{ objectFit: 'contain' }}
+                priority
+              />
+            </div>
+            <button
+              className={styles.nextButton}
+              onClick={nextImage}
+              aria-label="Image suivante"
+            >
+              ›
+            </button>
+          </div>
+        </div>
+      ) : null}
     </div>
   )
 }
+
+
+
+
 
 
 

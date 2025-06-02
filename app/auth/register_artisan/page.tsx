@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import styles from './page.module.scss'
 import { loadStripe } from '@stripe/stripe-js'
 import { toast, ToastContainer } from 'react-toastify'
@@ -10,12 +10,14 @@ import Link from 'next/link'
 
 export default function ArtisanInscription() {
   const router = useRouter()
+  const [expertiseList, setExpertiseList] = useState<string[]>([])
   const [companyName, setCompanyName] = useState('')
   const [streetNumber, setStreetNumber] = useState('')
   const [streetName, setStreetName] = useState('')
   const [postalCode, setPostalCode] = useState('')
   const [city, setCity] = useState('')
   const [expertise, setExpertise] = useState('')
+  const [customExpertise, setCustomExpertise] = useState('')
   const [siren, setSiren] = useState('')
   const [kbisFile, setKbisFile] = useState<File | null>(null)
   const [insuranceFile, setInsuranceFile] = useState<File | null>(null)
@@ -28,13 +30,23 @@ export default function ArtisanInscription() {
   const [step, setStep] = useState(1)
   const [sessionId, setSessionId] = useState<string | null>(null)
 
-  const stripePublishableKey = "pk_test_51RO446Rs43niZdSJN0YjPjgq7HdFlhdFqqUqpsKxmgTAMHDyjK2g6Qh9FaRtdLjTWIkCz7ARow4rpyDliAzgzIgT00b0r32PoM"
+  const stripePublishableKey = 'pk_test_51RO446Rs43niZdSJN0YjPjgq7HdFlhdFqqUqpsKxmgTAMHDyjK2g6Qh9FaRtdLjTWIkCz7ARow4rpyDliAzgzIgT00b0r32PoM'
+
+  useEffect(() => {
+    fetch('http://localhost:3001/api/expertises')
+      .then(res => res.json())
+      .then(data => {
+        if (Array.isArray(data)) {
+          setExpertiseList(data)
+        }
+      })
+      .catch(() => toast.error('Erreur lors du chargement des expertises'))
+  }, [])
 
   const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
 
-    // Validation simple
     if (
       !companyName || !streetNumber || !streetName || !postalCode || !city ||
       !expertise || !siren || !kbisFile || !insuranceFile || !email ||
@@ -45,15 +57,15 @@ export default function ArtisanInscription() {
       return
     }
 
-    if (password !== confirmPassword) {
-      setError('Les mots de passe ne correspondent pas.')
-      toast.error('Les mots de passe ne correspondent pas.')
+    if (expertise === 'Autre' && !customExpertise.trim()) {
+      setError('Veuillez entrer votre domaine d\'expertise.')
+      toast.error('Veuillez entrer votre domaine d\'expertise.')
       return
     }
 
-    if (!stripePublishableKey) {
-      setError('Clé publique Stripe manquante.')
-      toast.error('Clé publique Stripe manquante.')
+    if (password !== confirmPassword) {
+      setError('Les mots de passe ne correspondent pas.')
+      toast.error('Les mots de passe ne correspondent pas.')
       return
     }
 
@@ -62,7 +74,7 @@ export default function ArtisanInscription() {
     const formData = new FormData()
     formData.append('artisan[company_name]', companyName)
     formData.append('artisan[address]', fullAddress)
-    formData.append('artisan[expertise]', expertise)
+    formData.append('artisan[expertise]', expertise === 'Autre' ? customExpertise : expertise)
     formData.append('artisan[siren]', siren)
     if (kbisFile) formData.append('artisan[kbis]', kbisFile)
     if (insuranceFile) formData.append('artisan[insurance]', insuranceFile)
@@ -83,13 +95,11 @@ export default function ArtisanInscription() {
       if (response.ok) {
         if (data.session_id) {
           setSessionId(data.session_id)
-          setStep(2) // Passage à l’étape paiement
+          setStep(2)
         } else {
           toast.success('Inscription réussie !', {
             autoClose: 3000,
-            onClose: () => {
-              router.push('/auth/login_artisan') 
-            }
+            onClose: () => router.push('/auth/login_artisan')
           })
         }
       } else {
@@ -104,39 +114,29 @@ export default function ArtisanInscription() {
   }
 
   const handlePayment = async () => {
-    if (!stripePublishableKey) {
-      setError('Clé publique Stripe manquante.')
-      toast.error('Clé publique Stripe manquante.')
+    if (!stripePublishableKey || !sessionId) {
+      toast.error('Données Stripe manquantes.')
       return
     }
-    if (!sessionId) {
-      setError('Session de paiement manquante.')
-      toast.error('Session de paiement manquante.')
-      return
-    }
+
     const stripe = await loadStripe(stripePublishableKey)
     if (!stripe) {
-      setError('Erreur lors du chargement de Stripe.')
       toast.error('Erreur lors du chargement de Stripe.')
       return
     }
+
     await stripe.redirectToCheckout({ sessionId })
   }
 
   return (
     <div className={styles.splitContainer}>
       <div className={styles.leftSide}>
-        <img
-          src="/images/landscape1.jpg"
-          alt="Inscription Artisan"
-          className={styles.image}
-        />
+        <img src="/images/landscape1.jpg" alt="Inscription Artisan" className={styles.image} />
       </div>
 
       <div className={styles.rightSide}>
         <div className={styles.card}>
           <h1 className={styles.title}>Inscription</h1>
-
           {error && <p className={styles.error}>{error}</p>}
 
           {step === 1 && (
@@ -150,52 +150,21 @@ export default function ArtisanInscription() {
                   required
                 >
                   <option value="">Sélectionnez</option>
-                  <option value="Antenniste">Antenniste</option>
-                  <option value="Assainisseur">Assainisseur</option>
-                  <option value="Balnéo">Spécialiste balnéo</option>
-                  <option value="Bâtiment">Ingénieur en bâtiment</option>
-                  <option value="Carreleur">Carreleur</option>
-                  <option value="Charpentier">Charpentier</option>
-                  <option value="Chauffagiste">Chauffagiste</option>
-                  <option value="Chauffeur">Chauffeur</option>
-                  <option value="Chaudronnier">Chaudronnier</option>
-                  <option value="Chocolatier">Chocolatier</option>
-                  <option value="Coiffeur">Coiffeur</option>
-                  <option value="Couvreur">Couvreur</option>
-                  <option value="Démolisseur">Démolisseur</option>
-                  <option value="Électricien">Électricien</option>
-                  <option value="Ébéniste">Ébéniste</option>
-                  <option value="Éleveur">Éleveur</option>
-                  <option value="Fleuriste">Fleuriste</option>
-                  <option value="Forgeron">Forgeron</option>
-                  <option value="Garagiste">Garagiste</option>
-                  <option value="Glacier">Glacier</option>
-                  <option value="Horloger">Horloger</option>
-                  <option value="Imprimeur">Imprimeur</option>
-                  <option value="Jardinier">Jardinier</option>
-                  <option value="Joaillier">Joaillier</option>
-                  <option value="Luthier">Luthier</option>
-                  <option value="Maçon">Maçon</option>
-                  <option value="Mécanicien">Mécanicien</option>
-                  <option value="Menuisier">Menuisier</option>
-                  <option value="Métallier">Métallier</option>
-                  <option value="Miroitier">Miroitier</option>
-                  <option value="Opticien">Opticien</option>
-                  <option value="Orfèvre">Orfèvre</option>
-                  <option value="Pâtissier">Pâtissier</option>
-                  <option value="Peintre">Peintre</option>
-                  <option value="Plombier">Plombier</option>
-                  <option value="Potier">Potier</option>
-                  <option value="Rénovateur">Rénovateur</option>
-                  <option value="Serrurier">Serrurier</option>
-                  <option value="Soudeur">Soudeur</option>
-                  <option value="Tapissier">Tapissier</option>
-                  <option value="Tailleur">Tailleur</option>
-                  <option value="Tonnelier">Tonnelier</option>
-                  <option value="Verrier">Verrier</option>
-                  <option value="Vitrier">Vitrier</option>
-                  <option value="Zingueur">Zingueur</option>
+                  {expertiseList.map((item) => (
+                    <option key={item} value={item}>{item}</option>
+                  ))}
+                  <option value="Autre">Autre</option>
                 </select>
+                {expertise === 'Autre' && (
+                  <input
+                    type="text"
+                    placeholder="Entrez votre domaine d'expertise"
+                    value={customExpertise}
+                    onChange={(e) => setCustomExpertise(e.target.value)}
+                    required
+                    style={{ marginTop: '8px' }}
+                  />
+                )}
               </div>
 
               <div className={styles.inputGroup}>
@@ -367,29 +336,19 @@ export default function ArtisanInscription() {
 
           {step === 2 && (
             <div className={styles.paymentSection}>
-              <h3>Paiement de la formule {membershipPlan}</h3>
+              <h3>Paiement de la formule d'adhésion</h3>
               <button onClick={handlePayment} className={styles.paymentButton}>
                 Payer avec Stripe
               </button>
             </div>
           )}
 
-          <ToastContainer
-            position="top-right"
-            autoClose={3000}
-            hideProgressBar={false}
-            newestOnTop={false}
-            closeOnClick
-            rtl={false}
-            pauseOnFocusLoss
-            draggable
-            pauseOnHover
-            theme="light"
-          />
+          <ToastContainer position="bottom-center" autoClose={3000} />
         </div>
       </div>
     </div>
-  );
+  )
 }
+
 
 

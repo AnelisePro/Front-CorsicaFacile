@@ -13,7 +13,7 @@ import styles from './page.module.scss'
 type Artisan = {
   company_name: string
   address: string
-  expertise: string
+  expertise_names: string[]
   description?: string
   siren: string
   email: string
@@ -29,26 +29,6 @@ type PlanInfo = {
   interval: string
 }
 
-const expertises = [
-  "Antenniste", "Assainisseur", "Spécialiste balnéo", "Ingénieur en bâtiment", "Opérateur de centrale à béton",
-  "Calorifugeur", "Canalisateur", "Chapiste", "Charpentier", "Chef de chantier", "Chauffagiste",
-  "Cheministe/Fumisterie", "Cloisonneur", "Climaticien", "Conducteur d'engins de chantier", "Conducteur de travaux",
-  "Cordiste", "Cordonnier", "Couturier", "Couvreur", "Cuisiniste", "Déboucheur", "Déménageur", "Démolisseur",
-  "Dessinateur-projeteur", "Désamianteur", "Désinsectiseur", "Diagnostiqueur", "Ébéniste", "Monteur échafaudeur",
-  "Électricien", "Économiste de la construction", "Technicien en électroménager", "Enduiseur",
-  "Nettoyage/entretien de bâtiments", "Installateur/réparateur d'escaliers mécaniques", "Étancheur", "Façadier",
-  "Ferronnier", "Forgeron", "Foreur", "Géomètre-topographe", "Spécialiste du goudronnage", "Poseur de gouttière",
-  "Graveur", "Grutier", "Technicien en traitement de l'humidité", "Installateur de systèmes de sécurité incendie",
-  "Installateur de mobilier", "Installateur de systèmes de sécurité", "Installateur de systèmes photovoltaïques",
-  "Installeteur de systèmes d'irrigation", "Isolateur", "Jointeur", "Jardinier", "Maçon", "Marbrier", "Menuisier",
-  "Installateur/réparateur de monte-charges", "Multi-services", "Installateur/réparateur de paratonnerres",
-  "Paysagiste", "Peintre", "Pisciniste", "Plâtrier/Plaquiste", "Plombier", "Spécialiste du PMR",
-  "Installateur/réparateur de portes automatiques et tambours", "Poseur de revêtement de sol", "Potier", "Ramoneur",
-  "Restaurateur de meubles", "Serrurier", "Spécialiste des terrasses en bois", "Spécialiste du vitrail",
-  "Tailleur de pierre", "Technicien du traitement de l'eau", "Terrassier", "Poseur de toiles tendues", "Vitrier",
-  "Installateur/réparateur de volets roulants", "Wifi télécom", "Zingueur"
-]
-
 const membershipPlans = ['Standard', 'Pro', 'Premium']
 const intervalTranslations = {
   day: 'journalière',
@@ -61,9 +41,11 @@ export default function ArtisanDashboard() {
   const { user, setUser } = useAuth()
 
   const [token, setToken] = useState<string | null>(null)
-  const [artisan, setArtisan] = useState<Artisan | null>(null)
+  const [artisan, setArtisan] = useState<Artisan | null>(null) // ARTISAN PEUT ÊTRE NULL
   const [planInfo, setPlanInfo] = useState<PlanInfo | null>(null)
   const [isEditing, setIsEditing] = useState(false)
+
+  const [expertises, setExpertises] = useState<string[]>([])
 
   const [kbisFile, setKbisFile] = useState<File | null>(null)
   const [insuranceFile, setInsuranceFile] = useState<File | null>(null)
@@ -79,6 +61,19 @@ export default function ArtisanDashboard() {
   useEffect(() => {
     if (token) fetchArtisan()
   }, [token])
+
+  useEffect(() => {
+    fetchExpertises()
+  }, [])
+
+  async function fetchExpertises() {
+    try {
+      const res = await axios.get('http://localhost:3001/api/expertises')
+      setExpertises(res.data)
+    } catch (error) {
+      toast.error("Impossible de récupérer les expertises.")
+    }
+  }
 
   async function fetchArtisan() {
     try {
@@ -119,7 +114,11 @@ export default function ArtisanDashboard() {
   function handleChange(e: React.ChangeEvent<any>) {
     if (!artisan) return
     const { name, value } = e.target
-    setArtisan(prev => prev ? { ...prev, [name]: value } : prev)
+    if (name === 'expertise_names') {
+      setArtisan(prev => (prev ? { ...prev, [name]: [value] } : prev))
+    } else {
+      setArtisan(prev => (prev ? { ...prev, [name]: value } : prev))
+    }
   }
 
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -163,73 +162,103 @@ export default function ArtisanDashboard() {
   }
 
   async function handleUpdate() {
-    if (!artisan) return
+  if (!artisan) return
 
-    try {
-      const formData = new FormData()
+  try {
+    const formData = new FormData()
 
-      Object.entries(artisan).forEach(([key, value]) => {
-        if (typeof value === 'string') formData.append(`artisan[${key}]`, value)
-      })
-
-      if (kbisFile) formData.append('artisan[kbis]', kbisFile)
-      if (insuranceFile) formData.append('artisan[insurance]', insuranceFile)
-      if (avatarFile) formData.append('artisan[avatar]', avatarFile)
-
-      newImages.forEach(file => {
-        formData.append('artisan[project_images][]', file)
-      })
-
-      deletedImageUrls.forEach(url => {
-        formData.append('artisan[deleted_image_urls][]', url)
-      })
-
-      const res = await axios.put('http://localhost:3001/artisans/me', formData, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'multipart/form-data',
-        },
-      })
-
-      if (res.data.checkout_url) {
-        toast.info("Le nouveau tarif prendra effet le mois suivant. Veuillez finaliser le paiement dans la fenêtre qui va s'ouvrir.")
-        window.open(res.data.checkout_url, '_blank')
-      } else {
-        toast.success('Informations mises à jour avec succès !')
-        setIsEditing(false)
-        fetchArtisan()
-
-        // Mise à jour du contexte user avec la nouvelle URL d'avatar
-        if (res.data.artisan?.avatar_url && user) {
-          setUser({
-            ...user,
-            avatar_url: res.data.artisan.avatar_url,
-          })
-        }
-
-        setKbisFile(null)
-        setInsuranceFile(null)
-        setAvatarFile(null)
-        setNewImages([])
-        setDeletedImageUrls([])
+    Object.entries(artisan).forEach(([key, value]) => {
+      // Ne pas envoyer ces clés qui sont des URLs ou non éditables
+      if (
+        key === 'images_urls' ||
+        key === 'avatar_url' ||
+        key === 'kbis_url' ||       // <-- on exclut ces URLs
+        key === 'insurance_url'
+      ) {
+        return
       }
-    } catch (error) {
-      toast.error('Erreur lors de la mise à jour.')
+
+      if (typeof value === 'string') {
+        formData.append(`artisan[${key}]`, value)
+      } else if (Array.isArray(value)) {
+        value.forEach(v => formData.append(`artisan[${key}][]`, v))
+      }
+    })
+
+    // Ajouter les fichiers uploadés
+    if (kbisFile) formData.append('artisan[kbis]', kbisFile)
+    if (insuranceFile) formData.append('artisan[insurance]', insuranceFile)
+    if (avatarFile) formData.append('artisan[avatar]', avatarFile)
+
+    // Images supplémentaires à uploader
+    newImages.forEach(file => {
+      formData.append('artisan[project_images][]', file)
+    })
+
+    // URLs des images supprimées
+    deletedImageUrls.forEach(url => {
+      formData.append('artisan[deleted_image_urls][]', url)
+    })
+
+    // Envoi avec axios, mais on NE PAS préciser Content-Type (axios le gère)
+    const res = await axios.put('http://localhost:3001/artisans/me', formData, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        // Pas de 'Content-Type' ici !
+      },
+    })
+
+    if (res.data.checkout_url) {
+      toast.info(
+        "Le nouveau tarif prendra effet le mois suivant. Veuillez finaliser le paiement dans la fenêtre qui va s'ouvrir."
+      )
+      window.open(res.data.checkout_url, '_blank')
+    } else {
+      toast.success('Informations mises à jour avec succès !')
+      setIsEditing(false)
+      fetchArtisan()
+
+      if (res.data.artisan?.avatar_url && user) {
+        setUser({
+          ...user,
+          avatar_url: res.data.artisan.avatar_url,
+        })
+      }
+
+      setKbisFile(null)
+      setInsuranceFile(null)
+      setAvatarFile(null)
+      setNewImages([])
+      setDeletedImageUrls([])
     }
+  } catch (error) {
+    toast.error('Erreur lors de la mise à jour.')
   }
+}
+
+
 
   async function handleDeleteAccount() {
-    if (!token) return
+    if (!token) return;
     try {
       await axios.delete('http://localhost:3001/artisans/me', {
         headers: { Authorization: `Bearer ${token}` },
-      })
-      toast.success('Compte supprimé avec succès.')
-      window.location.href = '/'
+      });
+      toast.success('Compte supprimé avec succès.');
+
+      // Nettoyer le token localStorage
+      localStorage.removeItem('artisanToken');
+
+      // Déconnecter l'utilisateur dans le contexte
+      setUser(null);
+
+      // Redirection
+      window.location.href = '/';
     } catch (error) {
-      toast.error('Erreur lors de la suppression du compte.')
+      toast.error('Erreur lors de la suppression du compte.');
     }
   }
+
 
   if (!user) return <p>Chargement...</p>
   if (!artisan) return <p>Chargement des données artisan...</p>
@@ -238,7 +267,6 @@ export default function ArtisanDashboard() {
     <div className={styles.container}>
       <ToastContainer />
 
-      {/* Colonne de gauche : vue ou édition */}
       <div className={styles.leftColumn}>
         {!isEditing ? (
           <ArtisanView
@@ -251,6 +279,7 @@ export default function ArtisanDashboard() {
         ) : (
           <ArtisanEdit
             artisan={artisan}
+            setArtisan={setArtisan}
             handleChange={handleChange}
             handleFileChange={handleFileChange}
             handleImagesChange={handleImagesChange}
@@ -270,11 +299,12 @@ export default function ArtisanDashboard() {
         )}
       </div>
 
-      {/* Colonne de droite : disponibilité */}
       <div className={styles.rightColumn}>
         <AvailabilitySlots isEditing={isEditing} />
       </div>
     </div>
   )
 }
+
+
 

@@ -4,7 +4,7 @@ import styles from './ArtisanEdit.module.scss'
 type Artisan = {
   company_name: string
   address: string
-  expertise: string
+  expertise_names: string[]
   description?: string
   siren: string
   email: string
@@ -16,8 +16,10 @@ type Artisan = {
 }
 
 type ArtisanEditProps = {
-  artisan: Artisan
-  handleChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => void
+  artisan: Artisan | null // PEUT ÊTRE NULL
+  handleChange: (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+  ) => void
   handleFileChange: (e: React.ChangeEvent<HTMLInputElement>) => void
   handleImagesChange: (e: React.ChangeEvent<HTMLInputElement>) => void
   removeExistingImage: (url: string) => void
@@ -26,10 +28,11 @@ type ArtisanEditProps = {
   isEditing: boolean
   expertises: string[]
   membershipPlans: string[]
+  setArtisan: React.Dispatch<React.SetStateAction<Artisan | null>> // accepter null
   kbisFile: File | null
   insuranceFile: File | null
   avatarFile: File | null
-  handleUpdate: () => void
+  handleUpdate: () => Promise<void>
   handleCancel: () => void
   deletedImageUrls: string[]
 }
@@ -42,15 +45,32 @@ export default function ArtisanEdit({
   removeExistingImage,
   removeNewImage,
   newImages,
+  isEditing,
   expertises,
   membershipPlans,
+  setArtisan,
   kbisFile,
   insuranceFile,
   avatarFile,
   handleUpdate,
   handleCancel,
-  isEditing,
+  deletedImageUrls,
 }: ArtisanEditProps) {
+  // Gérer le changement des expertises (array de string)
+  function handleExpertiseChange(e: React.ChangeEvent<HTMLSelectElement>) {
+    const selectedValue = e.target.value
+
+    setArtisan(prev => {
+      if (!prev) return prev // si null, on ne fait rien
+      return {
+        ...prev,
+        expertise_names: [selectedValue],
+      }
+    })
+  }
+
+  if (!artisan) return <p>Chargement des données...</p>
+
   return (
     <form className={styles.form} onSubmit={e => e.preventDefault()}>
 
@@ -107,9 +127,9 @@ export default function ArtisanEdit({
           <label htmlFor="expertise">Expertise</label>
           <select
             id="expertise"
-            name="expertise"
-            value={artisan.expertise}
-            onChange={handleChange}
+            name="expertise_names"
+            value={artisan.expertise_names[0] || ''}
+            onChange={handleExpertiseChange}
             required
           >
             <option value="">Sélectionnez une expertise</option>
@@ -311,9 +331,9 @@ export default function ArtisanEdit({
           Annuler
         </button>
       </div>
-
     </form>
   )
 }
+
 
 

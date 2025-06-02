@@ -1,3 +1,4 @@
+@use 'sass:color';
 @import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@400;700&display=swap');
 
 .container {
@@ -58,7 +59,7 @@
 }
 
 .card:hover {
-  background-color: darken(#0F78B1, 10%);
+  background-color: color.scale(#0F78B1, $lightness: -10%);
 }
 
 /* Responsive */

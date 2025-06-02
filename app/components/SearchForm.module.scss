@@ -1,3 +1,5 @@
+@use 'sass:color';
+
 .searchForm {
   padding: 2rem;
   display: flex;
@@ -76,7 +78,7 @@
 }
 
 .row button:hover {
-  background: darken(#0F78B1, 10%);
+  background: color.scale(#0F78B1, $lightness: -10%);
 }
 
 /* Responsive */
