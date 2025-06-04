@@ -8,6 +8,8 @@ import styles from './page.module.scss'
 import { toast, ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 
+const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
+
 interface Client {
   id?: number
   first_name: string
@@ -46,7 +48,7 @@ export default function ClientDashboard() {
       }
 
       try {
-        const response = await axios.get('http://localhost:3001/clients/me', {
+        const response = await axios.get(`${apiUrl}/clients/me`, {
           headers: { Authorization: `Bearer ${token}` },
         })
         setClient(response.data.client)
@@ -99,7 +101,7 @@ export default function ClientDashboard() {
         formData.append('client[avatar]', avatarFile)
       }
 
-      await axios.put('http://localhost:3001/clients/me', formData, {
+      await axios.put(`${apiUrl}/clients/me`, formData, {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'multipart/form-data',
@@ -110,7 +112,7 @@ export default function ClientDashboard() {
       setIsEditing(false)
       setAvatarFile(null)
 
-      const response = await axios.get('http://localhost:3001/clients/me', {
+      const response = await axios.get(`${apiUrl}/clients/me`, {
         headers: { Authorization: `Bearer ${token}` },
       })
       const updatedClient = response.data.client

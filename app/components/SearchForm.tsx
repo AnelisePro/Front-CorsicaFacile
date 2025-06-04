@@ -6,6 +6,8 @@ import { FiMapPin, FiSearch } from 'react-icons/fi'
 import { FaBriefcase } from 'react-icons/fa'
 import styles from './SearchForm.module.scss'
 
+const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
+
 type Commune = {
   nom: string
   codesPostaux: string[]
@@ -35,7 +37,7 @@ export default function SearchForm({ defaultExpertise = '', defaultLocation = ''
   useEffect(() => {
     const fetchExpertises = async () => {
       try {
-        const data = await fetchJSON<string[]>('http://localhost:3001/api/expertises')
+        const data = await fetchJSON<string[]>(`${apiUrl}/api/expertises`)
         setExpertises(data)
       } catch (err) {
         console.error('Erreur récupération expertises :', err)

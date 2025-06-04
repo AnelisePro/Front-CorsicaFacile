@@ -7,6 +7,8 @@ import SearchForm from '../components/SearchForm'
 import styles from './page.module.scss'
 import { FaMapMarkerAlt } from 'react-icons/fa'
 
+const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
+
 const Map = dynamic(() => import('../components/Map'), { ssr: false })
 
 type Artisan = {
@@ -65,7 +67,7 @@ export default function RecherchePage() {
     setLoading(true)
     setError(null)
 
-    fetch(`http://localhost:3001/artisans?expertise=${encodeURIComponent(expertise)}&location=${encodeURIComponent(location)}`)
+    fetch(`${apiUrl}/artisans?expertise=${encodeURIComponent(expertise)}&location=${encodeURIComponent(location)}`)
       .then(res => res.json())
       .then(async (data) => {
         const artisanList: Artisan[] = Array.isArray(data) ? data : data.artisans ?? []

@@ -10,6 +10,8 @@ import ArtisanEdit from '../../components/ArtisanEdit'
 import AvailabilitySlots from '../../components/AvailabilitySlots'
 import styles from './page.module.scss'
 
+const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
+
 type Artisan = {
   company_name: string
   address: string
@@ -66,7 +68,7 @@ export default function ArtisanDashboard() {
 
   async function fetchExpertises() {
     try {
-      const res = await axios.get('http://localhost:3001/api/expertises')
+      const res = await axios.get(`${apiUrl}/api/expertises`)
       setExpertises(res.data)
     } catch (error) {
       toast.error("Impossible de récupérer les expertises.")
@@ -75,7 +77,7 @@ export default function ArtisanDashboard() {
 
   async function fetchArtisan() {
     try {
-      const res = await axios.get('http://localhost:3001/artisans/me', {
+      const res = await axios.get(`${apiUrl}/artisans/me`, {
         headers: { Authorization: `Bearer ${token}` },
       })
       setArtisan(res.data.artisan)
@@ -199,7 +201,7 @@ export default function ArtisanDashboard() {
     })
 
     // Envoi avec axios, mais on NE PAS préciser Content-Type (axios le gère)
-    const res = await axios.put('http://localhost:3001/artisans/me', formData, {
+    const res = await axios.put(`${apiUrl}/artisans/me`, formData, {
       headers: {
         Authorization: `Bearer ${token}`,
         // Pas de 'Content-Type' ici !
@@ -239,7 +241,7 @@ export default function ArtisanDashboard() {
   async function handleDeleteAccount() {
     if (!token) return;
     try {
-      await axios.delete('http://localhost:3001/artisans/me', {
+      await axios.delete(`${apiUrl}/artisans/me`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       toast.success('Compte supprimé avec succès.');

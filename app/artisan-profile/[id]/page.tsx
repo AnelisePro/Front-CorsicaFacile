@@ -39,8 +39,10 @@ export default function ArtisanProfilePage() {
   useEffect(() => {
     if (!params?.id) return
 
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
+
     axios
-      .get(`http://localhost:3001/artisans/${params.id}`)
+      .get(`${apiUrl}/artisans/${params.id}`)
       .then(res => {
         const data = res.data
 

@@ -3,6 +3,8 @@ import axios from 'axios'
 import { toast } from 'react-toastify'
 import styles from './AvailabilitySlots.module.scss'
 
+const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
+
 export interface AvailabilitySlot {
   id: number
   start_time: string
@@ -73,7 +75,7 @@ export default function AvailabilitySlots({ isEditing }: Props) {
     const token = localStorage.getItem('artisanToken')
     if (!token) return
     try {
-      const res = await axios.get('http://localhost:3001/artisans/availability_slots', {
+      const res = await axios.get(`${apiUrl}/artisans/availability_slots`, {
         headers: { Authorization: `Bearer ${token}` },
       })
       setSlots(res.data)
@@ -145,13 +147,13 @@ export default function AvailabilitySlots({ isEditing }: Props) {
       }
 
       if (editingSlotId) {
-        await axios.put(`http://localhost:3001/artisans/availability_slots/${editingSlotId}`, slotToSend, {
+        await axios.put(`${apiUrl}/artisans/availability_slots/${editingSlotId}`, slotToSend, {
           headers: { Authorization: `Bearer ${token}` },
         })
         toast.success("Créneau modifié !")
         setEditingSlotId(null)
       } else {
-        const res = await axios.post('http://localhost:3001/artisans/availability_slots', slotToSend, {
+        const res = await axios.post(`${apiUrl}/artisans/availability_slots`, slotToSend, {
           headers: { Authorization: `Bearer ${token}` },
         })
         toast.success("Créneau ajouté !")
@@ -191,7 +193,7 @@ export default function AvailabilitySlots({ isEditing }: Props) {
     const token = localStorage.getItem('artisanToken')
     if (!token) return
     try {
-      await axios.delete(`http://localhost:3001/artisans/availability_slots/${id}`, {
+      await axios.delete(`${apiUrl}/artisans/availability_slots/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       })
       setSlots(prev => prev.filter(slot => slot.id !== id))

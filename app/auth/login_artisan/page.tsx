@@ -28,7 +28,7 @@ export default function ArtisanConnexion() {
     setError('')
 
     try {
-      const response = await fetch('http://localhost:3001/artisans/sign_in', {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/artisans/sign_in`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ artisan: { email, password, siren } }),

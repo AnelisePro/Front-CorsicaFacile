@@ -33,7 +33,7 @@ export default function ArtisanInscription() {
   const stripePublishableKey = 'pk_test_51RO446Rs43niZdSJN0YjPjgq7HdFlhdFqqUqpsKxmgTAMHDyjK2g6Qh9FaRtdLjTWIkCz7ARow4rpyDliAzgzIgT00b0r32PoM'
 
   useEffect(() => {
-    fetch('http://localhost:3001/api/expertises')
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/expertises`)
       .then(res => res.json())
       .then(data => {
         if (Array.isArray(data)) {
@@ -85,7 +85,7 @@ export default function ArtisanInscription() {
     formData.append('artisan[password_confirmation]', confirmPassword)
 
     try {
-      const response = await fetch('http://localhost:3001/artisans', {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/artisans`, {
         method: 'POST',
         body: formData,
       })

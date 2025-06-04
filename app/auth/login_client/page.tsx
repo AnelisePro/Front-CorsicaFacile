@@ -27,7 +27,7 @@ export default function ClientConnexion() {
     setError('')
 
     try {
-      const response = await fetch('http://localhost:3001/clients/sign_in', {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/clients/sign_in`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ client: { email, password } }),
