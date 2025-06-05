@@ -30,7 +30,10 @@ export default function ArtisanConnexion() {
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/artisans/sign_in`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
         body: JSON.stringify({ artisan: { email, password, siren } }),
       })
 
