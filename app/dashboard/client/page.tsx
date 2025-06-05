@@ -50,6 +50,7 @@ export default function ClientDashboard() {
       try {
         const response = await axios.get(`${apiUrl}/clients/me`, {
           headers: { Authorization: `Bearer ${token}` },
+          withCredentials: true,
         })
         setClient(response.data.client)
       } catch (error) {
@@ -106,6 +107,7 @@ export default function ClientDashboard() {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'multipart/form-data',
         },
+        withCredentials: true,
       })
 
       toast.success('Profil mis à jour avec succès.')
@@ -114,6 +116,7 @@ export default function ClientDashboard() {
 
       const response = await axios.get(`${apiUrl}/clients/me`, {
         headers: { Authorization: `Bearer ${token}` },
+        withCredentials: true,
       })
       const updatedClient = response.data.client
       setClient(updatedClient)

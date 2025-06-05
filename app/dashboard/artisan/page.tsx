@@ -43,7 +43,7 @@ export default function ArtisanDashboard() {
   const { user, setUser } = useAuth()
 
   const [token, setToken] = useState<string | null>(null)
-  const [artisan, setArtisan] = useState<Artisan | null>(null) // ARTISAN PEUT ÊTRE NULL
+  const [artisan, setArtisan] = useState<Artisan | null>(null)
   const [planInfo, setPlanInfo] = useState<PlanInfo | null>(null)
   const [isEditing, setIsEditing] = useState(false)
   const [expertises, setExpertises] = useState<string[]>([])
@@ -68,7 +68,9 @@ export default function ArtisanDashboard() {
 
   async function fetchExpertises() {
     try {
-      const res = await axios.get(`${apiUrl}/api/expertises`)
+      const res = await axios.get(`${apiUrl}/api/expertises`, {
+        withCredentials: true,
+      })
       setExpertises(res.data)
     } catch (error) {
       toast.error("Impossible de récupérer les expertises.")
@@ -79,6 +81,7 @@ export default function ArtisanDashboard() {
     try {
       const res = await axios.get(`${apiUrl}/artisans/me`, {
         headers: { Authorization: `Bearer ${token}` },
+        withCredentials: true,
       })
       setArtisan(res.data.artisan)
 
@@ -204,8 +207,8 @@ export default function ArtisanDashboard() {
     const res = await axios.put(`${apiUrl}/artisans/me`, formData, {
       headers: {
         Authorization: `Bearer ${token}`,
-        // Pas de 'Content-Type' ici !
       },
+      withCredentials: true,
     })
 
     if (res.data.checkout_url) {
@@ -237,12 +240,12 @@ export default function ArtisanDashboard() {
 }
 
 
-
   async function handleDeleteAccount() {
     if (!token) return;
     try {
       await axios.delete(`${apiUrl}/artisans/me`, {
         headers: { Authorization: `Bearer ${token}` },
+        withCredentials: true,
       });
       toast.success('Compte supprimé avec succès.');
 

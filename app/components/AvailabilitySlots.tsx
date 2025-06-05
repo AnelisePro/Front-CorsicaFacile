@@ -76,6 +76,7 @@ export default function AvailabilitySlots({ isEditing }: Props) {
     if (!token) return
     try {
       const res = await axios.get(`${apiUrl}/artisans/availability_slots`, {
+        withCredentials: true,
         headers: { Authorization: `Bearer ${token}` },
       })
       setSlots(res.data)
@@ -148,12 +149,14 @@ export default function AvailabilitySlots({ isEditing }: Props) {
 
       if (editingSlotId) {
         await axios.put(`${apiUrl}/artisans/availability_slots/${editingSlotId}`, slotToSend, {
+          withCredentials: true,
           headers: { Authorization: `Bearer ${token}` },
         })
         toast.success("Créneau modifié !")
         setEditingSlotId(null)
       } else {
         const res = await axios.post(`${apiUrl}/artisans/availability_slots`, slotToSend, {
+          withCredentials: true, 
           headers: { Authorization: `Bearer ${token}` },
         })
         toast.success("Créneau ajouté !")
@@ -194,6 +197,7 @@ export default function AvailabilitySlots({ isEditing }: Props) {
     if (!token) return
     try {
       await axios.delete(`${apiUrl}/artisans/availability_slots/${id}`, {
+        withCredentials: true, 
         headers: { Authorization: `Bearer ${token}` },
       })
       setSlots(prev => prev.filter(slot => slot.id !== id))

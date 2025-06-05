@@ -67,7 +67,9 @@ export default function RecherchePage() {
     setLoading(true)
     setError(null)
 
-    fetch(`${apiUrl}/artisans?expertise=${encodeURIComponent(expertise)}&location=${encodeURIComponent(location)}`)
+    fetch(`${apiUrl}/artisans?expertise=${encodeURIComponent(expertise)}&location=${encodeURIComponent(location)}`, {
+      credentials: 'include',
+    })
       .then(res => res.json())
       .then(async (data) => {
         const artisanList: Artisan[] = Array.isArray(data) ? data : data.artisans ?? []

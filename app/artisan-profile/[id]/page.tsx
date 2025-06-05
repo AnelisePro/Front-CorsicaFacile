@@ -42,7 +42,10 @@ export default function ArtisanProfilePage() {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
 
     axios
-      .get(`${apiUrl}/artisans/${params.id}`)
+      axios
+      .get(`${apiUrl}/artisans/${params.id}`, {
+        withCredentials: true,
+      })
       .then(res => {
         const data = res.data
 

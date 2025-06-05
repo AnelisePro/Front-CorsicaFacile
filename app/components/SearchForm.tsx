@@ -14,7 +14,9 @@ type Commune = {
 }
 
 async function fetchJSON<T>(url: string): Promise<T> {
-  const res = await fetch(url)
+  const res = await fetch(url, {
+    credentials: 'include',
+  })
   if (!res.ok) throw new Error('Erreur réseau')
   return res.json()
 }
