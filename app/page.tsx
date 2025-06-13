@@ -8,6 +8,12 @@ export default function Home() {
 
       {/* HERO */}
       <section className={styles.hero}>
+        <Image
+          src="/images/Sartene.JPG"
+          alt="Paysage de Sartène"
+          fill
+          style={{ objectFit: 'cover' }}
+        />
         <div className={styles.heroContent}>
           <h1>Corsica Facile</h1>
           <p>Le réflexe local, à portée de clic.</p>
