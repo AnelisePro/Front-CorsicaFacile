@@ -118,7 +118,6 @@ export default function Home() {
             <p>Gérez vos projets.</p>
           </div>
           <div className={styles.ctaLeft}>
-            {/* Suppression du background dans le SCSS pour que ceci fonctionne */}
             <Image
               src="/images/cta.JPG"
               alt="Espace utilisateur"
