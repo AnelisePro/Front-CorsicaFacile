@@ -86,10 +86,10 @@ export default function Home() {
           <div className={styles.ctaRight}>
             {/* Suppression du background dans le SCSS pour que ceci fonctionne */}
             <Image
-              src="/images/cta.jpg"
+              src="/images/cta.JPG"
               alt="Illustration artisans"
               fill
-              style={{ objectFit: 'cover', zIndex: 0 }}
+              style={{ objectFit: 'cover' }}
             />
             <a href="/declarer" className={styles.ctaButton} style={{ zIndex: 1, position: 'relative' }}>
               Déclarez votre besoin
@@ -120,10 +120,10 @@ export default function Home() {
           <div className={styles.ctaLeft}>
             {/* Suppression du background dans le SCSS pour que ceci fonctionne */}
             <Image
-              src="/images/cta2.jpg"
+              src="/images/cta.JPG"
               alt="Espace utilisateur"
               fill
-              style={{ objectFit: 'cover', zIndex: 0 }}
+              style={{ objectFit: 'cover' }}
             />
             <a href="/inscription" className={styles.ctaButtonOutline} style={{ zIndex: 1, position: 'relative' }}>
               Inscription / Connexion
