@@ -171,218 +171,218 @@
     margin: 3rem 0;
   }
 
- .ctaSection {
-  width: 100vw;
-  position: relative;
-  left: 50%;
-  right: 50%;
-  margin-left: -50vw;
-  margin-right: -50vw;
-  background-color: #81A04A;
-  padding: 4rem 0;
-  display: flex;
-  justify-content: center;
-
-  .ctaContent {
+  .ctaSection {
+    width: 100vw;
+    position: relative;
+    left: 50%;
+    right: 50%;
+    margin-left: -50vw;
+    margin-right: -50vw;
+    background-color: #81A04A;
+    padding: 4rem 0;
     display: flex;
-    max-width: 1000px;
-    width: 100%;
-    border-radius: 15px;
-    overflow: hidden;
-
-    /* Glassmorphism effect */
-    background: rgba(236, 228, 228, 0.444);
-    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    border: 1px solid rgba(255, 255, 255, 0.18);
-
-    .ctaLeft,
-    .ctaRight {
-      flex: 1;
-      padding: 2.5rem 3rem;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      color: #212121;
-      min-width: 0; // Important for flexbox text overflow on small screens
-    }
-
-    .ctaLeft {
-      background: transparent;
-
-      h2 {
-        font-size: 2rem;
-        margin-bottom: 1.5rem;
-        color: #FEFBF4;
-      }
-
-      ol {
-        list-style-position: inside;
-        font-size: 1.1rem;
-        color: #444;
-        line-height: 1.6;
-        text-align: left;
-
-        li {
-          margin-bottom: 0.8rem;
-        }
-      }
-    }
-
-    .ctaRight {
-      position: relative;
-      background: url('/images/cta.jpg') center center/cover no-repeat;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-
-      .ctaButton {
-        background-color: #5E3E23;
-        color: #FEFBF4;
-        padding: 1rem 3rem;
-        border-radius: 40px;
-        font-size: 1.3rem;
-        font-weight: 700;
-        text-decoration: none;
-        box-shadow: 0 6px 15px rgba(0, 0, 0, 0.25);
-        transition: background-color 0.3s ease, color 0.3s ease;
-
-        &:hover {
-          background-color: #FEFBF4;
-          color: #5E3E23;
-        }
-      }
-    }
-  }
-
-  // Responsive
-  @media (max-width: 768px) {
-    padding: 2rem 2rem;
-    flex-direction: column;
+    justify-content: center;
 
     .ctaContent {
-      flex-direction: column;
-      border-radius: 10px; // Optionnel : si tu veux que la card ait des coins carrés sur mobile
+      display: flex;
+      max-width: 1000px;
+      width: 100%;
+      border-radius: 15px;
+      overflow: hidden;
+
+      /* Glassmorphism effect */
+      background: rgba(236, 228, 228, 0.444);
+      box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.18);
 
       .ctaLeft,
       .ctaRight {
-        padding: 1.5rem 2rem;
-      }
-
-      .ctaRight {
-        height: 250px;
-        margin-top: 1.5rem; // petit espace entre les deux blocs
-      }
-    }
-  }
-}
-
-// CTA 2 //
-.ctaSectionInverse {
-  width: 100vw;
-  position: relative;
-  left: 50%;
-  right: 50%;
-  margin-left: -50vw;
-  margin-right: -50vw;
-  background-color: #81A04A;
-  padding: 4rem 0;
-  display: flex;
-  justify-content: center;
-
-  .ctaContent {
-    display: flex;
-    max-width: 1000px;
-    width: 100%;
-    border-radius: 15px;
-    overflow: hidden;
-
-    /* Glassmorphism effect */
-    background: rgba(236, 228, 228, 0.444);
-    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
-    backdrop-filter: blur(8px);
-    -webkit-backdrop-filter: blur(8px);
-    border: 1px solid rgba(255, 255, 255, 0.18);
-
-    .ctaLeft,
-    .ctaRight {
-      flex: 1;
-      padding: 2.5rem 3rem;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      color: #212121;
-      min-width: 0;
-    }
-
-    .ctaLeft {
-      background: transparent;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-
-      .ctaButtonOutline {
-        border: 2px solid #81A04A;
-        color: #81A04A;
-        background: transparent;
-        padding: 1rem 3rem;
-        border-radius: 40px;
-        font-size: 1.3rem;
-        font-weight: 700;
-        text-decoration: none;
-        transition: background-color 0.3s ease, color 0.3s ease;
-        box-shadow: 0 6px 15px rgba(0, 0, 0, 0.25);
-
-        &:hover {
-          background-color: #81A04A;
-          color: #FEFBF4;
-        }
-      }
-    }
-
-    .ctaRight {
-      background: transparent;
-
-      h2 {
-        font-size: 2rem;
-        margin-bottom: 1rem;
-        color: #FEFBF4;
-      }
-
-      p {
-        font-size: 1.1rem;
-        color: #FEFBF4;
-        max-width: 400px;
-      }
-    }
-  }
-
-  @media (max-width: 768px) {
-    padding: 2rem 2rem;
-    flex-direction: column;
-
-    .ctaContent {
-      flex-direction: column;
-      border-radius: 10px;
-
-      .ctaLeft,
-      .ctaRight {
-        padding: 1.5rem 2rem;
+        flex: 1;
+        padding: 2.5rem 3rem;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        color: #212121;
+        min-width: 0; // Important for flexbox text overflow on small screens
       }
 
       .ctaLeft {
-        order: 2;
-        margin-top: 1.5rem;
+        background: transparent;
+
+        h2 {
+          font-size: 2rem;
+          margin-bottom: 1.5rem;
+          color: #FEFBF4;
+        }
+
+        ol {
+          list-style-position: inside;
+          font-size: 1.1rem;
+          color: #444;
+          line-height: 1.6;
+          text-align: left;
+
+          li {
+            margin-bottom: 0.8rem;
+          }
+        }
       }
 
       .ctaRight {
-        order: 1;
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        .ctaButton {
+          background-color: #5E3E23;
+          color: #FEFBF4;
+          padding: 1rem 3rem;
+          border-radius: 40px;
+          font-size: 1.3rem;
+          font-weight: 700;
+          text-decoration: none;
+          box-shadow: 0 6px 15px rgba(0, 0, 0, 0.25);
+          transition: background-color 0.3s ease, color 0.3s ease;
+          z-index: 1;
+          position: relative;
+
+          &:hover {
+            background-color: #FEFBF4;
+            color: #5E3E23;
+          }
+        }
+      }
+    }
+
+    // Responsive
+    @media (max-width: 768px) {
+      padding: 2rem 2rem;
+      flex-direction: column;
+
+      .ctaContent {
+        flex-direction: column;
+        border-radius: 10px; // Optionnel : si tu veux que la card ait des coins carrés sur mobile
+
+        .ctaLeft,
+        .ctaRight {
+          padding: 1.5rem 2rem;
+        }
+
+        .ctaRight {
+          height: 250px;
+          margin-top: 1.5rem; // petit espace entre les deux blocs
+        }
       }
     }
   }
-}
 
+  // CTA 2 //
+  .ctaSectionInverse {
+    width: 100vw;
+    position: relative;
+    left: 50%;
+    right: 50%;
+    margin-left: -50vw;
+    margin-right: -50vw;
+    background-color: #81A04A;
+    padding: 4rem 0;
+    display: flex;
+    justify-content: center;
+
+    .ctaContent {
+      display: flex;
+      max-width: 1000px;
+      width: 100%;
+      border-radius: 15px;
+      overflow: hidden;
+
+      /* Glassmorphism effect */
+      background: rgba(236, 228, 228, 0.444);
+      box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+
+      .ctaLeft,
+      .ctaRight {
+        flex: 1;
+        padding: 2.5rem 3rem;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        color: #212121;
+        min-width: 0;
+      }
+
+      .ctaLeft {
+        background: transparent;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        .ctaButtonOutline {
+          border: 2px solid #81A04A;
+          color: #81A04A;
+          background: transparent;
+          padding: 1rem 3rem;
+          border-radius: 40px;
+          font-size: 1.3rem;
+          font-weight: 700;
+          text-decoration: none;
+          transition: background-color 0.3s ease, color 0.3s ease;
+          box-shadow: 0 6px 15px rgba(0, 0, 0, 0.25);
+
+          &:hover {
+            background-color: #81A04A;
+            color: #FEFBF4;
+          }
+        }
+      }
+
+      .ctaRight {
+        background: transparent;
+
+        h2 {
+          font-size: 2rem;
+          margin-bottom: 1rem;
+          color: #FEFBF4;
+        }
+
+        p {
+          font-size: 1.1rem;
+          color: #FEFBF4;
+          max-width: 400px;
+        }
+      }
+    }
+
+    @media (max-width: 768px) {
+      padding: 2rem 2rem;
+      flex-direction: column;
+
+      .ctaContent {
+        flex-direction: column;
+        border-radius: 10px;
+
+        .ctaLeft {
+          order: 2;
+          margin-top: 1.5rem;
+        }
+
+        .ctaRight {
+          order: 1;
+        }
+
+        .ctaLeft,
+        .ctaRight {
+          padding: 1.5rem 2rem;
+        }
+      }
+    }
+  }
 
   /* Vidéo */
   .videoSection {
@@ -458,5 +458,6 @@
     }
   }
 }
+
 
 
