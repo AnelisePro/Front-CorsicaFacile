@@ -43,7 +43,6 @@ export default function Navbar() {
     logout()
     toast.success('Déconnexion réussie !')
 
-    // délai avant redirection pour laisser le temps à la toast de s'afficher
     setTimeout(() => {
       router.push('/')
     }, 1000)
@@ -76,17 +75,48 @@ export default function Navbar() {
           </div>
 
           <ul className={`${styles.navLinks} ${menuOpen ? styles.show : ''}`}>
-            <li><Link href="/" className={pathname === '/' ? styles.active : ''}>Accueil</Link></li>
-            <li><Link href="/qui-sommes-nous" className={pathname === '/qui-sommes-nous' ? styles.active : ''}>Qui sommes-nous</Link></li>
-            <li className={styles.dropdown} ref={dropdownRef} onClick={() => setDropdownOpen(!dropdownOpen)}>
+            <li>
+              <Link href="/" className={pathname === '/' ? styles.active : ''}>
+                Accueil
+              </Link>
+            </li>
+            <li>
+              <Link
+                href="/qui-sommes-nous"
+                className={pathname === '/qui-sommes-nous' ? styles.active : ''}
+              >
+                Qui sommes-nous
+              </Link>
+            </li>
+            <li
+              className={styles.dropdown}
+              ref={dropdownRef}
+              onClick={() => setDropdownOpen(!dropdownOpen)}
+            >
               <span>Comment ça marche ▾</span>
               <ul className={`${styles.dropdownMenu} ${dropdownOpen ? styles.show : ''}`}>
-                <li><Link href="/comment-ca-marche/clients">Clients</Link></li>
-                <li><Link href="/comment-ca-marche/artisans">Artisans</Link></li>
+                <li>
+                  <Link href="/comment-ca-marche/clients">Clients</Link>
+                </li>
+                <li>
+                  <Link href="/comment-ca-marche/artisans">Artisans</Link>
+                </li>
               </ul>
             </li>
-            <li><Link href="/declarer-mon-besoin" className={pathname === '/declarer-mon-besoin' ? styles.active : ''}>Déclarer mon besoin</Link></li>
-            <li><Link href="/annonces" className={pathname === '/annonces' ? styles.active : ''}>Annonces</Link></li>
+            <li>
+              <Link href="/besoin" className={pathname === '/besoin' ? styles.active : ''}>
+                Déclarer mon besoin
+              </Link>
+            </li>
+
+            {/* Lien Annonces visible uniquement si artisan connecté */}
+            {user?.role === 'artisan' && (
+              <li>
+                <Link href="/annonces" className={pathname === '/annonces' ? styles.active : ''}>
+                  Annonces
+                </Link>
+              </li>
+            )}
 
             <li>
               {user ? (
@@ -98,7 +128,7 @@ export default function Navbar() {
                     height={50}
                     className={styles.avatar}
                     onError={(e) => {
-                      (e.currentTarget as HTMLImageElement).src = '/images/avatar.svg'
+                      ;(e.currentTarget as HTMLImageElement).src = '/images/avatar.svg'
                     }}
                   />
                 </Link>
@@ -129,6 +159,7 @@ export default function Navbar() {
     </>
   )
 }
+
 
 
 

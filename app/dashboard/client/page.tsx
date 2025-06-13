@@ -35,6 +35,16 @@ export default function ClientDashboard() {
   const [avatarFile, setAvatarFile] = useState<File | null>(null)
   const { logout, setUser } = useAuth()
   const [isClient, setIsClient] = useState(false)
+  const [besoins, setBesoins] = useState<any[]>([])
+  const [editingBesoinId, setEditingBesoinId] = useState<number | null>(null)
+
+  // Formulaire d'édition d'une annonce
+  const [editForm, setEditForm] = useState({
+    type_prestation: '',
+    description: '',
+    address: '',
+    schedule: '',
+  })
 
   useEffect(() => {
     setIsClient(true)
@@ -48,13 +58,21 @@ export default function ClientDashboard() {
       }
 
       try {
-        const response = await axios.get(`${apiUrl}/clients/me`, {
-          headers: { Authorization: `Bearer ${token}` },
-          withCredentials: true,
-        })
-        setClient(response.data.client)
+        const [clientRes, besoinsRes] = await Promise.all([
+          axios.get(`${apiUrl}/clients/me`, {
+            headers: { Authorization: `Bearer ${token}` },
+            withCredentials: true,
+          }),
+          axios.get(`${apiUrl}/clients/besoins`, {
+            headers: { Authorization: `Bearer ${token}` },
+            withCredentials: true,
+          }),
+        ])
+
+        setClient(clientRes.data.client)
+        setBesoins(besoinsRes.data)
       } catch (error) {
-        console.error('Erreur lors du chargement du profil client :', error)
+        console.error('Erreur lors du chargement des données client :', error)
         setClient(null)
       } finally {
         setLoading(false)
@@ -90,11 +108,7 @@ export default function ClientDashboard() {
 
       Object.entries(client).forEach(([key, value]) => {
         if (key === 'avatar_url' || key === 'id' || value === undefined || value === null) return
-
-        if (key === 'birthdate' && !isValidDate(value as string)) {
-          return
-        }
-
+        if (key === 'birthdate' && !isValidDate(value as string)) return
         formData.append(`client[${key}]`, value as string)
       })
 
@@ -140,19 +154,10 @@ export default function ClientDashboard() {
       <div>
         <p>Êtes-vous sûr de vouloir supprimer votre compte ? Cette action est irréversible.</p>
         <div className="mt-2 flex justify-end gap-2">
-          <button
-            onClick={() => {
-              toast.dismiss()
-              handleDelete()
-            }}
-            className="bg-red-600 text-white px-3 py-1 rounded"
-          >
+          <button onClick={() => { toast.dismiss(); handleDelete() }} className="bg-red-600 text-white px-3 py-1 rounded">
             Oui, supprimer
           </button>
-          <button
-            onClick={() => toast.dismiss()}
-            className="bg-gray-400 text-white px-3 py-1 rounded"
-          >
+          <button onClick={() => toast.dismiss()} className="bg-gray-400 text-white px-3 py-1 rounded">
             Annuler
           </button>
         </div>
@@ -168,12 +173,28 @@ export default function ClientDashboard() {
     )
   }
 
+  const handleDeleteBesoin = async (id: number) => {
+    const token = localStorage.getItem('clientToken')
+    if (!token) return
+
+    try {
+      await axios.delete(`${apiUrl}/clients/besoins/${id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      toast.success('Annonce supprimée.')
+      setBesoins((prev) => prev.filter((b) => b.id !== id))
+    } catch (error) {
+      console.error('Erreur suppression besoin :', error)
+      toast.error('Erreur lors de la suppression.')
+    }
+  }
+
   const handleDelete = async () => {
     const token = localStorage.getItem('clientToken')
     if (!token) return
 
     try {
-      await axios.delete('http://localhost:3001/clients/me', {
+      await axios.delete(`${apiUrl}/clients/me`, {
         headers: { Authorization: `Bearer ${token}` },
       })
       toast.success('Compte supprimé avec succès.')
@@ -193,6 +214,38 @@ export default function ClientDashboard() {
     })
   }
 
+  const formatStatus = (status?: string) => {
+    if (!status) return 'Statut inconnu'
+    return status.charAt(0).toUpperCase() + status.slice(1)
+  }
+
+  const countByStatus = (status: string) => {
+    return besoins.filter(b => b.status === status).length
+  }
+
+  // *** Nouvelle fonction pour mettre à jour une annonce ***
+  const handleUpdateBesoin = async (id: number) => {
+    const token = localStorage.getItem('clientToken')
+    if (!token) return
+
+    try {
+      await axios.put(`${apiUrl}/clients/besoins/${id}`, editForm, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      toast.success('Annonce mise à jour.')
+
+      // Recharger les besoins après mise à jour
+      const res = await axios.get(`${apiUrl}/clients/besoins`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      setBesoins(res.data)
+      setEditingBesoinId(null)
+    } catch (error) {
+      console.error('Erreur mise à jour besoin :', error)
+      toast.error('Erreur lors de la mise à jour.')
+    }
+  }
+
   if (loading) return <p>Chargement...</p>
   if (!client) return <p>Impossible de charger les informations client.</p>
 
@@ -201,70 +254,38 @@ export default function ClientDashboard() {
       <div className={styles.container}>
         <div className={styles.dashboardGrid}>
           <section className={styles.profileSection}>
+            {/* Avatar + Nom */}
             <div className={styles.card}>
               <div className={styles.avatarAndName}>
                 <div className={styles.avatarWrapper}>
                   {avatarFile ? (
-                    <Image
-                      src={URL.createObjectURL(avatarFile)}
-                      alt="Nouvel avatar"
-                      className={styles.avatar}
-                      width={96}
-                      height={96}
-                    />
+                    <Image src={URL.createObjectURL(avatarFile)} alt="Nouvel avatar" className={styles.avatar} width={96} height={96} />
                   ) : client.avatar_url ? (
-                    <Image
-                      src={`${client.avatar_url}?t=${Date.now()}`}
-                      alt="Avatar"
-                      className={styles.avatar}
-                      width={96}
-                      height={96}
-                    />
+                    <Image src={`${client.avatar_url}?t=${Date.now()}`} alt="Avatar" className={styles.avatar} width={96} height={96} />
                   ) : (
-                    <Image
-                      src="/images/avatar.svg"
-                      alt="Avatar par défaut"
-                      width={96}
-                      height={96}
-                      className={styles.avatar}
-                    />
+                    <Image src="/images/avatar.svg" alt="Avatar par défaut" width={96} height={96} className={styles.avatar} />
                   )}
 
                   {isEditing && (
                     <div className={styles.avatarInput}>
-                      <label htmlFor="avatar-upload" className={styles.fileButton}>
-                        Changer la photo de profil
-                      </label>
-                      <input
-                        id="avatar-upload"
-                        type="file"
-                        accept="image/*"
-                        onChange={handleAvatarChange}
-                        className={styles.hiddenFileInput}
-                      />
+                      <label htmlFor="avatar-upload" className={styles.fileButton}>Changer la photo de profil</label>
+                      <input id="avatar-upload" type="file" accept="image/*" onChange={handleAvatarChange} className={styles.hiddenFileInput} />
                     </div>
                   )}
                 </div>
 
-                <h1 className={styles.clientName}>
-                  {client.first_name} {client.last_name}
-                </h1>
+                <h1 className={styles.clientName}>{client.first_name} {client.last_name}</h1>
               </div>
             </div>
 
+            {/* Infos client */}
             <div className={styles.card}>
               <div className={styles.infoFields}>
                 {['email', 'phone', 'birthdate'].map((field) => (
                   <div key={field} className={styles.infoField}>
                     <label className={styles.label}>{fieldLabels[field]}</label>
                     {isEditing ? (
-                      <input
-                        type={field === 'birthdate' ? 'date' : 'text'}
-                        name={field}
-                        value={(client as any)[field] || ''}
-                        onChange={handleChange}
-                        className={styles.input}
-                      />
+                      <input type={field === 'birthdate' ? 'date' : 'text'} name={field} value={(client as any)[field] || ''} onChange={handleChange} className={styles.input} />
                     ) : (
                       <p className={styles.text}>
                         {field === 'birthdate'
@@ -279,95 +300,149 @@ export default function ClientDashboard() {
               {isEditing && (
                 <div className={styles.passwordFields}>
                   <label>Nouveau mot de passe</label>
-                  <input
-                    type="password"
-                    name="password"
-                    onChange={handleChange}
-                    className={styles.input}
-                  />
+                  <input type="password" name="password" onChange={handleChange} className={styles.input} />
                   <label>Confirmation du mot de passe</label>
-                  <input
-                    type="password"
-                    name="password_confirmation"
-                    onChange={handleChange}
-                    className={styles.input}
-                  />
+                  <input type="password" name="password_confirmation" onChange={handleChange} className={styles.input} />
                 </div>
               )}
             </div>
 
+            {/* Actions */}
             <div className={styles.actions}>
               {isEditing ? (
                 <>
-                  <button onClick={handleUpdate} className={styles.saveBtn}>
-                    Enregistrer
-                  </button>
-                  <button onClick={() => setIsEditing(false)} className={styles.cancelBtn}>
-                    Annuler
-                  </button>
+                  <button onClick={handleUpdate} className={styles.saveBtn}>Enregistrer</button>
+                  <button onClick={() => setIsEditing(false)} className={styles.cancelBtn}>Annuler</button>
                 </>
               ) : (
                 <>
-                  <button onClick={() => setIsEditing(true)} className={styles.editBtn}>
-                    Modifier
-                  </button>
-                  <button onClick={confirmDelete} className={styles.deleteBtn}>
-                    Supprimer mon compte
-                  </button>
+                  <button onClick={() => setIsEditing(true)} className={styles.editBtn}>Modifier</button>
+                  <button onClick={confirmDelete} className={styles.deleteBtn}>Supprimer mon compte</button>
                 </>
               )}
             </div>
           </section>
 
           <section className={styles.rightSection}>
+            {/* Annonces */}
             <div className={styles.card}>
               <h2>Mes annonces</h2>
-              <p className={styles.empty}>Aucune annonce pour le moment.</p>
+              {besoins.length === 0 ? (
+                <p className={styles.empty}>Aucune annonce pour le moment.</p>
+              ) : (
+                <ul className={styles.annonceList}>
+                  {besoins.map((besoin) => (
+                    <li key={besoin.id} className={styles.annonceItem}>
+                      <div className={styles.annonceHeader}>
+                        <h3>{besoin.type_prestation}</h3>
+                        <span className={`${styles.status} ${styles[besoin.status]}`}>
+                          {formatStatus(besoin.status)}
+                        </span>
+                      </div>
+
+                      {editingBesoinId === besoin.id ? (
+                        <form
+                          onSubmit={(e) => {
+                            e.preventDefault()
+                            handleUpdateBesoin(besoin.id)
+                          }}
+                          className={styles.editForm}
+                        >
+                          <input
+                            type="text"
+                            value={editForm.type_prestation}
+                            onChange={(e) => setEditForm({ ...editForm, type_prestation: e.target.value })}
+                            placeholder="Type de prestation"
+                            className={styles.input}
+                          />
+                          <textarea
+                            value={editForm.description}
+                            onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
+                            placeholder="Description"
+                            className={styles.input}
+                          />
+                          <input
+                            type="text"
+                            value={editForm.address}
+                            onChange={(e) => setEditForm({ ...editForm, address: e.target.value })}
+                            placeholder="Adresse"
+                            className={styles.input}
+                          />
+                          <input
+                            type="date"
+                            value={editForm.schedule}
+                            onChange={(e) => setEditForm({ ...editForm, schedule: e.target.value })}
+                            className={styles.input}
+                          />
+                          <div className={styles.editActions}>
+                            <button type="submit" className={styles.saveBtn}>Enregistrer</button>
+                            <button type="button" onClick={() => setEditingBesoinId(null)} className={styles.cancelBtn}>Annuler</button>
+                          </div>
+                        </form>
+                      ) : (
+                        <>
+                          <p>{besoin.description}</p>
+                          <p>Adresse : {besoin.address}</p>
+                          <p>Créé le : {formatDateFr(besoin.created_at)}</p>
+                          <p>Planifié pour : {besoin.schedule ? formatDateFr(besoin.schedule) : 'Non défini'}</p>
+                          <div className={styles.annonceActions}>
+                            <button
+                              onClick={() => {
+                                setEditingBesoinId(besoin.id)
+                                setEditForm({
+                                  type_prestation: besoin.type_prestation,
+                                  description: besoin.description,
+                                  address: besoin.address,
+                                  schedule: besoin.schedule || '',
+                                })
+                              }}
+                              className={styles.editBtn}
+                            >
+                              Modifier
+                            </button>
+                            <button
+                              onClick={() => handleDeleteBesoin(besoin.id)}
+                              className={styles.deleteBtn}
+                            >
+                              Supprimer
+                            </button>
+                          </div>
+                        </>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              )}
             </div>
 
+            {/* Statistiques */}
             <div className={styles.card}>
-              <h2>Suivi des interventions</h2>
-              <ul>
-                <li>En attente : 0</li>
-                <li>En cours : 0</li>
-                <li>Validées : 0</li>
+              <h2>Historique</h2>
+              <ul className={styles.statsList}>
+                <li>Total d'annonces : {besoins.length}</li>
+                <li>En attente : {countByStatus('pending')}</li>
+                <li>En cours : {countByStatus('ongoing')}</li>
+                <li>Terminées : {countByStatus('done')}</li>
               </ul>
             </div>
 
+            {/* Points */}
             <div className={styles.card}>
               <h2>Mes points gagnés</h2>
               <p className={styles.points}>0</p>
             </div>
 
-            <div className={styles.card}>
-              <h2>Historique des interventions</h2>
-              <ul>
-                <li>Passées : 0</li>
-                <li>En cours : 0</li>
-                <li>Futures : 0</li>
-              </ul>
-            </div>
           </section>
         </div>
       </div>
 
-      {isClient && (
-        <ToastContainer
-          position="top-right"
-          autoClose={3000}
-          hideProgressBar={false}
-          newestOnTop={false}
-          closeOnClick
-          rtl={false}
-          pauseOnFocusLoss
-          draggable
-          pauseOnHover
-          theme="light"
-        />
-      )}
+      <ToastContainer />
     </>
   )
 }
+
+
+
 
 
 
