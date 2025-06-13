@@ -1,8 +1,8 @@
 import type { NextConfig } from "next";
 
-const nextConfig: NextConfig = {
+const nextConfig = {
   images: {
-    domains: ['ui-avatars.com', 'localhost'],
+    domains: ['ui-avatars.com', 'localhost', 'front-corsica-facile.vercel.app'],
   },
 };
 
