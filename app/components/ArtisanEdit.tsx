@@ -1,5 +1,6 @@
 import React from 'react'
 import styles from './ArtisanEdit.module.scss'
+import Image from 'next/image'
 
 type Artisan = {
   company_name: string
@@ -101,11 +102,14 @@ export default function ArtisanEdit({
             className={styles.fileInput}
           />
           {avatarFile && (
-            <img
+            <div className={styles.avatarPreview} style={{ position: 'relative', width: '120px', height: '120px', borderRadius: '50%', overflow: 'hidden' }}>
+            <Image
               src={URL.createObjectURL(avatarFile)}
               alt="Prévisualisation avatar"
-              className={styles.avatarPreview}
+              fill
+              style={{ objectFit: 'cover' }}
             />
+          </div>
           )}
         </div>
       </div>
@@ -271,11 +275,14 @@ export default function ArtisanEdit({
             {artisan.images_urls.length > 0 ? (
               artisan.images_urls.map((url, idx) => (
                 <div key={idx} className={styles.imageWrapper}>
-                  <img
-                    src={`${url}?t=${Date.now()}`}
-                    alt={`Réalisation ${idx + 1}`}
-                    className={styles.image}
-                  />
+                  <div className={styles.imageWrapper} style={{ position: 'relative', width: '100px', height: '100px' }}>
+                    <Image
+                      src={`${url}?t=${Date.now()}`}
+                      alt={`Réalisation ${idx + 1}`}
+                      fill
+                      style={{ objectFit: 'cover', borderRadius: '8px' }}
+                    />
+                  </div>
                   <button
                     type="button"
                     aria-label="Supprimer cette image"
@@ -307,11 +314,14 @@ export default function ArtisanEdit({
           <div className={styles.imagesGrid}>
             {newImages.map((file, idx) => (
               <div key={idx} className={styles.imageWrapper}>
-                <img
-                  src={URL.createObjectURL(file)}
-                  alt={`Prévisualisation ${idx + 1}`}
-                  className={styles.image}
-                />
+                <div className={styles.imageWrapper} style={{ position: 'relative', width: '100px', height: '100px' }}>
+                  <Image
+                    src={URL.createObjectURL(file)}
+                    alt={`Prévisualisation ${idx + 1}`}
+                    fill
+                    style={{ objectFit: 'cover', borderRadius: '8px' }}
+                  />
+                </div>
                 <button
                   type="button"
                   aria-label="Supprimer cette image"

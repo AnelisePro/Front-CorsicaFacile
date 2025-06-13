@@ -1,5 +1,6 @@
 import styles from './page.module.scss'
 import SearchForm from './components/SearchForm'
+import Image from 'next/image'
 
 export default function Home() {
   return (
@@ -111,9 +112,9 @@ export default function Home() {
         <h2>Nos partenaires</h2>
         <div className={styles.partnersLogos}>
           {/* exemple logos partenaires */}
-          <img src="/images/partner1.png" alt="Partenaire 1" />
-          <img src="/images/partner2.png" alt="Partenaire 2" />
-          <img src="/images/partner3.png" alt="Partenaire 3" />
+          <Image src="/images/partner1.png" alt="Partenaire 1" width={120} height={60} />
+          <Image src="/images/partner2.png" alt="Partenaire 2" width={120} height={60} />
+          <Image src="/images/partner3.png" alt="Partenaire 3" width={120} height={60} />
         </div>
       </section>
 

@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Image from 'next/image'
 import Link from 'next/link'
 import styles from './page.module.scss'
 import { toast, ToastContainer } from 'react-toastify'
@@ -81,10 +82,13 @@ export default function ClientInscription() {
     <>
       <div className={styles.splitContainer}>
         <div className={styles.leftSide}>
-          <img
+          <Image
             src="/images/landscape1.jpg"
             alt="Illustration d'inscription"
             className={styles.image}
+            fill
+            style={{ objectFit: 'cover' }}
+            priority
           />
         </div>
 

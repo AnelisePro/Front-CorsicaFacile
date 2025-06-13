@@ -1,16 +1,20 @@
 'use client'
 
 import Link from 'next/link'
+import Image from 'next/image'
 import styles from './page.module.scss'
 
 export default function MonEspace() {
   return (
     <div className={styles.container}>
       <div className={styles.imageContainer}>
-        <img
+        <Image
           src="/images/landscape1.jpg"
           alt="Illustration"
           className={styles.image}
+          fill
+          sizes="(max-width: 768px) 100vw, 50vw"
+          priority
         />
       </div>
       <div className={styles.content}>

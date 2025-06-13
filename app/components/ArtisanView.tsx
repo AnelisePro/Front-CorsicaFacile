@@ -1,5 +1,6 @@
 import React from 'react'
 import styles from './ArtisanView.module.scss'
+import Image from 'next/image'
 
 type PlanInfo = {
   amount: number
@@ -48,11 +49,14 @@ export default function ArtisanView({
       {/* Card 1 : avatar + nom */}
       <div className={styles.cardProfile}>
         {artisan.avatar_url && (
-          <img
+          <Image
             src={artisan.avatar_url}
             alt={`${artisan.company_name} avatar`}
             className={styles.avatar}
             loading="lazy"
+            width={80}
+            height={80}
+            style={{ borderRadius: '50%', objectFit: 'cover' }}
           />
         )}
         <h1 className={styles.companyName}>{artisan.company_name}</h1>
@@ -141,12 +145,15 @@ export default function ArtisanView({
       <div className={styles.cardGallery}>
         <div className={styles.imagesGallery}>
           {artisan.images_urls.map((url, i) => (
-            <img
+            <Image
               key={i}
               src={url}
               alt={`Image ${i + 1} de ${artisan.company_name}`}
               loading="lazy"
+              width={160}
+              height={120}
               className={styles.image}
+              style={{ objectFit: 'cover', borderRadius: '8px', border: '1px solid #333' }}
             />
           ))}
         </div>

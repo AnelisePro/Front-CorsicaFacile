@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Image from 'next/image'
 import Link from 'next/link'
 import styles from './page.module.scss'
 import { toast, ToastContainer } from 'react-toastify'
@@ -37,9 +38,10 @@ export default function ForgottenPasswordClient() {
     <>
       <div className={styles.splitContainer}>
         <div className={styles.leftSide}>
-          <img
+          <Image
             src="/images/landscape1.jpg"
             alt="Illustration mot de passe oublié"
+            fill
             className={styles.image}
           />
         </div>

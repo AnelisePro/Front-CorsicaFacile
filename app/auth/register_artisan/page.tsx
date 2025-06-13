@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import Image from 'next/image'
 import styles from './page.module.scss'
 import { loadStripe } from '@stripe/stripe-js'
 import { toast, ToastContainer } from 'react-toastify'
@@ -134,7 +135,14 @@ export default function ArtisanInscription() {
   return (
     <div className={styles.splitContainer}>
       <div className={styles.leftSide}>
-        <img src="/images/landscape1.jpg" alt="Inscription Artisan" className={styles.image} />
+        <Image
+          src="/images/landscape1.jpg"
+          alt="Inscription Artisan"
+          className={styles.image}
+          fill
+          priority
+          sizes="100vw"
+        />
       </div>
 
       <div className={styles.rightSide}>

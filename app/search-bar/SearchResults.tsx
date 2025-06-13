@@ -1,6 +1,7 @@
 'use client'
 
 import { useSearchParams } from 'next/navigation'
+import Image from 'next/image'
 import { useEffect, useState, useRef } from 'react'
 import dynamic from 'next/dynamic'
 import SearchForm from '../components/SearchForm'
@@ -160,7 +161,7 @@ export default function RecherchePage() {
                     style={{ cursor: 'pointer' }} // pour indiquer que c'est cliquable
                   >
                     <div className={styles.avatar}>
-                      <img
+                      <Image
                         src={
                           artisan.avatar_url
                             ? `${artisan.avatar_url}?t=${Date.now()}`
@@ -169,6 +170,7 @@ export default function RecherchePage() {
                         alt={`${artisan.company_name} avatar`}
                         width={64}
                         height={64}
+                        style={{ borderRadius: '50%' }}
                       />
                     </div>
 

@@ -59,46 +59,47 @@ export default function ArtisanDashboard() {
   }, [])
 
   useEffect(() => {
-    if (token) fetchArtisan()
+    async function fetchArtisan() {
+      if (!token) return
+      try {
+        const res = await axios.get(`${apiUrl}/artisans/me`, {
+          headers: { Authorization: `Bearer ${token}` },
+          withCredentials: true,
+        })
+        setArtisan(res.data.artisan)
+
+        if (res.data.plan_info) {
+          const apiPlanInfo = res.data.plan_info
+          setPlanInfo({
+            amount: apiPlanInfo.amount,
+            currency: apiPlanInfo.currency,
+            interval: apiPlanInfo.interval,
+          })
+        } else {
+          setPlanInfo(null)
+        }
+      } catch (error) {
+        toast.error("Impossible de récupérer les infos de l'artisan.")
+      }
+    }
+
+    fetchArtisan()
   }, [token])
 
   useEffect(() => {
+    async function fetchExpertises() {
+      try {
+        const res = await axios.get(`${apiUrl}/api/expertises`, {
+          withCredentials: true,
+        })
+        setExpertises(res.data)
+      } catch (error) {
+        toast.error("Impossible de récupérer les expertises.")
+      }
+    }
+
     fetchExpertises()
   }, [])
-
-  async function fetchExpertises() {
-    try {
-      const res = await axios.get(`${apiUrl}/api/expertises`, {
-        withCredentials: true,
-      })
-      setExpertises(res.data)
-    } catch (error) {
-      toast.error("Impossible de récupérer les expertises.")
-    }
-  }
-
-  async function fetchArtisan() {
-    try {
-      const res = await axios.get(`${apiUrl}/artisans/me`, {
-        headers: { Authorization: `Bearer ${token}` },
-        withCredentials: true,
-      })
-      setArtisan(res.data.artisan)
-
-      if (res.data.plan_info) {
-        const apiPlanInfo = res.data.plan_info
-        setPlanInfo({
-          amount: apiPlanInfo.amount,
-          currency: apiPlanInfo.currency,
-          interval: apiPlanInfo.interval,
-        })
-      } else {
-        setPlanInfo(null)
-      }
-    } catch (error) {
-      toast.error("Impossible de récupérer les infos de l'artisan.")
-    }
-  }
 
   function handleEdit() {
     setIsEditing(true)
@@ -111,7 +112,32 @@ export default function ArtisanDashboard() {
     setAvatarFile(null)
     setNewImages([])
     setDeletedImageUrls([])
-    if (artisan) fetchArtisan()
+
+    async function fetchArtisan() {
+      if (!token) return
+      try {
+        const res = await axios.get(`${apiUrl}/artisans/me`, {
+          headers: { Authorization: `Bearer ${token}` },
+          withCredentials: true,
+        })
+        setArtisan(res.data.artisan)
+
+        if (res.data.plan_info) {
+          const apiPlanInfo = res.data.plan_info
+          setPlanInfo({
+            amount: apiPlanInfo.amount,
+            currency: apiPlanInfo.currency,
+            interval: apiPlanInfo.interval,
+          })
+        } else {
+          setPlanInfo(null)
+        }
+      } catch (error) {
+        toast.error("Impossible de récupérer les infos de l'artisan.")
+      }
+    }
+
+    fetchArtisan()
   }
 
   function handleChange(e: React.ChangeEvent<any>) {
@@ -165,103 +191,127 @@ export default function ArtisanDashboard() {
   }
 
   async function handleUpdate() {
-  if (!artisan) return
+    if (!artisan) return
 
-  try {
-    const formData = new FormData()
+    try {
+      const formData = new FormData()
 
-    Object.entries(artisan).forEach(([key, value]) => {
-      // Ne pas envoyer ces clés qui sont des URLs ou non éditables
-      if (
-        key === 'images_urls' ||
-        key === 'avatar_url' ||
-        key === 'kbis_url' ||       // <-- on exclut ces URLs
-        key === 'insurance_url'
-      ) {
-        return
+      Object.entries(artisan).forEach(([key, value]) => {
+        // Ne pas envoyer ces clés qui sont des URLs ou non éditables
+        if (
+          key === 'images_urls' ||
+          key === 'avatar_url' ||
+          key === 'kbis_url' ||
+          key === 'insurance_url'
+        ) {
+          return
+        }
+
+        if (typeof value === 'string') {
+          formData.append(`artisan[${key}]`, value)
+        } else if (Array.isArray(value)) {
+          value.forEach(v => formData.append(`artisan[${key}][]`, v))
+        }
+      })
+
+      // Ajouter les fichiers uploadés
+      if (kbisFile) formData.append('artisan[kbis]', kbisFile)
+      if (insuranceFile) formData.append('artisan[insurance]', insuranceFile)
+      if (avatarFile) formData.append('artisan[avatar]', avatarFile)
+
+      // Images supplémentaires à uploader
+      newImages.forEach(file => {
+        formData.append('artisan[project_images][]', file)
+      })
+
+      // URLs des images supprimées
+      deletedImageUrls.forEach(url => {
+        formData.append('artisan[deleted_image_urls][]', url)
+      })
+
+      // Envoi avec axios, mais on ne précise pas Content-Type (axios le gère)
+      const res = await axios.put(`${apiUrl}/artisans/me`, formData, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        withCredentials: true,
+      })
+
+      if (res.data.checkout_url) {
+        toast.info(
+          "Le nouveau tarif prendra effet le mois suivant. Veuillez finaliser le paiement dans la fenêtre qui va s'ouvrir."
+        )
+        window.open(res.data.checkout_url, '_blank')
+      } else {
+        toast.success('Informations mises à jour avec succès !')
+        setIsEditing(false)
+
+        // Recharger les données de l'artisan
+        async function fetchArtisan() {
+          if (!token) return
+          try {
+            const res = await axios.get(`${apiUrl}/artisans/me`, {
+              headers: { Authorization: `Bearer ${token}` },
+              withCredentials: true,
+            })
+            setArtisan(res.data.artisan)
+
+            if (res.data.plan_info) {
+              const apiPlanInfo = res.data.plan_info
+              setPlanInfo({
+                amount: apiPlanInfo.amount,
+                currency: apiPlanInfo.currency,
+                interval: apiPlanInfo.interval,
+              })
+            } else {
+              setPlanInfo(null)
+            }
+          } catch (error) {
+            toast.error("Impossible de récupérer les infos de l'artisan.")
+          }
+        }
+
+        fetchArtisan()
+
+        if (res.data.artisan?.avatar_url && user) {
+          setUser({
+            ...user,
+            avatar_url: res.data.artisan.avatar_url,
+          })
+        }
+
+        setKbisFile(null)
+        setInsuranceFile(null)
+        setAvatarFile(null)
+        setNewImages([])
+        setDeletedImageUrls([])
       }
-
-      if (typeof value === 'string') {
-        formData.append(`artisan[${key}]`, value)
-      } else if (Array.isArray(value)) {
-        value.forEach(v => formData.append(`artisan[${key}][]`, v))
-      }
-    })
-
-    // Ajouter les fichiers uploadés
-    if (kbisFile) formData.append('artisan[kbis]', kbisFile)
-    if (insuranceFile) formData.append('artisan[insurance]', insuranceFile)
-    if (avatarFile) formData.append('artisan[avatar]', avatarFile)
-
-    // Images supplémentaires à uploader
-    newImages.forEach(file => {
-      formData.append('artisan[project_images][]', file)
-    })
-
-    // URLs des images supprimées
-    deletedImageUrls.forEach(url => {
-      formData.append('artisan[deleted_image_urls][]', url)
-    })
-
-    // Envoi avec axios, mais on NE PAS préciser Content-Type (axios le gère)
-    const res = await axios.put(`${apiUrl}/artisans/me`, formData, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-      withCredentials: true,
-    })
-
-    if (res.data.checkout_url) {
-      toast.info(
-        "Le nouveau tarif prendra effet le mois suivant. Veuillez finaliser le paiement dans la fenêtre qui va s'ouvrir."
-      )
-      window.open(res.data.checkout_url, '_blank')
-    } else {
-      toast.success('Informations mises à jour avec succès !')
-      setIsEditing(false)
-      fetchArtisan()
-
-      if (res.data.artisan?.avatar_url && user) {
-        setUser({
-          ...user,
-          avatar_url: res.data.artisan.avatar_url,
-        })
-      }
-
-      setKbisFile(null)
-      setInsuranceFile(null)
-      setAvatarFile(null)
-      setNewImages([])
-      setDeletedImageUrls([])
+    } catch (error) {
+      toast.error('Erreur lors de la mise à jour.')
     }
-  } catch (error) {
-    toast.error('Erreur lors de la mise à jour.')
   }
-}
-
 
   async function handleDeleteAccount() {
-    if (!token) return;
+    if (!token) return
     try {
       await axios.delete(`${apiUrl}/artisans/me`, {
         headers: { Authorization: `Bearer ${token}` },
         withCredentials: true,
-      });
-      toast.success('Compte supprimé avec succès.');
+      })
+      toast.success('Compte supprimé avec succès.')
 
       // Nettoyer le token localStorage
-      localStorage.removeItem('artisanToken');
+      localStorage.removeItem('artisanToken')
 
       // Déconnecter l'utilisateur dans le contexte
-      setUser(null);
+      setUser(null)
 
       // Redirection
-      window.location.href = '/';
+      window.location.href = '/'
     } catch (error) {
-      toast.error('Erreur lors de la suppression du compte.');
+      toast.error('Erreur lors de la suppression du compte.')
     }
   }
-
 
   if (!user) return <p>Chargement...</p>
   if (!artisan) return <p>Chargement des données artisan...</p>
