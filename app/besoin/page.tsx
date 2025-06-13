@@ -36,7 +36,7 @@ const BesoinForm = () => {
         router.push('/auth/login_client')
       })
     }
-  }, [])
+  }, [router])
 
   const handleNext = () => {
     if (step === 2 && formData.description.length < 30) return
@@ -54,7 +54,6 @@ const BesoinForm = () => {
     form.append('besoin[description]', formData.description)
     form.append('besoin[schedule]', formData.schedule)
     form.append('besoin[address]', formData.address)
-    // Suppression du client_id, car géré côté backend
 
     formData.images.forEach((file) => {
       form.append('besoin[images][]', file)
@@ -75,11 +74,11 @@ const BesoinForm = () => {
 
   const steps = [
     null,
-    <Step1 data={formData} setData={setFormData} />,
-    <Step2 data={formData} setData={setFormData} />,
-    <Step3 data={formData} setData={setFormData} />,
-    <Step4 data={formData} setData={setFormData} />,
-    <Step5 data={formData} setData={setFormData} />
+    <Step1 key="step1" data={formData} setData={setFormData} />,
+    <Step2 key="step2" data={formData} setData={setFormData} />,
+    <Step3 key="step3" data={formData} setData={setFormData} />,
+    <Step4 key="step4" data={formData} setData={setFormData} />,
+    <Step5 key="step5" data={formData} setData={setFormData} />
   ]
 
   return (
@@ -126,4 +125,5 @@ const BesoinForm = () => {
 }
 
 export default BesoinForm
+
 

@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import axios from 'axios'
 import { useRouter } from 'next/navigation'
+import Image from 'next/image'
 
 const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
 
@@ -38,7 +39,7 @@ export default function ArtisansAnnonces() {
       .then(res => setBesoins(res.data))
       .catch(() => setError('Erreur lors du chargement des annonces'))
       .finally(() => setLoading(false))
-  }, [])
+  }, [router])
 
   if (loading) return <p>Chargement...</p>
   if (error) return <p className="text-red-600">{error}</p>
@@ -56,7 +57,14 @@ export default function ArtisansAnnonces() {
             <p><strong>Client :</strong> {b.client.name}</p>
             <div className="flex space-x-2 mt-2">
               {b.image_urls.map((url, i) => (
-                <img key={i} src={url} alt="Image besoin" className="w-24 h-24 object-cover rounded" />
+                <Image
+                  key={i}
+                  src={url}
+                  alt="Image besoin"
+                  width={96}
+                  height={96}
+                  className="object-cover rounded"
+                />
               ))}
             </div>
           </li>
@@ -65,3 +73,4 @@ export default function ArtisansAnnonces() {
     </div>
   )
 }
+
