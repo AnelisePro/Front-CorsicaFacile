@@ -1,0 +1,57 @@
+@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@700&family=Raleway:wght@400;600&display=swap');
+
+.container {
+  font-family: 'Raleway', sans-serif;
+  max-width: 28rem;
+  margin: 2rem auto;
+  padding: 1rem;
+  color: #5E3E23;
+}
+
+.title {
+  font-family: 'Quicksand', sans-serif;
+  font-weight: 700;
+  font-size: 2rem;
+  margin-bottom: 1.5rem;
+  color: #0F78B1;
+  text-align: center;
+}
+
+/* Textarea moderne */
+.textarea {
+  width: 100%;
+  padding: 1rem;
+  font-size: 1rem;
+  font-family: 'Raleway', sans-serif;
+  border: 2px solid #81A04A;
+  border-radius: 10px;
+  background-color: #FEFBF4;
+  color: #5E3E23;
+  resize: vertical;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+  box-shadow: 0 3px 6px rgba(129, 160, 74, 0.15);
+
+  &::placeholder {
+    color: #A4A7AB;
+    opacity: 0.7;
+  }
+
+  &:focus {
+    border-color: #0F78B1;
+    box-shadow:
+      0 0 8px #0F78B1,
+      inset 0 0 10px rgba(15, 120, 177, 0.15);
+    outline: none;
+    background-color: #FEFBF4;
+  }
+}
+
+/* Message d'erreur */
+.errorMessage {
+  margin-top: 0.5rem;
+  color: #B00020; /* rouge bien visible */
+  font-size: 0.875rem;
+  font-weight: 600;
+  font-family: 'Raleway', sans-serif;
+  text-align: end;
+}

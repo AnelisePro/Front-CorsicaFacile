@@ -1,3 +1,8 @@
+'use client'
+
+import React from 'react'
+import styles from'./Step2.module.scss'
+
 interface BesoinFormData {
   type_prestation: string
   description: string
@@ -12,10 +17,10 @@ interface Step2Props {
 }
 
 const Step2 = ({ data, setData }: Step2Props) => (
-  <div>
-    <h2 className="text-xl font-bold mb-4">Décrivez votre besoin</h2>
+  <div className={styles.container}>
+    <h2 className={styles.title}>Décrivez votre besoin</h2>
     <textarea
-      className="w-full border p-2"
+      className={styles.textarea}
       rows={6}
       value={data.description}
       onChange={(e) => setData({ ...data, description: e.target.value })}
@@ -24,9 +29,11 @@ const Step2 = ({ data, setData }: Step2Props) => (
       placeholder="Expliquez clairement ce que vous attendez du prestataire..."
     />
     {data.description.length < 30 && (
-      <p className="text-sm text-red-500">Minimum 30 caractères requis</p>
+      <p className={styles.errorMessage}>Minimum 30 caractères</p>
     )}
   </div>
 )
 
 export default Step2
+
+

@@ -1,0 +1,167 @@
+@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@700;800&family=Raleway:wght@400;600;700&display=swap');
+
+.container {
+  max-width: 60rem;
+  margin-left: auto;
+  margin-right: auto;
+  padding: 2rem 1rem;
+}
+
+.intro {
+  font-family: 'Raleway', sans-serif;
+  color: #5E3E23;
+  text-align: center;
+  padding: 2.5rem 1rem;
+  max-width: 36rem;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.title {
+  font-family: 'Quicksand', sans-serif;
+  font-weight: 800;
+  font-size: 3.5rem;
+  margin-bottom: 1.5rem;
+  color: #81A04A;
+}
+
+.textStrong {
+  font-weight: 700;
+}
+
+.textExtraStrong {
+  font-weight: 800;
+}
+
+.textBlue {
+  color: #0F78B1;
+}
+
+.textGreen {
+  color: #81A04A;
+}
+
+.paragraphLarge {
+  font-size: 1.25rem;
+  margin-bottom: 1rem;
+  font-weight: 600;
+}
+
+.paragraphMedium {
+  font-size: 1.125rem;
+  margin-bottom: 2rem;
+  font-weight: 500;
+}
+
+.buttonStart {
+  margin: 2rem auto 0 auto;
+  padding: 1rem 3rem;
+  border-radius: 8px;
+  font-family: 'Quicksand', sans-serif;
+  font-weight: 800;
+  font-size: 1.5rem;
+  color: #FEFBF4;
+  background: linear-gradient(to right, #0F78B1, #3BA9D4);
+  box-shadow: 0 6px 12px rgba(74, 144, 226, 0.6), 0 3px 6px rgba(80, 227, 194, 0.6);
+  border: none;
+  cursor: pointer;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  display: inline-block;
+}
+
+.buttonStart:hover {
+  box-shadow: 0 10px 20px rgba(74, 144, 226, 0.8), 0 6px 12px rgba(80, 227, 194, 0.8);
+  transform: scale(1.05);
+}
+
+.buttonStart:active {
+  transform: scale(0.95);
+}
+
+.buttonStart:focus {
+  outline: none;
+  box-shadow: 0 0 0 4px #FEFBF4;
+}
+
+.progressBarContainer {
+  width: 100%;
+  background-color: #e5e7eb;
+  border-radius: 9999px;
+  height: 0.5rem;
+  margin-bottom: 1.5rem;
+  overflow: hidden;
+}
+
+.progressBar {
+  height: 0.5rem;
+  background-color: #0F78B1;
+  border-radius: 9999px;
+  transition: width 0.3s ease;
+}
+
+.formContainer {
+  background-color: #FEFBF4;
+  padding: 2rem;
+  border-radius: 1rem;
+  box-shadow:
+    0 4px 6px rgba(0, 0, 0, 0.1),
+    0 10px 20px rgba(0, 0, 0, 0.08),
+    inset 0 0 10px rgba(255, 255, 255, 0.7);
+  transition: box-shadow 0.3s ease;
+}
+
+.formContainer:hover {
+  box-shadow:
+    0 8px 12px rgba(0, 0, 0, 0.15),
+    0 15px 30px rgba(0, 0, 0, 0.12),
+    inset 0 0 12px rgba(255, 255, 255, 0.8);
+}
+
+.buttonsNav {
+  margin-top: 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.buttonBack {
+  padding: 0.5rem 1rem;
+  background-color: #d1d5db; // gray-300
+  color: black;
+  border-radius: 0.25rem;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.buttonBack:hover {
+  background-color: #9ca3af; // gray-400
+}
+
+.buttonNext {
+  padding: 0.5rem 1rem;
+  background-color: #0F78B1;
+  color: white;
+  border-radius: 0.25rem;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.buttonNext:hover {
+  background-color: #0d6394;
+}
+
+.buttonSubmit {
+  padding: 0.5rem 1rem;
+  background-color: #4caf50; // green-600
+  color: white;
+  border-radius: 0.25rem;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.buttonSubmit:hover {
+  background-color: #388e3c; // green-700
+}

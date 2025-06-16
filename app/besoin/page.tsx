@@ -8,12 +8,13 @@ import Step2 from '../components/besoin/Step2'
 import Step3 from '../components/besoin/Step3'
 import Step4 from '../components/besoin/Step4'
 import Step5 from '../components/besoin/Step5'
+import styles from './page.module.scss'
 
 const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
 
 const BesoinForm = () => {
   const router = useRouter()
-  const [step, setStep] = useState(1)
+  const [step, setStep] = useState(0)
   const [token, setToken] = useState<string | null>(null)
 
   const [formData, setFormData] = useState({
@@ -52,7 +53,7 @@ const BesoinForm = () => {
     const form = new FormData()
     form.append('besoin[type_prestation]', formData.type_prestation)
     form.append('besoin[description]', formData.description)
-    form.append('besoin[schedule]', formData.schedule)
+    form.append('besoin[schedule]', JSON.stringify(formData.schedule));
     form.append('besoin[address]', formData.address)
 
     formData.images.forEach((file) => {
@@ -73,8 +74,28 @@ const BesoinForm = () => {
   }
 
   const steps = [
-    null,
-    <Step1 key="step1" data={formData} setData={setFormData} />,
+    <div key="intro" className={styles.intro}>
+      <h1 className={styles.title}>Déclarer un besoin</h1>
+      <p className={`${styles.paragraphLarge}`}>
+        Trouvez facilement un artisan de <span className={styles.textStrong}>confiance</span> en{' '}
+        <span className={`${styles.textExtraStrong} ${styles.textBlue}`}>Corse</span> !
+      </p>
+      <p className={`${styles.paragraphMedium}`}>
+        Avec <span className={styles.textStrong + ' ' + styles.textGreen}>CorsicaFacile</span>, décrivez votre besoin en quelques étapes, et on s’occupe du reste.
+      </p>
+      <p className={styles.paragraphLarge}>
+        Un artisan qualifié vous répond rapidement !
+      </p>
+      <button
+        onClick={() => setStep(1)}
+        className={styles.buttonStart}
+        type="button"
+      >
+        Commencer ma déclaration
+      </button>
+    </div>,
+
+    <Step1 key="step1" data={formData} setData={setFormData} setStep={setStep} />,
     <Step2 key="step2" data={formData} setData={setFormData} />,
     <Step3 key="step3" data={formData} setData={setFormData} />,
     <Step4 key="step4" data={formData} setData={setFormData} />,
@@ -82,48 +103,48 @@ const BesoinForm = () => {
   ]
 
   return (
-    <div className="max-w-2xl mx-auto px-4 py-8">
-      <h1 className="text-2xl font-semibold text-center mb-6">Déclarer un besoin</h1>
+    <div className={styles.container}>
+      {step > 0 && (
+        <div className={styles.progressBarContainer}>
+          <div
+            className={styles.progressBar}
+            style={{ width: `${(step / 5) * 100}%` }}
+          />
+        </div>
+      )}
 
-      <div className="w-full bg-gray-200 rounded-full h-2 mb-6">
-        <div
-          className="bg-blue-500 h-2 rounded-full transition-all duration-300"
-          style={{ width: `${(step / 5) * 100}%` }}
-        />
-      </div>
+      <div className={styles.formContainer}>{steps[step]}</div>
 
-      <div className="bg-white p-4 rounded shadow-md">{steps[step]}</div>
+      {step > 0 && (
+        <div className={styles.buttonsNav}>
+          {step > 1 ? (
+            <button onClick={handleBack} className={styles.buttonBack} type="button">
+              Retour
+            </button>
+          ) : (
+            <div />
+          )}
 
-      <div className="mt-6 flex justify-between items-center">
-        {step > 1 ? (
-          <button
-            onClick={handleBack}
-            className="px-4 py-2 bg-gray-300 hover:bg-gray-400 text-black rounded"
-          >
-            Retour
-          </button>
-        ) : <div />}
-
-        {step < 5 ? (
-          <button
-            onClick={handleNext}
-            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded"
-          >
-            Suivant
-          </button>
-        ) : (
-          <button
-            onClick={handleSubmit}
-            className="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded"
-          >
-            Valider ma déclaration
-          </button>
-        )}
-      </div>
+          {step < 5 ? (
+            <button onClick={handleNext} className={styles.buttonNext} type="button">
+              Suivant
+            </button>
+          ) : (
+            <button onClick={handleSubmit} className={styles.buttonSubmit} type="button">
+              Valider ma déclaration
+            </button>
+          )}
+        </div>
+      )}
     </div>
   )
 }
 
 export default BesoinForm
+
+
+
+
+
 
 
