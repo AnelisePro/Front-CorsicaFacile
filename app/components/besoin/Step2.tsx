@@ -2,14 +2,7 @@
 
 import React from 'react'
 import styles from'./Step2.module.scss'
-
-interface BesoinFormData {
-  type_prestation: string
-  description: string
-  images: File[]
-  schedule: string
-  address: string
-}
+import { BesoinFormData } from './BesoinFormData'
 
 interface Step2Props {
   data: BesoinFormData
@@ -19,6 +12,7 @@ interface Step2Props {
 const Step2 = ({ data, setData }: Step2Props) => (
   <div className={styles.container}>
     <h2 className={styles.title}>Décrivez votre besoin</h2>
+    <p>N'hésitez pas à donner le plus de détails possibles (mesures, matériaux, contraintes particulières, etc.) afin que l'artisan puisse bien comprendre votre demande. </p>
     <textarea
       className={styles.textarea}
       rows={6}

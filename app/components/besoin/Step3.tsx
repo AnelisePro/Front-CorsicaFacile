@@ -2,14 +2,7 @@
 
 import React from 'react'
 import styles from './Step3.module.scss'
-
-interface BesoinFormData {
-  type_prestation: string
-  description: string
-  images: File[]
-  schedule: string
-  address: string
-}
+import { BesoinFormData } from './BesoinFormData'
 
 interface Step3Props {
   data: BesoinFormData

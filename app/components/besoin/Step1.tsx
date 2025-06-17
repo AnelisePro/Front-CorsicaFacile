@@ -3,15 +3,7 @@
 import { useEffect, useState } from 'react'
 import styles from './Step1.module.scss'
 import axios from 'axios'
-
-interface BesoinFormData {
-  type_prestation: string
-  description: string
-  images: File[]
-  schedule: string
-  address: string
-  custom_prestation?: string
-}
+import { BesoinFormData } from './BesoinFormData'
 
 interface Step1Props {
   data: BesoinFormData
@@ -99,6 +91,7 @@ const Step1 = ({ data, setData, setStep }: Step1Props) => {
 }
 
 export default Step1
+
 
 
 

@@ -9,6 +9,7 @@ import Step3 from '../components/besoin/Step3'
 import Step4 from '../components/besoin/Step4'
 import Step5 from '../components/besoin/Step5'
 import styles from './page.module.scss'
+import { BesoinFormData } from '../components/besoin/BesoinFormData'
 
 const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
 
@@ -17,11 +18,16 @@ const BesoinForm = () => {
   const [step, setStep] = useState(0)
   const [token, setToken] = useState<string | null>(null)
 
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<BesoinFormData>({
     type_prestation: '',
+    custom_prestation: undefined,
     description: '',
-    images: [] as File[],
-    schedule: '',
+    images: [],
+    schedule: {
+      date: '',
+      start: '',
+      end: ''
+    },
     address: ''
   })
 
@@ -39,8 +45,34 @@ const BesoinForm = () => {
     }
   }, [router])
 
+  const isStepValid = (currentStep: number) => {
+    switch (currentStep) {
+      case 1:
+        if (!formData.type_prestation) return false
+        if (formData.type_prestation === 'Autre' && !formData.custom_prestation?.trim()) return false
+        return true
+
+      case 2:
+        return formData.description.trim().length >= 30
+
+      case 3:
+        // images facultatives, toujours valide
+        return true
+
+      case 4:
+        const { date, start, end } = formData.schedule
+        return date && start && end && start < end
+
+      case 5:
+        return !!formData.address?.trim()
+
+      default:
+        return true
+    }
+  }
+
   const handleNext = () => {
-    if (step === 2 && formData.description.length < 30) return
+    if (!isStepValid(step)) return
     setStep((prev) => Math.min(prev + 1, 5))
   }
 
@@ -53,10 +85,13 @@ const BesoinForm = () => {
     const form = new FormData()
     form.append('besoin[type_prestation]', formData.type_prestation)
     form.append('besoin[description]', formData.description)
-    form.append('besoin[schedule]', JSON.stringify(formData.schedule));
+    form.append('besoin[schedule]', JSON.stringify(formData.schedule))
     form.append('besoin[address]', formData.address)
+    if (formData.custom_prestation) {
+      form.append('besoin[custom_prestation]', formData.custom_prestation)
+    }
 
-    formData.images.forEach((file) => {
+    formData.images.forEach((file: File) => {
       form.append('besoin[images][]', file)
     })
 
@@ -102,14 +137,26 @@ const BesoinForm = () => {
     <Step5 key="step5" data={formData} setData={setFormData} />
   ]
 
+  const totalSteps = 5
+
   return (
     <div className={styles.container}>
       {step > 0 && (
         <div className={styles.progressBarContainer}>
-          <div
-            className={styles.progressBar}
-            style={{ width: `${(step / 5) * 100}%` }}
-          />
+          {[...Array(totalSteps)].map((_, i) => {
+            const stepIndex = i + 1
+            const isActive = step >= stepIndex
+            return (
+              <div key={stepIndex} className={styles.stepWrapper}>
+                <div className={`${styles.stepCircle} ${isActive ? styles.active : ''}`}>
+                  {stepIndex}
+                </div>
+                {stepIndex !== totalSteps && (
+                  <div className={`${styles.stepLine} ${step > stepIndex ? styles.activeLine : ''}`} />
+                )}
+              </div>
+            )
+          })}
         </div>
       )}
 
@@ -126,12 +173,22 @@ const BesoinForm = () => {
           )}
 
           {step < 5 ? (
-            <button onClick={handleNext} className={styles.buttonNext} type="button">
+            <button
+              onClick={handleNext}
+              className={styles.buttonNext}
+              type="button"
+              disabled={!isStepValid(step)}
+              aria-disabled={!isStepValid(step)}
+            >
               Suivant
             </button>
           ) : (
-            <button onClick={handleSubmit} className={styles.buttonSubmit} type="button">
-              Valider ma déclaration
+            <button
+              onClick={handleSubmit}
+              className={styles.buttonSubmit}
+              type="button"
+            >
+              Valider
             </button>
           )}
         </div>
@@ -141,6 +198,10 @@ const BesoinForm = () => {
 }
 
 export default BesoinForm
+
+
+
+
 
 
 

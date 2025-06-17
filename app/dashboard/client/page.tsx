@@ -37,6 +37,7 @@ export default function ClientDashboard() {
   const [isClient, setIsClient] = useState(false)
   const [besoins, setBesoins] = useState<any[]>([])
   const [editingBesoinId, setEditingBesoinId] = useState<number | null>(null)
+  const [modalImageUrl, setModalImageUrl] = useState<string | null>(null);
 
   // Formulaire d'édition d'une annonce
   const [editForm, setEditForm] = useState({
@@ -330,9 +331,9 @@ export default function ClientDashboard() {
               {besoins.length === 0 ? (
                 <p className={styles.empty}>Aucune annonce pour le moment.</p>
               ) : (
-                <ul className={styles.annonceList}>
+                <div className={styles.annonceList}>
                   {besoins.map((besoin) => (
-                    <li key={besoin.id} className={styles.annonceItem}>
+                    <div key={besoin.id} className={styles.annonceCard}>
                       <div className={styles.annonceHeader}>
                         <h3>{besoin.type_prestation}</h3>
                         <span className={`${styles.status} ${styles[besoin.status]}`}>
@@ -340,7 +341,62 @@ export default function ClientDashboard() {
                         </span>
                       </div>
 
-                      {editingBesoinId === besoin.id ? (
+                      {!editingBesoinId || editingBesoinId !== besoin.id ? (
+                        <>
+                          <p>{besoin.description}</p>
+                          <p><strong>Adresse :</strong> {besoin.address}</p>
+                          <p><strong>Créé le :</strong> {formatDateFr(besoin.created_at)}</p>
+                          <p><strong>Planifié pour :</strong> {besoin.schedule ? formatDateFr(besoin.schedule) : 'Non défini'}</p>
+
+                          {besoin.image_urls && besoin.image_urls.length > 0 && (
+                            <div className={styles.imagesList}>
+                              {besoin.image_urls.map((url: string, idx: number) => (
+                                <button
+                                  key={idx}
+                                  onClick={() => setModalImageUrl(url)}
+                                  className={styles.imageLink}
+                                  type="button"
+                                >
+                                  Image {idx + 1}
+                                </button>
+                              ))}
+                            </div>
+                          )}
+
+                          {/* Modal pour afficher l'image */}
+                          {modalImageUrl && (
+                            <div className={styles.modalOverlay} onClick={() => setModalImageUrl(null)}>
+                              <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
+                                <button onClick={() => setModalImageUrl(null)} className={styles.closeBtn}>X</button>
+                                <img src={modalImageUrl} alt="Image annonce" className={styles.modalImage} />
+                              </div>
+                            </div>
+                          )}
+
+                          <div className={styles.annonceActions}>
+                            <button
+                              onClick={() => {
+                                setEditingBesoinId(besoin.id)
+                                setEditForm({
+                                  type_prestation: besoin.type_prestation,
+                                  description: besoin.description,
+                                  address: besoin.address,
+                                  schedule: besoin.schedule || '',
+                                })
+                              }}
+                              className={styles.editBtn}
+                            >
+                              Modifier
+                            </button>
+                            <button
+                              onClick={() => handleDeleteBesoin(besoin.id)}
+                              className={styles.deleteBtn}
+                            >
+                              Supprimer
+                            </button>
+                          </div>
+                        </>
+                      ) : (
                         <form
                           onSubmit={(e) => {
                             e.preventDefault()
@@ -379,41 +435,12 @@ export default function ClientDashboard() {
                             <button type="button" onClick={() => setEditingBesoinId(null)} className={styles.cancelBtn}>Annuler</button>
                           </div>
                         </form>
-                      ) : (
-                        <>
-                          <p>{besoin.description}</p>
-                          <p>Adresse : {besoin.address}</p>
-                          <p>Créé le : {formatDateFr(besoin.created_at)}</p>
-                          <p>Planifié pour : {besoin.schedule ? formatDateFr(besoin.schedule) : 'Non défini'}</p>
-                          <div className={styles.annonceActions}>
-                            <button
-                              onClick={() => {
-                                setEditingBesoinId(besoin.id)
-                                setEditForm({
-                                  type_prestation: besoin.type_prestation,
-                                  description: besoin.description,
-                                  address: besoin.address,
-                                  schedule: besoin.schedule || '',
-                                })
-                              }}
-                              className={styles.editBtn}
-                            >
-                              Modifier
-                            </button>
-                            <button
-                              onClick={() => handleDeleteBesoin(besoin.id)}
-                              className={styles.deleteBtn}
-                            >
-                              Supprimer
-                            </button>
-                          </div>
-                        </>
                       )}
-                    </li>
+                    </div>
                   ))}
-                </ul>
+                </div>
               )}
-            </div>
+              </div>
 
             {/* Statistiques */}
             <div className={styles.card}>

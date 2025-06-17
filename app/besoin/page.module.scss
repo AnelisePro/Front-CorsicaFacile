@@ -1,5 +1,7 @@
+/* Import des polices */
 @import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@700;800&family=Raleway:wght@400;600;700&display=swap');
 
+/* Container principal */
 .container {
   max-width: 60rem;
   margin-left: auto;
@@ -7,6 +9,7 @@
   padding: 2rem 1rem;
 }
 
+/* Section d’introduction */
 .intro {
   font-family: 'Raleway', sans-serif;
   color: #5E3E23;
@@ -17,6 +20,7 @@
   margin-right: auto;
 }
 
+/* Titre principal */
 .title {
   font-family: 'Quicksand', sans-serif;
   font-weight: 800;
@@ -25,6 +29,7 @@
   color: #81A04A;
 }
 
+/* Textes avec poids variable */
 .textStrong {
   font-weight: 700;
 }
@@ -33,6 +38,7 @@
   font-weight: 800;
 }
 
+/* Couleurs spécifiques */
 .textBlue {
   color: #0F78B1;
 }
@@ -41,6 +47,7 @@
   color: #81A04A;
 }
 
+/* Paragraphes */
 .paragraphLarge {
   font-size: 1.25rem;
   margin-bottom: 1rem;
@@ -53,6 +60,7 @@
   font-weight: 500;
 }
 
+/* Bouton démarrer */
 .buttonStart {
   margin: 2rem auto 0 auto;
   padding: 1rem 3rem;
@@ -83,21 +91,87 @@
   box-shadow: 0 0 0 4px #FEFBF4;
 }
 
+/* ============================= */
+/* Barre de progression avec étapes */
+/* ============================= */
+
 .progressBarContainer {
-  width: 100%;
-  background-color: #e5e7eb;
-  border-radius: 9999px;
-  height: 0.5rem;
-  margin-bottom: 1.5rem;
-  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 2rem;
+  
 }
 
-.progressBar {
-  height: 0.5rem;
-  background-color: #0F78B1;
-  border-radius: 9999px;
-  transition: width 0.3s ease;
+.stepWrapper {
+  display: flex;
+  align-items: center;
 }
+
+/* Cercle d’étape */
+.stepCircle {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  background: #e5e7eb;
+  color: #6b7280;
+  font-weight: 700;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: 'Quicksand', sans-serif;
+  font-size: 1.25rem;
+  transition: background-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
+  box-shadow: inset 0 0 8px rgba(0,0,0,0.05);
+  cursor: default;
+  position: relative;
+  margin-top: 0.125rem;
+}
+
+.stepCircle.active {
+  background: linear-gradient(135deg, #0F78B1, #3BA9D4);
+  color: #FEFBF4;
+  box-shadow:
+    0 0 10px rgba(59, 169, 212, 0.282),
+    0 0 15px rgba(15, 120, 177, 0.37);
+  animation: pulse 1.5s infinite alternate;
+}
+
+/* Animation pulse pour étape active */
+@keyframes pulse {
+  0% {
+    box-shadow:
+      0 0 10px rgba(59, 169, 212, 0.571),
+      0 0 15px rgba(15, 120, 177, 0.9);
+  }
+  100% {
+    box-shadow:
+      0 0 20px rgba(59, 169, 212, 1),
+      0 0 30px rgba(15, 120, 177, 1);
+  }
+}
+
+/* Ligne entre les étapes */
+.stepLine {
+  width: 3rem;
+  height: 0.25rem;
+  background: #e5e7eb;
+  border-radius: 9999px;
+  transition: background-color 0.3s ease;
+  margin-left: 0.8rem;
+  margin-right: 0.8rem;
+  position: relative;
+  top: 0;
+}
+
+.stepLine.activeLine {
+  background: linear-gradient(90deg, #0F78B1, #3BA9D4);
+  box-shadow: 0 0 8px rgba(59, 169, 212, 0.8);
+}
+
+/* ============================= */
+/* Container formulaire */
+/* ============================= */
 
 .formContainer {
   background-color: #FEFBF4;
@@ -117,6 +191,10 @@
     inset 0 0 12px rgba(255, 255, 255, 0.8);
 }
 
+/* ============================= */
+/* Navigation boutons */
+/* ============================= */
+
 .buttonsNav {
   margin-top: 1.5rem;
   display: flex;
@@ -126,7 +204,7 @@
 
 .buttonBack {
   padding: 0.5rem 1rem;
-  background-color: #d1d5db; // gray-300
+  background-color: #d1d5db;
   color: black;
   border-radius: 0.25rem;
   border: none;
@@ -135,7 +213,7 @@
 }
 
 .buttonBack:hover {
-  background-color: #9ca3af; // gray-400
+  background-color: #9ca3af;
 }
 
 .buttonNext {
@@ -152,10 +230,18 @@
   background-color: #0d6394;
 }
 
+.buttonNext:disabled,
+.buttonNext[aria-disabled='true'] {
+  background-color: #d1d5db;
+  cursor: not-allowed;
+  color: #212121;
+}
+
 .buttonSubmit {
   padding: 0.5rem 1rem;
-  background-color: #4caf50; // green-600
-  color: white;
+  font-weight: 600;
+  background-color: #81A04A;
+  color: #FEFBF4;
   border-radius: 0.25rem;
   border: none;
   cursor: pointer;
@@ -163,5 +249,7 @@
 }
 
 .buttonSubmit:hover {
-  background-color: #388e3c; // green-700
+  background-color: #80a04ae1;
 }
+
+

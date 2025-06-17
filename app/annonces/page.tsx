@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import axios from 'axios'
 import { useRouter } from 'next/navigation'
 import Image from 'next/image'
+import styles from './page.module.scss'
 
 const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
 
@@ -16,7 +17,10 @@ type Besoin = {
   image_urls: string[]
   client: {
     id: number
-    name: string
+    first_name: string
+    last_name: string
+    email: string
+    phone: string
   }
 }
 
@@ -41,36 +45,46 @@ export default function ArtisansAnnonces() {
       .finally(() => setLoading(false))
   }, [router])
 
-  if (loading) return <p>Chargement...</p>
-  if (error) return <p className="text-red-600">{error}</p>
+  if (loading) return <p className={styles.loading}>Chargement...</p>
+  if (error) return <p className={styles.error}>{error}</p>
 
   return (
-    <div className="max-w-4xl mx-auto p-6">
-      <h1 className="text-3xl font-bold mb-6">Toutes les annonces</h1>
-      {besoins.length === 0 && <p>Aucune annonce pour le moment.</p>}
-      <ul>
-        {besoins.map((b) => (
-          <li key={b.id} className="border rounded p-4 mb-4 shadow">
-            <h2 className="text-xl font-semibold">{b.type_prestation}</h2>
-            <p>{b.description}</p>
-            <p><strong>Adresse :</strong> {b.address}</p>
-            <p><strong>Client :</strong> {b.client.name}</p>
-            <div className="flex space-x-2 mt-2">
+    <div className={styles.container}>
+      <h1 className={styles.title}>Toutes les annonces</h1>
+
+      {besoins.length === 0 && <p className={styles.noAnnonce}>Aucune annonce pour le moment.</p>}
+
+      <div className={styles.grid}>
+        {besoins.map(b => (
+          <div key={b.id} className={styles.card}>
+            <h2 className={styles.cardTitle}>{b.type_prestation}</h2>
+            <p className={styles.description}>{b.description}</p>
+
+            <div className={styles.client}>
+              <strong>Client :</strong> {b.client.first_name} {b.client.last_name}<br />
+              <strong>Adresse :</strong> {b.address}<br />
+              <strong>Email :</strong> {b.client.email}<br />
+              <strong>Téléphone :</strong> {b.client.phone}
+            </div>
+
+            <div className={styles.images}>
               {b.image_urls.map((url, i) => (
                 <Image
                   key={i}
                   src={url}
-                  alt="Image besoin"
+                  alt={`Image besoin ${i + 1}`}
                   width={96}
                   height={96}
-                  className="object-cover rounded"
+                  className={styles.image}
                 />
               ))}
             </div>
-          </li>
+          </div>
         ))}
-      </ul>
+      </div>
     </div>
   )
 }
+
+
 

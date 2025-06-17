@@ -2,14 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react'
 import styles from './Step5.module.scss'
-
-interface BesoinFormData {
-  type_prestation: string
-  description: string
-  images: File[]
-  schedule: string
-  address: string
-}
+import { BesoinFormData } from './BesoinFormData'
 
 interface Step5Props {
   data: BesoinFormData

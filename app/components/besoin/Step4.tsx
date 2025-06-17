@@ -2,18 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import styles from './Step4.module.scss'
-
-interface BesoinFormData {
-  type_prestation: string
-  description: string
-  images: File[]
-  schedule: {
-    date: string // yyyy-mm-dd
-    start: string // HH:mm
-    end: string // HH:mm
-  } | string
-  address: string
-}
+import { BesoinFormData } from './BesoinFormData'
 
 interface Step4Props {
   data: BesoinFormData
@@ -33,10 +22,7 @@ const generateTimeSlots = (start = 8, end = 20, interval = 30) => {
 }
 
 const Step4 = ({ data, setData }: Step4Props) => {
-  const initialSchedule =
-    typeof data.schedule === 'string' || !data.schedule
-      ? { date: '', start: '', end: '' }
-      : data.schedule
+  const initialSchedule = data.schedule
 
   const [date, setDate] = useState(initialSchedule.date)
   const [start, setStart] = useState(initialSchedule.start)
@@ -51,12 +37,19 @@ const Step4 = ({ data, setData }: Step4Props) => {
       end &&
       start < end
     ) {
-      setData({
-        ...data,
-        schedule: { date, start, end },
-      })
+      // Mise à jour uniquement si les valeurs ont changé pour éviter boucle infinie
+      if (
+        data.schedule.date !== date ||
+        data.schedule.start !== start ||
+        data.schedule.end !== end
+      ) {
+        setData({
+          ...data,
+          schedule: { date, start, end },
+        })
+      }
     }
-  }, [date, start, end])
+  }, [date, start, end, data.schedule, setData])
 
   return (
     <div className={styles.container}>
@@ -124,6 +117,8 @@ const Step4 = ({ data, setData }: Step4Props) => {
 }
 
 export default Step4
+
+
 
 
 
