@@ -11,7 +11,7 @@
 .title {
   font-size: 2.5rem;
   font-weight: 700;
-  margin-bottom: 2rem;
+  margin-bottom: 2.5rem;
   text-align: center;
   color: #81A04A;
   font-family: 'Quicksand', sans-serif;
@@ -37,60 +37,239 @@
 
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
-  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
   justify-content: center;
 }
 
 .card {
-  background-color: white;
-  border-radius: 0.5rem;
-  box-shadow:
-    0 10px 15px -3px rgba(0,0,0,0.2),
-    0 4px 6px -2px rgba(0,0,0,0.05);
+  background: linear-gradient(135deg, #ffffff, #f9fafb);
+  border-radius: 1rem;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
   padding: 1.5rem;
   display: flex;
   flex-direction: column;
-  height: 350px;
-  box-sizing: border-box;
-  overflow: hidden;
+  justify-content: space-between;
+  height: 260px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+
+  &:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.25);
+  }
 }
 
 .cardTitle {
   font-size: 1.5rem;
-  font-weight: 600;
-  margin-bottom: 0.75rem;
+  font-weight: 700;
   text-align: center;
-  font-family: 'Quicksand', sans-serif;
   color: #0F78B1;
+  margin-bottom: 0.75rem;
 }
 
 .description {
+  font-size: 1rem;
+  text-align: center;
+  padding: 0 1rem;
+  margin-bottom: 0.75rem;
+  color: #212121;
   flex-grow: 1;
-  margin-top: 1rem;
-  margin-bottom: 1rem;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-wrap: balance;
 }
 
-.client {
-  margin-bottom: 1rem;
-  font-weight: 500;
-  font-size: 0.9rem;
-  overflow: hidden;
-  text-overflow: ellipsis;
+.cardFooter {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.location {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #81A04A;
+}
+
+.button {
+  background-color: #0F78B1;
+  color: white;
+  border: none;
+  padding: 0.65rem 1.1rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background-color 0.3s, transform 0.2s;
+
+  &:hover {
+    background-color: #0c5e8a;
+    transform: scale(1.05);
+  }
+}
+
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.modal {
+  background-color: white;
+  padding: 2rem;
+  border-radius: 1rem;
+  max-width: 600px;
+  width: 90%;
+  max-height: 80vh;
+  overflow-y: auto;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+  animation: fadeIn 0.3s ease-in-out;
+  position: relative;
+}
+
+.modalTitle {
+  text-align: center;
+  margin-bottom: 1.5rem;
+  color: #81A04A;
+}
+
+.closeButton {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background-color: #dc2626;
+  color: white;
+  border: none;
+  padding: 0.5rem 0.9rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background-color 0.3s;
+
+  &:hover {
+    background-color: #b91c1c;
+  }
 }
 
 .images {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5rem;
+  gap: 0.75rem;
   justify-content: center;
+  margin-bottom: 1.5rem;
 }
 
 .image {
-  border-radius: 0.375rem;
+  border-radius: 0.5rem;
   object-fit: cover;
 }
+
+.contactTitle {
+  font-size: 1.4rem;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+  text-align: center;
+  color: #81A04A;
+}
+
+.filters {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 2rem;
+
+  @media (min-width: 640px) {
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
+.input {
+  padding: 0.65rem 1rem;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-size: 1rem;
+  width: 100%;
+
+  @media (min-width: 640px) {
+    width: auto;
+    min-width: 250px;
+  }
+}
+
+/* Dropdown custom */
+.dropdown {
+  position: relative;
+  width: 100%;
+
+  @media (min-width: 640px) {
+    min-width: 280px; // Largeur fixe minimum
+    width: auto;
+  }
+}
+
+.dropdownToggle {
+  width: 100%;
+  padding: 0.65rem 2.5rem 0.65rem 1rem; // Plus d’espace à droite pour la flèche
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  background: white;
+  font-size: 1rem;
+  cursor: pointer;
+  text-align: left;
+  position: relative;
+  min-width: 250px; // Taille constante minimale
+
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  &:after {
+    content: '▼';
+    position: absolute;
+    right: 1rem; // Plus d’espace entre le texte et la flèche
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+    font-size: 0.75rem;
+    color: #555;
+  }
+}
+
+
+.dropdownMenu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: white;
+  border: 1px solid #ccc;
+  border-radius: 0 0 8px 8px;
+  max-height: 200px;
+  overflow-y: auto;
+  z-index: 50;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.dropdownMenu li {
+  padding: 0.6rem 1rem;
+  cursor: pointer;
+  transition: background 0.2s;
+
+  &:hover {
+    background-color: #f0f0f0;
+  }
+}
+
+
+
 
 

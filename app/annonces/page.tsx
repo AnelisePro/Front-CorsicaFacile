@@ -28,6 +28,13 @@ export default function ArtisansAnnonces() {
   const [besoins, setBesoins] = useState<Besoin[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [selectedBesoin, setSelectedBesoin] = useState<Besoin | null>(null)
+
+  const [expertises, setExpertises] = useState<string[]>([])
+  const [selectedExpertise, setSelectedExpertise] = useState<string>('')
+  const [searchLocation, setSearchLocation] = useState('')
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false)
+
   const router = useRouter()
 
   useEffect(() => {
@@ -45,6 +52,33 @@ export default function ArtisansAnnonces() {
       .finally(() => setLoading(false))
   }, [router])
 
+  useEffect(() => {
+    axios.get(`${apiUrl}/api/expertises`)
+      .then(res => setExpertises(res.data))
+      .catch(err => console.error('Erreur lors du chargement des expertises', err))
+  }, [])
+
+  // Fermer le dropdown si clic en dehors
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const dropdown = document.querySelector(`.${styles.dropdown}`)
+      if (dropdown && !dropdown.contains(event.target as Node)) {
+        setIsDropdownOpen(false)
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside)
+    }
+  }, [])
+
+  const filteredBesoins = besoins.filter(b => {
+    const matchesExpertise = selectedExpertise ? b.type_prestation === selectedExpertise : true
+    const matchesLocation = searchLocation ? b.address.toLowerCase().includes(searchLocation.toLowerCase()) : true
+    return matchesExpertise && matchesLocation
+  })
+
   if (loading) return <p className={styles.loading}>Chargement...</p>
   if (error) return <p className={styles.error}>{error}</p>
 
@@ -52,39 +86,109 @@ export default function ArtisansAnnonces() {
     <div className={styles.container}>
       <h1 className={styles.title}>Toutes les annonces</h1>
 
-      {besoins.length === 0 && <p className={styles.noAnnonce}>Aucune annonce pour le moment.</p>}
+      {/* Barre de filtres */}
+      <div className={styles.filters}>
+        <div className={styles.dropdown}>
+          <button
+            className={styles.dropdownToggle}
+            onClick={() => setIsDropdownOpen(prev => !prev)}
+            aria-haspopup="listbox"
+            aria-expanded={isDropdownOpen}
+          >
+            {selectedExpertise || 'Type de prestation'} 
+          </button>
+          {isDropdownOpen && (
+            <ul className={styles.dropdownMenu} role="listbox">
+              <li
+                onClick={() => {
+                  setSelectedExpertise('')
+                  setIsDropdownOpen(false)
+                }}
+                role="option"
+                tabIndex={0}
+              >
+                Toutes les types
+              </li>
+              {expertises.map((exp, i) => (
+                <li
+                  key={i}
+                  onClick={() => {
+                    setSelectedExpertise(exp)
+                    setIsDropdownOpen(false)
+                  }}
+                  role="option"
+                  tabIndex={0}
+                >
+                  {exp}
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+
+        <input
+          type="text"
+          placeholder="Rechercher par localisation"
+          value={searchLocation}
+          onChange={e => setSearchLocation(e.target.value)}
+          className={styles.input}
+        />
+      </div>
+
+      {filteredBesoins.length === 0 && <p className={styles.noAnnonce}>Aucune annonce pour le moment.</p>}
 
       <div className={styles.grid}>
-        {besoins.map(b => (
+        {filteredBesoins.map(b => (
           <div key={b.id} className={styles.card}>
             <h2 className={styles.cardTitle}>{b.type_prestation}</h2>
             <p className={styles.description}>{b.description}</p>
-
-            <div className={styles.client}>
-              <strong>Client :</strong> {b.client.first_name} {b.client.last_name}<br />
-              <strong>Adresse :</strong> {b.address}<br />
-              <strong>Email :</strong> {b.client.email}<br />
-              <strong>Téléphone :</strong> {b.client.phone}
-            </div>
-
-            <div className={styles.images}>
-              {b.image_urls.map((url, i) => (
-                <Image
-                  key={i}
-                  src={url}
-                  alt={`Image besoin ${i + 1}`}
-                  width={96}
-                  height={96}
-                  className={styles.image}
-                />
-              ))}
+            <div className={styles.cardFooter}>
+              <span className={styles.location}>📍 {b.address}</span>
+              <button className={styles.button} onClick={() => setSelectedBesoin(b)}>
+                En savoir plus
+              </button>
             </div>
           </div>
         ))}
       </div>
+
+      {selectedBesoin && (
+        <div className={styles.modalOverlay} onClick={() => setSelectedBesoin(null)}>
+          <div className={styles.modal} onClick={e => e.stopPropagation()}>
+            <button className={styles.closeButton} onClick={() => setSelectedBesoin(null)}>✕</button>
+            <h2 className={styles.modalTitle}>Informations supplémentaires</h2>
+
+            <div className={styles.images}>
+              {selectedBesoin.image_urls.length > 0 ? (
+                selectedBesoin.image_urls.map((url, i) => (
+                  <Image
+                    key={i}
+                    src={url}
+                    alt={`Image besoin ${i + 1}`}
+                    width={150}
+                    height={150}
+                    className={styles.image}
+                  />
+                ))
+              ) : (
+                <p>Aucune image disponible.</p>
+              )}
+            </div>
+
+            <h3 className={styles.contactTitle}>Contacter le client</h3>
+            <p>{selectedBesoin.client.first_name} {selectedBesoin.client.last_name}</p>
+            <p>{selectedBesoin.client.email}</p>
+            <p>{selectedBesoin.client.phone}</p>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
+
+
+
+
 
 
 
