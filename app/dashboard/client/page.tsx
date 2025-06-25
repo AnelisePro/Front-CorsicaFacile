@@ -215,15 +215,6 @@ export default function ClientDashboard() {
     })
   }
 
-  const formatStatus = (status?: string) => {
-    if (!status) return 'Statut inconnu'
-    return status.charAt(0).toUpperCase() + status.slice(1)
-  }
-
-  const countByStatus = (status: string) => {
-    return besoins.filter(b => b.status === status).length
-  }
-
   // *** Nouvelle fonction pour mettre à jour une annonce ***
   const handleUpdateBesoin = async (id: number) => {
     const token = localStorage.getItem('clientToken')
@@ -336,9 +327,6 @@ export default function ClientDashboard() {
                     <div key={besoin.id} className={styles.annonceCard}>
                       <div className={styles.annonceHeader}>
                         <h3>{besoin.type_prestation}</h3>
-                        <span className={`${styles.status} ${styles[besoin.status]}`}>
-                          {formatStatus(besoin.status)}
-                        </span>
                       </div>
 
                       {!editingBesoinId || editingBesoinId !== besoin.id ? (
@@ -447,9 +435,6 @@ export default function ClientDashboard() {
               <h2>Historique</h2>
               <ul className={styles.statsList}>
                 <li>Total d'annonces : {besoins.length}</li>
-                <li>En attente : {countByStatus('pending')}</li>
-                <li>En cours : {countByStatus('ongoing')}</li>
-                <li>Terminées : {countByStatus('done')}</li>
               </ul>
             </div>
 
