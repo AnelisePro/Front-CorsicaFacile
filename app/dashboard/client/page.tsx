@@ -22,6 +22,15 @@ interface Client {
   avatar_url?: string | null
 }
 
+interface Besoin {
+  id: number
+  type_prestation: string
+  description: string
+  address: string
+  schedule: string
+  images?: string[]
+}
+
 const fieldLabels: Record<string, string> = {
   email: 'Email',
   phone: 'Téléphone',
@@ -35,11 +44,9 @@ export default function ClientDashboard() {
   const [avatarFile, setAvatarFile] = useState<File | null>(null)
   const { logout, setUser } = useAuth()
   const [isClient, setIsClient] = useState(false)
-  const [besoins, setBesoins] = useState<any[]>([])
+  const [besoins, setBesoins] = useState<Besoin[]>([])
   const [editingBesoinId, setEditingBesoinId] = useState<number | null>(null)
-  const [modalImageUrl, setModalImageUrl] = useState<string | null>(null);
 
-  // Formulaire d'édition d'une annonce
   const [editForm, setEditForm] = useState({
     type_prestation: '',
     description: '',
@@ -94,10 +101,43 @@ export default function ClientDashboard() {
     }
   }
 
-  const isValidDate = (dateStr: string) => {
-    if (!dateStr) return false
-    const d = new Date(dateStr)
-    return !isNaN(d.getTime())
+  const uploadToS3 = async (file: File) => {
+    try {
+      const token = localStorage.getItem('clientToken')
+      if (!token) throw new Error('Token manquant')
+
+      const presignRes = await axios.post(
+        `${apiUrl}/presigned_url`,
+        { filename: file.name, content_type: file.type },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+          withCredentials: true,
+        }
+      )
+
+      const { url, fields, key } = presignRes.data
+
+      const formData = new FormData()
+      Object.entries(fields).forEach(([fieldKey, value]) => {
+        formData.append(fieldKey, value as string)
+      })
+      formData.append('file', file)
+
+      const uploadRes = await fetch(url, {
+        method: 'POST',
+        body: formData,
+      })
+
+      if (!uploadRes.ok) {
+        throw new Error('Erreur lors de l’upload sur S3')
+      }
+
+      return `${process.env.NEXT_PUBLIC_S3_BUCKET_URL}/${key}`
+    } catch (error) {
+      console.error('Erreur upload S3 :', error)
+      toast.error('Erreur lors de l’upload de l’image.')
+      return null
+    }
   }
 
   const handleUpdate = async () => {
@@ -105,22 +145,24 @@ export default function ClientDashboard() {
     if (!token || !client) return
 
     try {
-      const formData = new FormData()
-
-      Object.entries(client).forEach(([key, value]) => {
-        if (key === 'avatar_url' || key === 'id' || value === undefined || value === null) return
-        if (key === 'birthdate' && !isValidDate(value as string)) return
-        formData.append(`client[${key}]`, value as string)
-      })
+      let avatarUrl = client.avatar_url
 
       if (avatarFile) {
-        formData.append('client[avatar]', avatarFile)
+        const uploadedUrl = await uploadToS3(avatarFile)
+        if (uploadedUrl) {
+          avatarUrl = uploadedUrl
+        } else {
+          return
+        }
       }
 
-      await axios.put(`${apiUrl}/clients/me`, formData, {
+      const updatedClientData = { ...client, avatar_url: avatarUrl }
+      delete updatedClientData.id
+
+      await axios.put(`${apiUrl}/clients/me`, updatedClientData, {
         headers: {
           Authorization: `Bearer ${token}`,
-          'Content-Type': 'multipart/form-data',
+          'Content-Type': 'application/json',
         },
         withCredentials: true,
       })
@@ -148,30 +190,6 @@ export default function ClientDashboard() {
       console.error('Erreur lors de la mise à jour du profil :', error)
       toast.error('Erreur lors de la mise à jour.')
     }
-  }
-
-  const confirmDelete = () => {
-    toast.info(
-      <div>
-        <p>Êtes-vous sûr de vouloir supprimer votre compte ? Cette action est irréversible.</p>
-        <div className="mt-2 flex justify-end gap-2">
-          <button onClick={() => { toast.dismiss(); handleDelete() }} className="bg-red-600 text-white px-3 py-1 rounded">
-            Oui, supprimer
-          </button>
-          <button onClick={() => toast.dismiss()} className="bg-gray-400 text-white px-3 py-1 rounded">
-            Annuler
-          </button>
-        </div>
-      </div>,
-      {
-        position: 'top-center',
-        autoClose: false,
-        closeOnClick: false,
-        closeButton: false,
-        draggable: false,
-        pauseOnHover: false,
-      }
-    )
   }
 
   const handleDeleteBesoin = async (id: number) => {
@@ -206,6 +224,12 @@ export default function ClientDashboard() {
     }
   }
 
+  const confirmDelete = () => {
+    if (window.confirm('Êtes-vous sûr de vouloir supprimer votre compte ? Cette action est irréversible.')) {
+      handleDelete()
+    }
+  }
+
   const formatDateFr = (dateString: string) => {
     const date = new Date(dateString)
     return date.toLocaleDateString('fr-FR', {
@@ -215,7 +239,6 @@ export default function ClientDashboard() {
     })
   }
 
-  // *** Nouvelle fonction pour mettre à jour une annonce ***
   const handleUpdateBesoin = async (id: number) => {
     const token = localStorage.getItem('clientToken')
     if (!token) return
@@ -226,7 +249,6 @@ export default function ClientDashboard() {
       })
       toast.success('Annonce mise à jour.')
 
-      // Recharger les besoins après mise à jour
       const res = await axios.get(`${apiUrl}/clients/besoins`, {
         headers: { Authorization: `Bearer ${token}` },
       })
@@ -243,215 +265,190 @@ export default function ClientDashboard() {
 
   return (
     <>
-      <div className={styles.container}>
-        <div className={styles.dashboardGrid}>
-          <section className={styles.profileSection}>
-            {/* Avatar + Nom */}
-            <div className={styles.card}>
-              <div className={styles.avatarAndName}>
-                <div className={styles.avatarWrapper}>
-                  {avatarFile ? (
-                    <Image src={URL.createObjectURL(avatarFile)} alt="Nouvel avatar" className={styles.avatar} width={96} height={96} />
-                  ) : client.avatar_url ? (
-                    <Image src={`${client.avatar_url}?t=${Date.now()}`} alt="Avatar" className={styles.avatar} width={96} height={96} />
-                  ) : (
-                    <Image src="/images/avatar.svg" alt="Avatar par défaut" width={96} height={96} className={styles.avatar} />
-                  )}
-
-                  {isEditing && (
-                    <div className={styles.avatarInput}>
-                      <label htmlFor="avatar-upload" className={styles.fileButton}>Changer la photo de profil</label>
-                      <input id="avatar-upload" type="file" accept="image/*" onChange={handleAvatarChange} className={styles.hiddenFileInput} />
-                    </div>
-                  )}
-                </div>
-
-                <h1 className={styles.clientName}>{client.first_name} {client.last_name}</h1>
-              </div>
-            </div>
-
-            {/* Infos client */}
-            <div className={styles.card}>
-              <div className={styles.infoFields}>
-                {['email', 'phone', 'birthdate'].map((field) => (
-                  <div key={field} className={styles.infoField}>
-                    <label className={styles.label}>{fieldLabels[field]}</label>
-                    {isEditing ? (
-                      <input type={field === 'birthdate' ? 'date' : 'text'} name={field} value={(client as any)[field] || ''} onChange={handleChange} className={styles.input} />
-                    ) : (
-                      <p className={styles.text}>
-                        {field === 'birthdate'
-                          ? formatDateFr((client as any)[field])
-                          : (client as any)[field]}
-                      </p>
-                    )}
-                  </div>
-                ))}
-              </div>
-
-              {isEditing && (
-                <div className={styles.passwordFields}>
-                  <label>Nouveau mot de passe</label>
-                  <input type="password" name="password" onChange={handleChange} className={styles.input} />
-                  <label>Confirmation du mot de passe</label>
-                  <input type="password" name="password_confirmation" onChange={handleChange} className={styles.input} />
-                </div>
-              )}
-            </div>
-
-            {/* Actions */}
-            <div className={styles.actions}>
-              {isEditing ? (
-                <>
-                  <button onClick={handleUpdate} className={styles.saveBtn}>Enregistrer</button>
-                  <button onClick={() => setIsEditing(false)} className={styles.cancelBtn}>Annuler</button>
-                </>
-              ) : (
-                <>
-                  <button onClick={() => setIsEditing(true)} className={styles.editBtn}>Modifier</button>
-                  <button onClick={confirmDelete} className={styles.deleteBtn}>Supprimer mon compte</button>
-                </>
-              )}
-            </div>
-          </section>
-
-          <section className={styles.rightSection}>
-            {/* Annonces */}
-            <div className={styles.card}>
-              <h2>Mes annonces</h2>
-              {besoins.length === 0 ? (
-                <p className={styles.empty}>Aucune annonce pour le moment.</p>
-              ) : (
-                <div className={styles.annonceList}>
-                  {besoins.map((besoin) => (
-                    <div key={besoin.id} className={styles.annonceCard}>
-                      <div className={styles.annonceHeader}>
-                        <h3>{besoin.type_prestation}</h3>
-                      </div>
-
-                      {!editingBesoinId || editingBesoinId !== besoin.id ? (
-                        <>
-                          <p>{besoin.description}</p>
-                          <p><strong>Adresse :</strong> {besoin.address}</p>
-                          <p><strong>Créé le :</strong> {formatDateFr(besoin.created_at)}</p>
-                          <p><strong>Planifié pour :</strong> {besoin.schedule ? formatDateFr(besoin.schedule) : 'Non défini'}</p>
-
-                          {besoin.image_urls && besoin.image_urls.length > 0 && (
-                            <div className={styles.imagesList}>
-                              {besoin.image_urls.map((url: string, idx: number) => (
-                                <button
-                                  key={idx}
-                                  onClick={() => setModalImageUrl(url)}
-                                  className={styles.imageLink}
-                                  type="button"
-                                >
-                                  Image {idx + 1}
-                                </button>
-                              ))}
-                            </div>
-                          )}
-
-                          {/* Modal pour afficher l'image */}
-                          {modalImageUrl && (
-                            <div className={styles.modalOverlay} onClick={() => setModalImageUrl(null)}>
-                              <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
-                                <button onClick={() => setModalImageUrl(null)} className={styles.closeBtn}>X</button>
-                                <img src={modalImageUrl} alt="Image annonce" className={styles.modalImage} />
-                              </div>
-                            </div>
-                          )}
-
-                          <div className={styles.annonceActions}>
-                            <button
-                              onClick={() => {
-                                setEditingBesoinId(besoin.id)
-                                setEditForm({
-                                  type_prestation: besoin.type_prestation,
-                                  description: besoin.description,
-                                  address: besoin.address,
-                                  schedule: besoin.schedule || '',
-                                })
-                              }}
-                              className={styles.editBtn}
-                            >
-                              Modifier
-                            </button>
-                            <button
-                              onClick={() => handleDeleteBesoin(besoin.id)}
-                              className={styles.deleteBtn}
-                            >
-                              Supprimer
-                            </button>
-                          </div>
-                        </>
-                      ) : (
-                        <form
-                          onSubmit={(e) => {
-                            e.preventDefault()
-                            handleUpdateBesoin(besoin.id)
-                          }}
-                          className={styles.editForm}
-                        >
-                          <input
-                            type="text"
-                            value={editForm.type_prestation}
-                            onChange={(e) => setEditForm({ ...editForm, type_prestation: e.target.value })}
-                            placeholder="Type de prestation"
-                            className={styles.input}
-                          />
-                          <textarea
-                            value={editForm.description}
-                            onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
-                            placeholder="Description"
-                            className={styles.input}
-                          />
-                          <input
-                            type="text"
-                            value={editForm.address}
-                            onChange={(e) => setEditForm({ ...editForm, address: e.target.value })}
-                            placeholder="Adresse"
-                            className={styles.input}
-                          />
-                          <input
-                            type="date"
-                            value={editForm.schedule}
-                            onChange={(e) => setEditForm({ ...editForm, schedule: e.target.value })}
-                            className={styles.input}
-                          />
-                          <div className={styles.editActions}>
-                            <button type="submit" className={styles.saveBtn}>Enregistrer</button>
-                            <button type="button" onClick={() => setEditingBesoinId(null)} className={styles.cancelBtn}>Annuler</button>
-                          </div>
-                        </form>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              )}
-              </div>
-
-            {/* Statistiques */}
-            <div className={styles.card}>
-              <h2>Historique</h2>
-              <ul className={styles.statsList}>
-                <li>Total d'annonces : {besoins.length}</li>
-              </ul>
-            </div>
-
-            {/* Points */}
-            <div className={styles.card}>
-              <h2>Mes points gagnés</h2>
-              <p className={styles.points}>0</p>
-            </div>
-
-          </section>
-        </div>
-      </div>
-
       <ToastContainer />
+
+      <div className={styles.container}>
+        <h1>Bienvenue, {client.first_name} {client.last_name}</h1>
+
+        {/* Profil */}
+        <section className={styles.profileSection}>
+          {!isEditing ? (
+            <>
+              <div className={styles.avatarWrapper}>
+                <Image
+                  src={client.avatar_url || '/images/avatar.svg'}
+                  alt="Avatar"
+                  width={150}
+                  height={150}
+                  className={styles.avatar}
+                />
+              </div>
+
+              <div className={styles.info}>
+                <p><strong>Nom :</strong> {client.last_name}</p>
+                <p><strong>Prénom :</strong> {client.first_name}</p>
+                <p><strong>Email :</strong> {client.email}</p>
+                <p><strong>Téléphone :</strong> {client.phone}</p>
+                <p><strong>Date de naissance :</strong> {formatDateFr(client.birthdate)}</p>
+              </div>
+
+              <button onClick={() => setIsEditing(true)} className={styles.editButton}>
+                Modifier mon profil
+              </button>
+            </>
+          ) : (
+            <div className={styles.editForm}>
+              <label>
+                Prénom
+                <input
+                  type="text"
+                  name="first_name"
+                  value={client.first_name}
+                  onChange={handleChange}
+                />
+              </label>
+              <label>
+                Nom
+                <input
+                  type="text"
+                  name="last_name"
+                  value={client.last_name}
+                  onChange={handleChange}
+                />
+              </label>
+              <label>
+                Email
+                <input
+                  type="email"
+                  name="email"
+                  value={client.email}
+                  onChange={handleChange}
+                />
+              </label>
+              <label>
+                Téléphone
+                <input
+                  type="tel"
+                  name="phone"
+                  value={client.phone}
+                  onChange={handleChange}
+                />
+              </label>
+              <label>
+                Date de naissance
+                <input
+                  type="date"
+                  name="birthdate"
+                  value={client.birthdate}
+                  onChange={handleChange}
+                />
+              </label>
+              <label>
+                Avatar
+                <input type="file" accept="image/*" onChange={handleAvatarChange} />
+              </label>
+
+              <div className={styles.editButtons}>
+                <button onClick={handleUpdate}>Sauvegarder</button>
+                <button onClick={() => setIsEditing(false)}>Annuler</button>
+              </div>
+            </div>
+          )}
+        </section>
+
+        {/* Annonces (Besoins) */}
+        <section className={styles.besoinsSection}>
+          <h2>Mes annonces</h2>
+          {besoins.length === 0 && <p>Aucune annonce.</p>}
+          {besoins.map((besoin) => (
+            <div key={besoin.id} className={styles.besoinCard}>
+              {editingBesoinId === besoin.id ? (
+                <div className={styles.editForm}>
+                  <label>
+                    Type de prestation
+                    <input
+                      type="text"
+                      value={editForm.type_prestation}
+                      onChange={(e) => setEditForm({ ...editForm, type_prestation: e.target.value })}
+                    />
+                  </label>
+                  <label>
+                    Description
+                    <input
+                      type="text"
+                      value={editForm.description}
+                      onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
+                    />
+                  </label>
+                  <label>
+                    Adresse
+                    <input
+                      type="text"
+                      value={editForm.address}
+                      onChange={(e) => setEditForm({ ...editForm, address: e.target.value })}
+                    />
+                  </label>
+                  <label>
+                    Horaires
+                    <input
+                      type="text"
+                      value={editForm.schedule}
+                      onChange={(e) => setEditForm({ ...editForm, schedule: e.target.value })}
+                    />
+                  </label>
+
+                  <button onClick={() => handleUpdateBesoin(besoin.id)}>Enregistrer</button>
+                  <button onClick={() => setEditingBesoinId(null)}>Annuler</button>
+                </div>
+              ) : (
+                <>
+                  <p><strong>Type :</strong> {besoin.type_prestation}</p>
+                  <p><strong>Description :</strong> {besoin.description}</p>
+                  <p><strong>Adresse :</strong> {besoin.address}</p>
+                  <p><strong>Horaires :</strong> {besoin.schedule}</p>
+
+                  {besoin.images && besoin.images.length > 0 && (
+  <div className={styles.imagesContainer}>
+    {besoin.images.map((url, idx) => (
+      <img
+        key={idx}
+        src={url}
+        alt={`Image besoin ${besoin.id} - ${idx + 1}`}
+        className={styles.besoinImage}
+      />
+    ))}
+  </div>
+)}
+
+                  <button onClick={() => {
+                    setEditingBesoinId(besoin.id)
+                    setEditForm({
+                      type_prestation: besoin.type_prestation,
+                      description: besoin.description,
+                      address: besoin.address,
+                      schedule: besoin.schedule,
+                    })
+                  }}>Modifier</button>
+
+                  <button onClick={() => handleDeleteBesoin(besoin.id)}>Supprimer</button>
+                </>
+              )}
+            </div>
+          ))}
+        </section>
+
+        <button className={styles.deleteAccountBtn} onClick={confirmDelete}>
+          Supprimer mon compte
+        </button>
+      </div>
     </>
   )
 }
+
+
+
+
+
 
 
 

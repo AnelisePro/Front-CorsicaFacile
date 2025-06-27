@@ -22,6 +22,8 @@ export default function ArtisanInscription() {
   const [siren, setSiren] = useState('')
   const [kbisFile, setKbisFile] = useState<File | null>(null)
   const [insuranceFile, setInsuranceFile] = useState<File | null>(null)
+  const [kbisUrl, setKbisUrl] = useState('')
+  const [insuranceUrl, setInsuranceUrl] = useState('')
   const [membershipPlan, setMembershipPlan] = useState('')
   const [email, setEmail] = useState('')
   const [phone, setPhone] = useState('')
@@ -34,9 +36,7 @@ export default function ArtisanInscription() {
   const stripePublishableKey = 'pk_test_51RO446Rs43niZdSJN0YjPjgq7HdFlhdFqqUqpsKxmgTAMHDyjK2g6Qh9FaRtdLjTWIkCz7ARow4rpyDliAzgzIgT00b0r32PoM'
 
   useEffect(() => {
-    fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/expertises`, {
-      credentials: 'include',
-    })
+    fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/expertises`, { credentials: 'include' })
       .then(res => res.json())
       .then(data => {
         if (Array.isArray(data)) {
@@ -46,15 +46,42 @@ export default function ArtisanInscription() {
       .catch(() => toast.error('Erreur lors du chargement des expertises'))
   }, [])
 
+  const uploadFileToS3 = async (file: File) => {
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/presigned_url`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ filename: file.name, content_type: file.type }),
+        credentials: 'include',
+      })
+
+      const data = await response.json()
+
+      if (!response.ok || !data.url) throw new Error('Erreur lors de la récupération de l’URL signée.')
+
+      const uploadResponse = await fetch(data.url, {
+        method: 'PUT',
+        body: file,
+        headers: { 'Content-Type': file.type }
+      })
+
+      if (!uploadResponse.ok) throw new Error('Erreur lors de l’upload vers S3.')
+
+      const bucketUrl = process.env.NEXT_PUBLIC_S3_BUCKET_URL || 'https://corsica-facile-prod.s3.eu-north-1.amazonaws.com'
+      const fileUrl = `${bucketUrl}/${data.key}`
+
+      return fileUrl
+    } catch (err: any) {
+      toast.error(err.message || "Erreur lors de l'upload S3.")
+      return ''
+    }
+  }
+
   const handleFormSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
 
-    if (
-      !companyName || !streetNumber || !streetName || !postalCode || !city ||
-      !expertise || !siren || !kbisFile || !insuranceFile || !email ||
-      !phone || !password || !confirmPassword || !membershipPlan
-    ) {
+    if (!companyName || !streetNumber || !streetName || !postalCode || !city || !expertise || !siren || !kbisFile || !insuranceFile || !email || !phone || !password || !confirmPassword || !membershipPlan) {
       setError('Veuillez remplir tous les champs et choisir un plan.')
       toast.error('Veuillez remplir tous les champs et choisir un plan.')
       return
@@ -72,25 +99,39 @@ export default function ArtisanInscription() {
       return
     }
 
+    // Upload S3
+    toast.info('Téléchargement des fichiers...')
+    const uploadedKbisUrl = await uploadFileToS3(kbisFile)
+    const uploadedInsuranceUrl = await uploadFileToS3(insuranceFile)
+
+    if (!uploadedKbisUrl || !uploadedInsuranceUrl) {
+      setError('Erreur lors de l’upload des fichiers.')
+      return
+    }
+
     const fullAddress = `${streetNumber} ${streetName}, ${postalCode} ${city}`
 
-    const formData = new FormData()
-    formData.append('artisan[company_name]', companyName)
-    formData.append('artisan[address]', fullAddress)
-    formData.append('artisan[expertise]', expertise === 'Autre' ? customExpertise : expertise)
-    formData.append('artisan[siren]', siren)
-    if (kbisFile) formData.append('artisan[kbis]', kbisFile)
-    if (insuranceFile) formData.append('artisan[insurance]', insuranceFile)
-    formData.append('artisan[email]', email)
-    formData.append('artisan[phone]', phone)
-    formData.append('artisan[membership_plan]', membershipPlan)
-    formData.append('artisan[password]', password)
-    formData.append('artisan[password_confirmation]', confirmPassword)
+    const formData = {
+      artisan: {
+        company_name: companyName,
+        address: fullAddress,
+        expertise: expertise === 'Autre' ? customExpertise : expertise,
+        siren,
+        kbis_url: uploadedKbisUrl,
+        insurance_url: uploadedInsuranceUrl,
+        email,
+        phone,
+        membership_plan: membershipPlan,
+        password,
+        password_confirmation: confirmPassword
+      }
+    }
 
     try {
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/artisans`, {
         method: 'POST',
-        body: formData,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData),
         credentials: 'include',
       })
 

@@ -15,7 +15,7 @@ const Map = dynamic(() => import('../components/Map'), { ssr: false })
 type Artisan = {
   id: string
   company_name: string
-  expertise_names?: string[] 
+  expertise_names?: string[]
   address: string
   latitude?: number
   longitude?: number
@@ -31,7 +31,6 @@ export default function RecherchePage() {
   const expertise = params.get('expertise') ?? ''
   const location = params.get('location') ?? params.get('localisation') ?? ''
 
-
   const [artisans, setArtisans] = useState<Artisan[]>([])
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -39,12 +38,13 @@ export default function RecherchePage() {
   const [mapZoom, setMapZoom] = useState<number>(10)
   const [hoveredArtisanId, setHoveredArtisanId] = useState<string | null>(null)
 
-  // Ref pour scroller vers l'artisan en surbrillance
   const artisanRefs = useRef<{ [key: string]: HTMLLIElement | null }>({})
 
   async function geocodeAddress(address: string): Promise<[number, number] | null> {
     try {
-      const res = await fetch(`https://api-adresse.data.gouv.fr/search/?q=${encodeURIComponent(address)}&limit=1`)
+      const res = await fetch(
+        `https://api-adresse.data.gouv.fr/search/?q=${encodeURIComponent(address)}&limit=1`
+      )
       const data = await res.json()
       if (data.features && data.features.length > 0) {
         const [lon, lat] = data.features[0].geometry.coordinates
@@ -68,15 +68,20 @@ export default function RecherchePage() {
     setLoading(true)
     setError(null)
 
-    fetch(`${apiUrl}/artisans?expertise=${encodeURIComponent(expertise)}&location=${encodeURIComponent(location)}`, {
-      credentials: 'include',
-    })
+    fetch(
+      `${apiUrl}/artisans?expertise=${encodeURIComponent(
+        expertise
+      )}&location=${encodeURIComponent(location)}`,
+      {
+        credentials: 'include',
+      }
+    )
       .then(res => res.json())
-      .then(async (data) => {
+      .then(async data => {
         const artisanList: Artisan[] = Array.isArray(data) ? data : data.artisans ?? []
 
         const artisansWithCoords = await Promise.all(
-          artisanList.map(async (artisan) => {
+          artisanList.map(async artisan => {
             const coords = await geocodeAddress(artisan.address)
             if (coords) {
               return { ...artisan, latitude: coords[0], longitude: coords[1] }
@@ -108,7 +113,6 @@ export default function RecherchePage() {
       .finally(() => setLoading(false))
   }, [expertise, location])
 
-  // Scroll vers l'artisan en surbrillance et recentre la carte
   useEffect(() => {
     if (hoveredArtisanId) {
       const el = artisanRefs.current[hoveredArtisanId]
@@ -116,11 +120,10 @@ export default function RecherchePage() {
         el.scrollIntoView({ behavior: 'smooth', block: 'center' })
       }
 
-      // Recentre la carte sur l'artisan sélectionné
       const selected = artisans.find(a => a.id === hoveredArtisanId)
       if (selected && selected.latitude !== undefined && selected.longitude !== undefined) {
         setMapCenter([selected.latitude, selected.longitude])
-        setMapZoom(15) // zoom plus proche sur sélection
+        setMapZoom(15)
       }
     }
   }, [hoveredArtisanId, artisans])
@@ -134,9 +137,9 @@ export default function RecherchePage() {
           markers={artisans.map(a => ({
             id: a.id,
             position: [a.latitude!, a.longitude!],
-            label: a.company_name
+            label: a.company_name,
           }))}
-          onMarkerClick={(id) => setHoveredArtisanId(id)}
+          onMarkerClick={id => setHoveredArtisanId(id)}
         />
       </div>
 
@@ -147,64 +150,76 @@ export default function RecherchePage() {
         {error && <p style={{ color: 'red' }}>{error}</p>}
 
         {!loading && !error && (
-          artisans.length === 0
-            ? <p>Aucun artisan trouvé pour cette recherche.</p>
-            : <ul className={styles.artisanList}>
-                {artisans.map(artisan => (
-                  <li
-                    key={artisan.id}
-                    className={`${styles.artisanCard} ${hoveredArtisanId === artisan.id ? styles.hovered : ''}`}
-                    ref={el => {
-                      artisanRefs.current[artisan.id] = el
-                    }}
-                    onClick={() => setHoveredArtisanId(artisan.id)} // <-- ici on gère le clic
-                    style={{ cursor: 'pointer' }} // pour indiquer que c'est cliquable
-                  >
-                    <div className={styles.avatar}>
-                      <Image
-                        src={
-                          artisan.avatar_url
-                            ? `${artisan.avatar_url}?t=${Date.now()}`
-                            : `https://ui-avatars.com/api/?name=${encodeURIComponent(artisan.company_name)}&background=007bff&color=fff&rounded=true`
-                        }
-                        alt={`${artisan.company_name} avatar`}
-                        width={64}
-                        height={64}
-                        style={{ borderRadius: '50%' }}
-                      />
+          artisans.length === 0 ? (
+            <p>Aucun artisan trouvé pour cette recherche.</p>
+          ) : (
+            <ul className={styles.artisanList}>
+              {artisans.map(artisan => (
+                <li
+                  key={artisan.id}
+                  className={`${styles.artisanCard} ${
+                    hoveredArtisanId === artisan.id ? styles.hovered : ''
+                  }`}
+                  ref={el => {
+                    artisanRefs.current[artisan.id] = el
+                  }}
+                  onClick={() => setHoveredArtisanId(artisan.id)}
+                  style={{ cursor: 'pointer' }}
+                >
+                  <div className={styles.avatar}>
+                    <Image
+                      src={
+                        artisan.avatar_url
+                          ? artisan.avatar_url.startsWith('http')
+                            ? artisan.avatar_url
+                            : `${process.env.NEXT_PUBLIC_S3_BUCKET_URL}/${artisan.avatar_url}`
+                          : `https://ui-avatars.com/api/?name=${encodeURIComponent(
+                              artisan.company_name
+                            )}&background=007bff&color=fff&rounded=true`
+                      }
+                      alt={`${artisan.company_name} avatar`}
+                      width={64}
+                      height={64}
+                      style={{ borderRadius: '50%' }}
+                      onError={e => {
+                        ;(e.currentTarget as HTMLImageElement).src = '/images/avatar.svg'
+                      }}
+                    />
+                  </div>
+
+                  <div className={styles.info}>
+                    <h3>{artisan.company_name}</h3>
+
+                    <p className={styles.address}>
+                      <FaMapMarkerAlt aria-hidden="true" />
+                      <span>{artisan.address}</span>
+                    </p>
+
+                    <div className={styles.actions}>
+                      {artisan.expertise_names && artisan.expertise_names.length > 0 && (
+                        <span className={styles.expertiseTag}>{artisan.expertise_names.join(', ')}</span>
+                      )}
+                      <button
+                        onClick={e => {
+                          e.stopPropagation()
+                          window.open(`/artisan-profile/${artisan.id}`, '_blank')
+                        }}
+                        aria-label={`Contacter ${artisan.company_name}`}
+                      >
+                        Voir le profil
+                      </button>
                     </div>
-
-                    <div className={styles.info}>
-                      <h3>{artisan.company_name}</h3>
-
-                      <p className={styles.address}>
-                        <FaMapMarkerAlt aria-hidden="true" />
-                        <span>{artisan.address}</span>
-                      </p>
-
-                      <div className={styles.actions}>
-                        {artisan.expertise_names && artisan.expertise_names.length > 0 && (
-                          <span className={styles.expertiseTag}>{artisan.expertise_names.join(', ')}</span>
-                        )}
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation()
-                            window.open(`/artisan-profile/${artisan.id}`, '_blank')
-                          }}
-                          aria-label={`Contacter ${artisan.company_name}`}
-                        >
-                          Voir le profil
-                        </button>
-                      </div>
-                    </div>
-                  </li>
-                ))}
-              </ul>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )
         )}
       </div>
     </div>
   )
 }
+
 
 
 

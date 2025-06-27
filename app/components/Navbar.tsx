@@ -34,9 +34,15 @@ export default function Navbar() {
     : '/mon-espace'
 
   const avatarUrl = useMemo(() => {
-    return user?.avatar_url
-      ? `${user.avatar_url}?t=${Date.now()}`
-      : '/images/avatar.svg'
+    if (!user?.avatar_url) return '/images/avatar.svg'
+
+    // Si avatar_url est une URL complète (commence par http ou https)
+    if (user.avatar_url.startsWith('http')) {
+      return `${user.avatar_url}?t=${Date.now()}` // ajoute un timestamp pour forcer le rechargement si besoin
+    }
+
+    // Sinon on concatène avec le bucket S3
+    return `${process.env.NEXT_PUBLIC_S3_BUCKET_URL}/${user.avatar_url}`
   }, [user?.avatar_url])
 
   const handleLogout = async () => {
@@ -109,7 +115,6 @@ export default function Navbar() {
               </Link>
             </li>
 
-            {/* Lien Annonces visible uniquement si artisan connecté */}
             {user?.role === 'artisan' && (
               <li>
                 <Link href="/annonces" className={pathname === '/annonces' ? styles.active : ''}>

@@ -1,7 +1,7 @@
 export interface BesoinFormData {
   type_prestation: string
   description: string
-  images: File[]
+  images: string[]
   schedule: {
     date: string // yyyy-mm-dd
     start: string // HH:mm

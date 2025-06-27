@@ -22,7 +22,7 @@ const BesoinForm = () => {
     type_prestation: '',
     custom_prestation: undefined,
     description: '',
-    images: [],
+    images: [], // Contient des URLs S3
     schedule: {
       date: '',
       start: '',
@@ -82,17 +82,20 @@ const BesoinForm = () => {
 
   const handleSubmit = async () => {
     if (!token) return
+
     const form = new FormData()
     form.append('besoin[type_prestation]', formData.type_prestation)
     form.append('besoin[description]', formData.description)
     form.append('besoin[schedule]', JSON.stringify(formData.schedule))
     form.append('besoin[address]', formData.address)
+
     if (formData.custom_prestation) {
       form.append('besoin[custom_prestation]', formData.custom_prestation)
     }
 
-    formData.images.forEach((file: File) => {
-      form.append('besoin[images][]', file)
+    // On envoie directement les URLs S3
+    formData.images.forEach((url: string) => {
+      form.append('besoin[image_urls][]', url)
     })
 
     try {
@@ -111,11 +114,11 @@ const BesoinForm = () => {
   const steps = [
     <div key="intro" className={styles.intro}>
       <h1 className={styles.title}>Déclarer un besoin</h1>
-      <p className={`${styles.paragraphLarge}`}>
+      <p className={styles.paragraphLarge}>
         Trouvez facilement un artisan de <span className={styles.textStrong}>confiance</span> en{' '}
         <span className={`${styles.textExtraStrong} ${styles.textBlue}`}>Corse</span> !
       </p>
-      <p className={`${styles.paragraphMedium}`}>
+      <p className={styles.paragraphMedium}>
         Avec <span className={styles.textStrong + ' ' + styles.textGreen}>CorsicaFacile</span>, décrivez votre besoin en quelques étapes, et on s’occupe du reste.
       </p>
       <p className={styles.paragraphLarge}>
@@ -198,6 +201,8 @@ const BesoinForm = () => {
 }
 
 export default BesoinForm
+
+
 
 
 
