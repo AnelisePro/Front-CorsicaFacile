@@ -151,7 +151,7 @@ export default function ClientDashboard() {
       const updatedClientData = { ...client, avatar_url: avatarUrl }
       delete updatedClientData.id
 
-      await axios.put(`${apiUrl}/clients/me`, updatedClientData, {
+      await axios.put(`${apiUrl}/clients/me`, { client: updatedClientData }, {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
