@@ -23,77 +23,22 @@ type Besoin = {
   }
 }
 
-// Utilitaire pour extraire le nom de fichier depuis une URL ou une "key"
-const getFilenameFromKey = (key: string) => {
-  return key.split('/').pop() || 'file'
+// Fonction pour extraire le nom du fichier depuis une URL ou clé
+const extractFilename = (urlOrKey: string) => {
+  try {
+    const url = new URL(urlOrKey)
+    return url.pathname.split('/').pop() || urlOrKey
+  } catch {
+    return urlOrKey
+  }
 }
 
-// Utilitaire pour récupérer le content type selon l'extension
+// Détermine le content-type selon l'extension du fichier
 const getContentType = (filename: string) => {
   if (filename.endsWith('.svg')) return 'image/svg+xml'
   if (filename.endsWith('.png')) return 'image/png'
   if (filename.endsWith('.jpg') || filename.endsWith('.jpeg')) return 'image/jpeg'
   return 'application/octet-stream'
-}
-
-// Récupérer une URL signée pour une image
-const fetchPresignedUrl = async (
-  filename: string,
-  purpose = 'uploads'
-) => {
-  const artisanToken = localStorage.getItem('artisanToken')
-  const content_type = getContentType(filename)
-
-  try {
-    const response = await axios.post(
-      `${apiUrl}/presigned_url`,
-      { filename, content_type, purpose },
-      {
-        headers: { Authorization: `Bearer ${artisanToken}` },
-      }
-    )
-    return response.data.url
-  } catch (error: any) {
-    console.error('Erreur fetchPresignedUrl:', error)
-    throw error
-  }
-}
-
-// Composant pour afficher une image avec URL signée
-function SignedImage({ imageKey }: { imageKey: string }) {
-  const [signedUrl, setSignedUrl] = useState('')
-  const [error, setError] = useState<string | null>(null)
-
-  useEffect(() => {
-    const filename = getFilenameFromKey(imageKey)
-
-    fetchPresignedUrl(filename)
-      .then((url) => {
-        console.log('URL signée:', url)
-        setSignedUrl(url)
-      })
-      .catch((err) => {
-        console.error('Erreur fetchPresignedUrl:', err)
-        if (err.response?.status === 422) {
-          setError('Image non trouvée ou paramètres invalides.')
-        } else {
-          setError('Erreur lors du chargement de l’image.')
-        }
-      })
-  }, [imageKey])
-
-  if (error) return <p>{error}</p>
-  if (!signedUrl) return <p>Chargement de l'image...</p>
-
-  return (
-    <img
-      src={signedUrl}
-      alt="Image besoin"
-      width={150}
-      height={150}
-      className={styles.image}
-    />
-  )
 }
 
 export default function ArtisansAnnonces() {
@@ -109,7 +54,10 @@ export default function ArtisansAnnonces() {
 
   const router = useRouter()
 
+  // Chargement des besoins de l'artisan
   useEffect(() => {
+    if (typeof window === 'undefined') return // SSR safeguard
+
     const artisanToken = localStorage.getItem('artisanToken')
     if (!artisanToken) {
       router.push('/auth/login_artisan')
@@ -125,6 +73,7 @@ export default function ArtisansAnnonces() {
       .finally(() => setLoading(false))
   }, [router])
 
+  // Chargement des expertises disponibles pour filtre
   useEffect(() => {
     axios
       .get(`${apiUrl}/api/expertises`)
@@ -132,6 +81,7 @@ export default function ArtisansAnnonces() {
       .catch((err) => console.error('Erreur lors du chargement des expertises', err))
   }, [])
 
+  // Fermer dropdown si clic à l'extérieur
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       const dropdown = document.querySelector(`.${styles.dropdown}`)
@@ -139,13 +89,13 @@ export default function ArtisansAnnonces() {
         setIsDropdownOpen(false)
       }
     }
-
     document.addEventListener('mousedown', handleClickOutside)
     return () => {
       document.removeEventListener('mousedown', handleClickOutside)
     }
   }, [])
 
+  // Filtre des besoins selon expertise et localisation
   const filteredBesoins = besoins.filter((b) => {
     const matchesExpertise = selectedExpertise ? b.type_prestation === selectedExpertise : true
     const matchesLocation = searchLocation
@@ -161,7 +111,6 @@ export default function ArtisansAnnonces() {
     <div className={styles.container}>
       <h1 className={styles.title}>Toutes les annonces</h1>
 
-      {/* Barre de filtres */}
       <div className={styles.filters}>
         <div className={styles.dropdown}>
           <button
@@ -169,6 +118,7 @@ export default function ArtisansAnnonces() {
             onClick={() => setIsDropdownOpen((prev) => !prev)}
             aria-haspopup="listbox"
             aria-expanded={isDropdownOpen}
+            type="button"
           >
             {selectedExpertise || 'Type de prestation'}
           </button>
@@ -181,8 +131,9 @@ export default function ArtisansAnnonces() {
                 }}
                 role="option"
                 tabIndex={0}
+                onKeyDown={(e) => e.key === 'Enter' && (setSelectedExpertise(''), setIsDropdownOpen(false))}
               >
-                Toutes les types
+                Tous les types
               </li>
               {expertises.map((exp, i) => (
                 <li
@@ -193,6 +144,7 @@ export default function ArtisansAnnonces() {
                   }}
                   role="option"
                   tabIndex={0}
+                  onKeyDown={(e) => e.key === 'Enter' && (setSelectedExpertise(exp), setIsDropdownOpen(false))}
                 >
                   {exp}
                 </li>
@@ -207,6 +159,7 @@ export default function ArtisansAnnonces() {
           value={searchLocation}
           onChange={(e) => setSearchLocation(e.target.value)}
           className={styles.input}
+          aria-label="Recherche par localisation"
         />
       </div>
 
@@ -219,7 +172,12 @@ export default function ArtisansAnnonces() {
             <p className={styles.description}>{b.description}</p>
             <div className={styles.cardFooter}>
               <span className={styles.location}>📍 {b.address}</span>
-              <button className={styles.button} onClick={() => setSelectedBesoin(b)}>
+              <button
+                className={styles.button}
+                type="button"
+                onClick={() => setSelectedBesoin(b)}
+                aria-label={`Afficher les détails pour ${b.type_prestation}`}
+              >
                 En savoir plus
               </button>
             </div>
@@ -230,14 +188,30 @@ export default function ArtisansAnnonces() {
       {selectedBesoin && (
         <div className={styles.modalOverlay} onClick={() => setSelectedBesoin(null)}>
           <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
-            <button className={styles.closeButton} onClick={() => setSelectedBesoin(null)}>
+            <button
+              className={styles.closeButton}
+              onClick={() => setSelectedBesoin(null)}
+              aria-label="Fermer la fenêtre"
+              type="button"
+            >
               ✕
             </button>
             <h2 className={styles.modalTitle}>Informations supplémentaires</h2>
 
             <div className={styles.images}>
               {selectedBesoin.image_urls.length > 0 ? (
-                selectedBesoin.image_urls.map((key, i) => <SignedImage key={i} imageKey={key} />)
+                selectedBesoin.image_urls.map((url, i) => (
+                  <img
+                    key={i}
+                    src={url}
+                    alt="Image besoin"
+                    width={150}
+                    height={150}
+                    className={styles.image}
+                    loading="lazy"
+                    decoding="async"
+                  />
+                ))
               ) : (
                 <p>Aucune image disponible.</p>
               )}
@@ -255,6 +229,10 @@ export default function ArtisansAnnonces() {
     </div>
   )
 }
+
+
+
+
 
 
 

@@ -343,8 +343,11 @@ export default function ArtisanDashboard() {
             expertises={expertises}
             membershipPlans={membershipPlans}
             kbisFile={kbisFile}
+            setKbisFile={setKbisFile}           
             insuranceFile={insuranceFile}
+            setInsuranceFile={setInsuranceFile}   
             avatarFile={avatarFile}
+            setAvatarFile={setAvatarFile}           
             handleUpdate={handleUpdate}
             handleCancel={handleCancel}
             deletedImageUrls={deletedImageUrls}

@@ -31,12 +31,6 @@ interface Besoin {
   images?: string[]
 }
 
-const fieldLabels: Record<string, string> = {
-  email: 'Email',
-  phone: 'Téléphone',
-  birthdate: 'Date de naissance',
-}
-
 export default function ClientDashboard() {
   const [client, setClient] = useState<Client | null>(null)
   const [loading, setLoading] = useState(true)
@@ -52,6 +46,7 @@ export default function ClientDashboard() {
     description: '',
     address: '',
     schedule: '',
+    images: [] as string[],
   })
 
   useEffect(() => {
@@ -102,43 +97,40 @@ export default function ClientDashboard() {
   }
 
   const uploadToS3 = async (file: File) => {
-    try {
-      const token = localStorage.getItem('clientToken')
-      if (!token) throw new Error('Token manquant')
+  try {
+    const token = localStorage.getItem('clientToken')
+    if (!token) throw new Error('Token manquant')
 
-      const presignRes = await axios.post(
-        `${apiUrl}/presigned_url`,
-        { filename: file.name, content_type: file.type },
-        {
-          headers: { Authorization: `Bearer ${token}` },
-          withCredentials: true,
-        }
-      )
-
-      const { url, fields, key } = presignRes.data
-
-      const formData = new FormData()
-      Object.entries(fields).forEach(([fieldKey, value]) => {
-        formData.append(fieldKey, value as string)
-      })
-      formData.append('file', file)
-
-      const uploadRes = await fetch(url, {
-        method: 'POST',
-        body: formData,
-      })
-
-      if (!uploadRes.ok) {
-        throw new Error('Erreur lors de l’upload sur S3')
+    const presignRes = await axios.post(
+      `${apiUrl}/presigned_url`,
+      { filename: file.name, content_type: file.type },
+      {
+        headers: { Authorization: `Bearer ${token}` },
+        withCredentials: true,
       }
+    )
 
-      return `${process.env.NEXT_PUBLIC_S3_BUCKET_URL}/${key}`
-    } catch (error) {
-      console.error('Erreur upload S3 :', error)
-      toast.error('Erreur lors de l’upload de l’image.')
-      return null
+    const { url, key } = presignRes.data
+
+    const uploadRes = await fetch(url, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': file.type,
+      },
+      body: file,
+    })
+
+    if (!uploadRes.ok) {
+      throw new Error('Erreur lors de l’upload sur S3')
     }
+
+    return `${process.env.NEXT_PUBLIC_S3_BUCKET_URL}/${key}`
+  } catch (error) {
+    console.error('Erreur upload S3 :', error)
+    toast.error('Erreur lors de l’upload de l’image.')
+    return null
   }
+}
 
   const handleUpdate = async () => {
     const token = localStorage.getItem('clientToken')
@@ -239,12 +231,38 @@ export default function ClientDashboard() {
     })
   }
 
+  const handleImagesChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files) return;
+    const files = Array.from(e.target.files);
+    const uploadedUrls: string[] = [];
+
+    for (const file of files) {
+      const url = await uploadToS3(file);
+      if (url) {
+        uploadedUrls.push(url);
+      } else {
+        toast.error(`Erreur lors de l'upload de l'image ${file.name}`);
+      }
+    }
+
+    setEditForm(prev => ({
+      ...prev,
+      images: [...prev.images, ...uploadedUrls],
+    }));
+  };
+
   const handleUpdateBesoin = async (id: number) => {
     const token = localStorage.getItem('clientToken')
     if (!token) return
 
     try {
-      await axios.put(`${apiUrl}/clients/besoins/${id}`, editForm, {
+      await axios.put(`${apiUrl}/clients/besoins/${id}`, { besoin: {
+        type_prestation: editForm.type_prestation,
+        description: editForm.description,
+        address: editForm.address,
+        schedule: editForm.schedule,
+        image_urls: editForm.images,
+      } }, {
         headers: { Authorization: `Bearer ${token}` },
       })
       toast.success('Annonce mise à jour.')
@@ -360,6 +378,7 @@ export default function ClientDashboard() {
         <section className={styles.besoinsSection}>
           <h2>Mes annonces</h2>
           {besoins.length === 0 && <p>Aucune annonce.</p>}
+
           {besoins.map((besoin) => (
             <div key={besoin.id} className={styles.besoinCard}>
               {editingBesoinId === besoin.id ? (
@@ -397,39 +416,65 @@ export default function ClientDashboard() {
                     />
                   </label>
 
+                  <label>
+                    Images
+                    <input
+                      type="file"
+                      multiple
+                      accept="image/*"
+                      onChange={handleImagesChange}
+                    />
+                  </label>
+
+                  <div className={styles.imagesPreview}>
+                    {editForm.images.map((url, index) => (
+                      <div key={index} className={styles.imageWrapper}>
+                        <Image src={url} alt={`Image ${index + 1}`} width={100} height={100} />
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setEditForm(prev => ({
+                              ...prev,
+                              images: prev.images.filter((_, i) => i !== index),
+                            }))
+                          }}
+                        >
+                          Supprimer
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+
                   <button onClick={() => handleUpdateBesoin(besoin.id)}>Enregistrer</button>
                   <button onClick={() => setEditingBesoinId(null)}>Annuler</button>
                 </div>
               ) : (
                 <>
-                  <p><strong>Type :</strong> {besoin.type_prestation}</p>
+                  <p><strong>Type de prestation :</strong> {besoin.type_prestation}</p>
                   <p><strong>Description :</strong> {besoin.description}</p>
                   <p><strong>Adresse :</strong> {besoin.address}</p>
                   <p><strong>Horaires :</strong> {besoin.schedule}</p>
 
-                  {besoin.images && besoin.images.length > 0 && (
-  <div className={styles.imagesContainer}>
-    {besoin.images.map((url, idx) => (
-      <img
-        key={idx}
-        src={url}
-        alt={`Image besoin ${besoin.id} - ${idx + 1}`}
-        className={styles.besoinImage}
-      />
-    ))}
-  </div>
-)}
+                  <div className={styles.imagesPreview}>
+                    {(besoin.images || []).map((url, idx) => (
+                      <Image key={idx} src={url} alt={`Image ${idx + 1}`} width={100} height={100} />
+                    ))}
+                  </div>
 
-                  <button onClick={() => {
-                    setEditingBesoinId(besoin.id)
-                    setEditForm({
-                      type_prestation: besoin.type_prestation,
-                      description: besoin.description,
-                      address: besoin.address,
-                      schedule: besoin.schedule,
-                    })
-                  }}>Modifier</button>
-
+                  <button
+                    onClick={() => {
+                      setEditingBesoinId(besoin.id)
+                      setEditForm({
+                        type_prestation: besoin.type_prestation,
+                        description: besoin.description,
+                        address: besoin.address,
+                        schedule: besoin.schedule,
+                        images: besoin.images || [],
+                      })
+                    }}
+                  >
+                    Modifier
+                  </button>
                   <button onClick={() => handleDeleteBesoin(besoin.id)}>Supprimer</button>
                 </>
               )}
@@ -437,13 +482,16 @@ export default function ClientDashboard() {
           ))}
         </section>
 
-        <button className={styles.deleteAccountBtn} onClick={confirmDelete}>
-          Supprimer mon compte
-        </button>
+        <section className={styles.deleteSection}>
+          <button className={styles.deleteButton} onClick={confirmDelete}>
+            Supprimer mon compte
+          </button>
+        </section>
       </div>
     </>
   )
 }
+
 
 
 
