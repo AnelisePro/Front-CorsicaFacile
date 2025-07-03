@@ -7,6 +7,8 @@ import { useAuth } from '../../auth/AuthContext'
 import styles from './page.module.scss'
 import { toast, ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
+import ClientNotifications from '../../components/ClientNotifications'
+import ProgressStepper from '../../components/ProgressStepper'
 
 const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
 
@@ -31,6 +33,16 @@ interface Besoin {
   images?: string[]
 }
 
+interface Notification {
+  id: number
+  message: string
+  link: string
+  artisan_id: number
+  artisan_name: string
+  status: 'pending' | 'accepted' | 'refused' | 'completed'
+  besoin_id: number
+}
+
 export default function ClientDashboard() {
   const [client, setClient] = useState<Client | null>(null)
   const [loading, setLoading] = useState(true)
@@ -40,6 +52,7 @@ export default function ClientDashboard() {
   const [isClient, setIsClient] = useState(false)
   const [besoins, setBesoins] = useState<Besoin[]>([])
   const [editingBesoinId, setEditingBesoinId] = useState<number | null>(null)
+  const [notifications, setNotifications] = useState<Notification[]>([])
 
   const [editForm, setEditForm] = useState({
     type_prestation: '',
@@ -85,6 +98,25 @@ export default function ClientDashboard() {
     fetchClient()
   }, [])
 
+  useEffect(() => {
+    const fetchNotifications = async () => {
+      try {
+        const token = localStorage.getItem('clientToken')
+        if (!token) throw new Error('Token manquant')
+
+        const res = await axios.get(`${apiUrl}/client_notifications`, {
+          headers: { Authorization: `Bearer ${token}` },
+        })
+        setNotifications(res.data.notifications || [])
+      } catch (error) {
+        console.error(error)
+        toast.error('Erreur lors du chargement des notifications.')
+      }
+    }
+
+    fetchNotifications()
+  }, [])
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!client) return
     setClient({ ...client, [e.target.name]: e.target.value })
@@ -97,40 +129,40 @@ export default function ClientDashboard() {
   }
 
   const uploadToS3 = async (file: File) => {
-  try {
-    const token = localStorage.getItem('clientToken')
-    if (!token) throw new Error('Token manquant')
+    try {
+      const token = localStorage.getItem('clientToken')
+      if (!token) throw new Error('Token manquant')
 
-    const presignRes = await axios.post(
-      `${apiUrl}/presigned_url`,
-      { filename: file.name, content_type: file.type },
-      {
-        headers: { Authorization: `Bearer ${token}` },
-        withCredentials: true,
+      const presignRes = await axios.post(
+        `${apiUrl}/presigned_url`,
+        { filename: file.name, content_type: file.type },
+        {
+          headers: { Authorization: `Bearer ${token}` },
+          withCredentials: true,
+        }
+      )
+
+      const { url, key } = presignRes.data
+
+      const uploadRes = await fetch(url, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': file.type,
+        },
+        body: file,
+      })
+
+      if (!uploadRes.ok) {
+        throw new Error('Erreur lors de l’upload sur S3')
       }
-    )
 
-    const { url, key } = presignRes.data
-
-    const uploadRes = await fetch(url, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': file.type,
-      },
-      body: file,
-    })
-
-    if (!uploadRes.ok) {
-      throw new Error('Erreur lors de l’upload sur S3')
+      return `${process.env.NEXT_PUBLIC_S3_BUCKET_URL}/${key}`
+    } catch (error) {
+      console.error('Erreur upload S3 :', error)
+      toast.error('Erreur lors de l’upload de l’image.')
+      return null
     }
-
-    return `${process.env.NEXT_PUBLIC_S3_BUCKET_URL}/${key}`
-  } catch (error) {
-    console.error('Erreur upload S3 :', error)
-    toast.error('Erreur lors de l’upload de l’image.')
-    return null
   }
-}
 
   const handleUpdate = async () => {
     const token = localStorage.getItem('clientToken')
@@ -374,112 +406,132 @@ export default function ClientDashboard() {
           )}
         </section>
 
+        <ClientNotifications notifications={notifications} setNotifications={setNotifications} />
+
         {/* Annonces (Besoins) */}
         <section className={styles.besoinsSection}>
           <h2>Mes annonces</h2>
           {besoins.length === 0 && <p>Aucune annonce.</p>}
 
-          {besoins.map((besoin) => (
-            <div key={besoin.id} className={styles.besoinCard}>
-              {editingBesoinId === besoin.id ? (
-                <div className={styles.editForm}>
-                  <label>
-                    Type de prestation
-                    <input
-                      type="text"
-                      value={editForm.type_prestation}
-                      onChange={(e) => setEditForm({ ...editForm, type_prestation: e.target.value })}
-                    />
-                  </label>
-                  <label>
-                    Description
-                    <input
-                      type="text"
-                      value={editForm.description}
-                      onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
-                    />
-                  </label>
-                  <label>
-                    Adresse
-                    <input
-                      type="text"
-                      value={editForm.address}
-                      onChange={(e) => setEditForm({ ...editForm, address: e.target.value })}
-                    />
-                  </label>
-                  <label>
-                    Horaires
-                    <input
-                      type="text"
-                      value={editForm.schedule}
-                      onChange={(e) => setEditForm({ ...editForm, schedule: e.target.value })}
-                    />
-                  </label>
+          {besoins.map((besoin) => {
+            const relatedNotification = notifications.find(
+              (notif) => notif.besoin_id === besoin.id && notif.status === 'accepted'
+            )
 
-                  <label>
-                    Images
-                    <input
-                      type="file"
-                      multiple
-                      accept="image/*"
-                      onChange={handleImagesChange}
-                    />
-                  </label>
+            return (
+              <div key={besoin.id} className={styles.besoinCard}>
+                {editingBesoinId === besoin.id ? (
+                  <div className={styles.editForm}>
+                    <label>
+                      Type de prestation
+                      <input
+                        type="text"
+                        value={editForm.type_prestation}
+                        onChange={(e) => setEditForm({ ...editForm, type_prestation: e.target.value })}
+                      />
+                    </label>
+                    <label>
+                      Description
+                      <input
+                        type="text"
+                        value={editForm.description}
+                        onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
+                      />
+                    </label>
+                    <label>
+                      Adresse
+                      <input
+                        type="text"
+                        value={editForm.address}
+                        onChange={(e) => setEditForm({ ...editForm, address: e.target.value })}
+                      />
+                    </label>
+                    <label>
+                      Horaires
+                      <input
+                        type="text"
+                        value={editForm.schedule}
+                        onChange={(e) => setEditForm({ ...editForm, schedule: e.target.value })}
+                      />
+                    </label>
 
-                  <div className={styles.imagesPreview}>
-                    {editForm.images.map((url, index) => (
-                      <div key={index} className={styles.imageWrapper}>
-                        <Image src={url} alt={`Image ${index + 1}`} width={100} height={100} />
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setEditForm(prev => ({
-                              ...prev,
-                              images: prev.images.filter((_, i) => i !== index),
-                            }))
-                          }}
-                        >
-                          Supprimer
-                        </button>
+                    <label>
+                      Images
+                      <input
+                        type="file"
+                        multiple
+                        accept="image/*"
+                        onChange={handleImagesChange}
+                      />
+                    </label>
+
+                    <div className={styles.imagesPreview}>
+                      {editForm.images.map((url, index) => (
+                        <div key={index} className={styles.imageWrapper}>
+                          <Image src={url} alt={`Image ${index + 1}`} width={100} height={100} />
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setEditForm(prev => ({
+                                ...prev,
+                                images: prev.images.filter((_, i) => i !== index),
+                              }))
+                            }}
+                          >
+                            Supprimer
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+
+                    <button onClick={() => handleUpdateBesoin(besoin.id)}>Enregistrer</button>
+                    <button onClick={() => setEditingBesoinId(null)}>Annuler</button>
+                  </div>
+                ) : (
+                  <>
+                    <p><strong>Type de prestation :</strong> {besoin.type_prestation}</p>
+                    <p><strong>Description :</strong> {besoin.description}</p>
+                    <p><strong>Adresse :</strong> {besoin.address}</p>
+                    <p><strong>Horaires :</strong> {besoin.schedule}</p>
+
+                    <div className={styles.imagesPreview}>
+                      {(besoin.images || []).map((url, idx) => (
+                        <Image key={idx} src={url} alt={`Image ${idx + 1}`} width={100} height={100} />
+                      ))}
+                    </div>
+
+                    {relatedNotification && (
+                      <div className={styles.progressContainer}>
+                        <ProgressStepper
+                          currentStep={
+                            relatedNotification.status === 'accepted' ? 2 :
+                            relatedNotification.status === 'completed' ? 3 :
+                            1
+                          }
+                        />
                       </div>
-                    ))}
-                  </div>
+                    )}
 
-                  <button onClick={() => handleUpdateBesoin(besoin.id)}>Enregistrer</button>
-                  <button onClick={() => setEditingBesoinId(null)}>Annuler</button>
-                </div>
-              ) : (
-                <>
-                  <p><strong>Type de prestation :</strong> {besoin.type_prestation}</p>
-                  <p><strong>Description :</strong> {besoin.description}</p>
-                  <p><strong>Adresse :</strong> {besoin.address}</p>
-                  <p><strong>Horaires :</strong> {besoin.schedule}</p>
-
-                  <div className={styles.imagesPreview}>
-                    {(besoin.images || []).map((url, idx) => (
-                      <Image key={idx} src={url} alt={`Image ${idx + 1}`} width={100} height={100} />
-                    ))}
-                  </div>
-
-                  <button
-                    onClick={() => {
-                      setEditingBesoinId(besoin.id)
-                      setEditForm({
-                        type_prestation: besoin.type_prestation,
-                        description: besoin.description,
-                        address: besoin.address,
-                        schedule: besoin.schedule,
-                        images: besoin.images || [],
-                      })
-                    }}
-                  >
-                    Modifier
-                  </button>
-                  <button onClick={() => handleDeleteBesoin(besoin.id)}>Supprimer</button>
-                </>
-              )}
-            </div>
-          ))}
+                    <button
+                      onClick={() => {
+                        setEditingBesoinId(besoin.id)
+                        setEditForm({
+                          type_prestation: besoin.type_prestation,
+                          description: besoin.description,
+                          address: besoin.address,
+                          schedule: besoin.schedule,
+                          images: besoin.images || [],
+                        })
+                      }}
+                    >
+                      Modifier
+                    </button>
+                    <button onClick={() => handleDeleteBesoin(besoin.id)}>Supprimer</button>
+                  </>
+                )}
+              </div>
+            )
+          })}
         </section>
 
         <section className={styles.deleteSection}>
@@ -491,6 +543,7 @@ export default function ClientDashboard() {
     </>
   )
 }
+
 
 
 

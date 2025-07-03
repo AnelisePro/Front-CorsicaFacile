@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import axios from 'axios'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import styles from './page.module.scss'
 
 const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
@@ -46,17 +46,17 @@ export default function ArtisansAnnonces() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [selectedBesoin, setSelectedBesoin] = useState<Besoin | null>(null)
-
   const [expertises, setExpertises] = useState<string[]>([])
   const [selectedExpertise, setSelectedExpertise] = useState<string>('')
   const [searchLocation, setSearchLocation] = useState('')
   const [isDropdownOpen, setIsDropdownOpen] = useState(false)
 
   const router = useRouter()
+  const searchParams = useSearchParams()
 
   // Chargement des besoins de l'artisan
   useEffect(() => {
-    if (typeof window === 'undefined') return // SSR safeguard
+    if (typeof window === 'undefined') return
 
     const artisanToken = localStorage.getItem('artisanToken')
     if (!artisanToken) {
@@ -80,6 +80,15 @@ export default function ArtisansAnnonces() {
       .then((res) => setExpertises(res.data))
       .catch((err) => console.error('Erreur lors du chargement des expertises', err))
   }, [])
+
+  // À chaque fois que besoins changent ou que le paramètre id change, sélectionner le besoin
+  useEffect(() => {
+    const idParam = searchParams.get('id')
+    if (idParam && besoins.length > 0) {
+      const found = besoins.find((b) => b.id === Number(idParam))
+      if (found) setSelectedBesoin(found)
+    }
+  }, [searchParams, besoins])
 
   // Fermer dropdown si clic à l'extérieur
   useEffect(() => {

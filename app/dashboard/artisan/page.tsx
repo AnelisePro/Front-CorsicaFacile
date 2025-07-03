@@ -8,6 +8,8 @@ import 'react-toastify/dist/ReactToastify.css'
 import ArtisanView from '../../components/ArtisanView'
 import ArtisanEdit from '../../components/ArtisanEdit'
 import AvailabilitySlots from '../../components/AvailabilitySlots'
+import NotificationList from '../../components/NotificationList'
+import ProgressStepper from '../../components/ProgressStepper'
 import styles from './page.module.scss'
 
 const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
@@ -52,6 +54,7 @@ export default function ArtisanDashboard() {
   const [avatarFile, setAvatarFile] = useState<File | null>(null)
   const [newImages, setNewImages] = useState<File[]>([])
   const [deletedImageUrls, setDeletedImageUrls] = useState<string[]>([])
+  const [activeMissions, setActiveMissions] = useState<{ id: number, status: string }[]>([])
 
   useEffect(() => {
     const artisanToken = localStorage.getItem('artisanToken')
@@ -197,7 +200,6 @@ export default function ArtisanDashboard() {
       const formData = new FormData()
 
       Object.entries(artisan).forEach(([key, value]) => {
-        // Ne pas envoyer ces clés qui sont des URLs ou non éditables
         if (
           key === 'images_urls' ||
           key === 'avatar_url' ||
@@ -214,22 +216,18 @@ export default function ArtisanDashboard() {
         }
       })
 
-      // Ajouter les fichiers uploadés
       if (kbisFile) formData.append('artisan[kbis]', kbisFile)
       if (insuranceFile) formData.append('artisan[insurance]', insuranceFile)
       if (avatarFile) formData.append('artisan[avatar]', avatarFile)
 
-      // Images supplémentaires à uploader
       newImages.forEach(file => {
         formData.append('artisan[project_images][]', file)
       })
 
-      // URLs des images supprimées
       deletedImageUrls.forEach(url => {
         formData.append('artisan[deleted_image_urls][]', url)
       })
 
-      // Envoi avec axios, mais on ne précise pas Content-Type (axios le gère)
       const res = await axios.put(`${apiUrl}/artisans/me`, formData, {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -246,7 +244,6 @@ export default function ArtisanDashboard() {
         toast.success('Informations mises à jour avec succès !')
         setIsEditing(false)
 
-        // Recharger les données de l'artisan
         async function fetchArtisan() {
           if (!token) return
           try {
@@ -300,13 +297,8 @@ export default function ArtisanDashboard() {
       })
       toast.success('Compte supprimé avec succès.')
 
-      // Nettoyer le token localStorage
       localStorage.removeItem('artisanToken')
-
-      // Déconnecter l'utilisateur dans le contexte
       setUser(null)
-
-      // Redirection
       window.location.href = '/'
     } catch (error) {
       toast.error('Erreur lors de la suppression du compte.')
@@ -343,11 +335,11 @@ export default function ArtisanDashboard() {
             expertises={expertises}
             membershipPlans={membershipPlans}
             kbisFile={kbisFile}
-            setKbisFile={setKbisFile}           
+            setKbisFile={setKbisFile}
             insuranceFile={insuranceFile}
-            setInsuranceFile={setInsuranceFile}   
+            setInsuranceFile={setInsuranceFile}
             avatarFile={avatarFile}
-            setAvatarFile={setAvatarFile}           
+            setAvatarFile={setAvatarFile}
             handleUpdate={handleUpdate}
             handleCancel={handleCancel}
             deletedImageUrls={deletedImageUrls}
@@ -356,11 +348,25 @@ export default function ArtisanDashboard() {
       </div>
 
       <div className={styles.rightColumn}>
+        <NotificationList onActiveMissionsChange={setActiveMissions} />
+        {activeMissions.length > 0 && (
+          <div style={{ marginTop: '20px' }}>
+            <h4>Suivi de mission</h4>
+            <div style={{ marginBottom: '10px' }}>
+              <strong>Mission en cours :</strong><br />
+              ID : {activeMissions[0].id}<br />
+              Statut : {activeMissions[0].status}
+            </div>
+            <ProgressStepper currentStep={activeMissions[0].status === 'accepted' ? 2 : 3} />
+          </div>
+        )}
         <AvailabilitySlots isEditing={isEditing} />
       </div>
     </div>
   )
 }
+
+
 
 
 
