@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useMemo } from 'react'
 import Image from 'next/image'
 import styles from './page.module.scss'
 import { loadStripe } from '@stripe/stripe-js'
@@ -22,8 +22,6 @@ export default function ArtisanInscription() {
   const [siren, setSiren] = useState('')
   const [kbisFile, setKbisFile] = useState<File | null>(null)
   const [insuranceFile, setInsuranceFile] = useState<File | null>(null)
-  const [kbisUrl, setKbisUrl] = useState('')
-  const [insuranceUrl, setInsuranceUrl] = useState('')
   const [membershipPlan, setMembershipPlan] = useState('')
   const [email, setEmail] = useState('')
   const [phone, setPhone] = useState('')
@@ -32,6 +30,7 @@ export default function ArtisanInscription() {
   const [error, setError] = useState('')
   const [step, setStep] = useState(1)
   const [sessionId, setSessionId] = useState<string | null>(null)
+  const [isModalOpen, setIsModalOpen] = useState(false)
 
   const stripePublishableKey = 'pk_test_51RO446Rs43niZdSJN0YjPjgq7HdFlhdFqqUqpsKxmgTAMHDyjK2g6Qh9FaRtdLjTWIkCz7ARow4rpyDliAzgzIgT00b0r32PoM'
 
@@ -77,10 +76,62 @@ export default function ArtisanInscription() {
     }
   }
 
-  const handleFormSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+  // Validation par étape pour activer bouton "Suivant"
+  const canGoNextStep = useMemo(() => {
+    switch (step) {
+      case 1:
+        if (!companyName.trim()) return false
+        if (!siren.trim()) return false
+        if (!expertise) return false
+        if (expertise === 'Autre' && !customExpertise.trim()) return false
+        return true
+      case 2:
+        if (!streetNumber.trim()) return false
+        if (!streetName.trim()) return false
+        if (!postalCode.trim()) return false
+        if (!city.trim()) return false
+        return true
+      case 3:
+        if (!kbisFile) return false
+        if (!insuranceFile) return false
+        return true
+      case 4:
+        if (!membershipPlan) return false
+        return true
+      case 5:
+        if (!email.trim()) return false
+        if (!phone.trim()) return false
+        if (!password) return false
+        if (!confirmPassword) return false
+        if (password !== confirmPassword) return false
+        if (password.length < 6) return false
+        return true
+      default:
+        return false
+    }
+  }, [step, companyName, siren, expertise, customExpertise, streetNumber, streetName, postalCode, city, kbisFile, insuranceFile, membershipPlan, email, phone, password, confirmPassword])
+
+  // Avance d'étape
+  const handleNext = () => {
+    if (step === 5) {
+      handleFormSubmit()
+    } else {
+      setError('')
+      setStep((s) => Math.min(s + 1, 5))
+    }
+  }
+
+  // Recul d'étape
+  const handlePrevious = () => {
+    setError('')
+    setStep((s) => Math.max(s - 1, 1))
+  }
+
+  const handleFormSubmit = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault()
     setError('')
 
+    // Validation finale avant soumission
     if (!companyName || !streetNumber || !streetName || !postalCode || !city || !expertise || !siren || !kbisFile || !insuranceFile || !email || !phone || !password || !confirmPassword || !membershipPlan) {
       setError('Veuillez remplir tous les champs et choisir un plan.')
       toast.error('Veuillez remplir tous les champs et choisir un plan.')
@@ -99,7 +150,12 @@ export default function ArtisanInscription() {
       return
     }
 
-    // Upload S3
+    if (password.length < 6) {
+      setError('Le mot de passe doit contenir au moins 6 caractères.')
+      toast.error('Le mot de passe doit contenir au moins 6 caractères.')
+      return
+    }
+
     toast.info('Téléchargement des fichiers...')
     const uploadedKbisUrl = await uploadFileToS3(kbisFile)
     const uploadedInsuranceUrl = await uploadFileToS3(insuranceFile)
@@ -140,7 +196,7 @@ export default function ArtisanInscription() {
       if (response.ok) {
         if (data.session_id) {
           setSessionId(data.session_id)
-          setStep(2)
+          setStep(6) // étape paiement
         } else {
           toast.success('Inscription réussie !', {
             autoClose: 3000,
@@ -173,26 +229,50 @@ export default function ArtisanInscription() {
     await stripe.redirectToCheckout({ sessionId })
   }
 
+  // Barre de progression (en %)
+  const progressPercent = ((step - 1) / 5) * 100
+
   return (
     <div className={styles.splitContainer}>
       <div className={styles.leftSide}>
         <Image
-          src="/images/landscape1.jpg"
+          src="/images/Sartene.JPG"
           alt="Inscription Artisan"
           className={styles.image}
           fill
           priority
-          sizes="100vw"
         />
       </div>
 
       <div className={styles.rightSide}>
         <div className={styles.card}>
           <h1 className={styles.title}>Inscription</h1>
+
+          {/* Barre de progression */}
+          <div className={styles.progressWrapper}>
+            {/* Cercles d'étapes */}
+            <div className={styles.steps}>
+              {[1, 2, 3, 4, 5].map((n) => (
+                <div
+                  key={n}
+                  className={`${styles.stepCircle} ${step >= n ? styles.active : ''}`}
+                >
+                  {n}
+                </div>
+              ))}
+            </div>
+
+            {/* Barre de progression */}
+            <div className={styles.progressBarContainer}>
+              <div className={styles.progressBar} style={{ width: `${progressPercent}%` }} />
+            </div>
+          </div>
+
           {error && <p className={styles.error}>{error}</p>}
 
+          {/* Étape 1 */}
           {step === 1 && (
-            <form onSubmit={handleFormSubmit} className={styles.form} encType="multipart/form-data">
+            <div className={styles.formStep}>
               <div className={styles.inputGroup}>
                 <label htmlFor="expertise">Domaine d'expertise</label>
                 <select
@@ -230,6 +310,33 @@ export default function ArtisanInscription() {
                 />
               </div>
 
+              <div className={styles.inputGroup}>
+                <label htmlFor="siren">Numéro SIREN</label>
+                <input
+                  type="text"
+                  id="siren"
+                  value={siren}
+                  onChange={(e) => setSiren(e.target.value)}
+                  required
+                />
+              </div>
+
+              <div className={styles.buttonsRow}>
+                <button
+                  type="button"
+                  onClick={handleNext}
+                  disabled={!canGoNextStep}
+                  className={`${styles.nextButton} ${!canGoNextStep ? styles.disabledButton : ''}`}
+                >
+                  Suivant
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Étape 2 */}
+          {step === 2 && (
+            <div className={styles.formStep}>
               <div className={styles.inputGroup}>
                 <label htmlFor="streetNumber">Numéro de rue</label>
                 <input
@@ -274,62 +381,185 @@ export default function ArtisanInscription() {
                 />
               </div>
 
-              <div className={styles.inputGroup}>
-                <label htmlFor="siren">Numéro SIREN</label>
-                <input
-                  type="text"
-                  id="siren"
-                  value={siren}
-                  onChange={(e) => setSiren(e.target.value)}
-                  required
-                />
-              </div>
-
-              <div className={styles.inputGroup}>
-                <label htmlFor="kbis">Extrait Kbis (PDF ou image)</label>
-                <input
-                  type="file"
-                  id="kbis"
-                  accept=".pdf,image/*"
-                  onChange={(e) => {
-                    if (e.target.files && e.target.files.length > 0) {
-                      setKbisFile(e.target.files[0]);
-                    }
-                  }}
-                  required
-                />
-              </div>
-
-              <div className={styles.inputGroup}>
-                <label htmlFor="insurance">Attestation d'assurance (PDF ou image)</label>
-                <input
-                  type="file"
-                  id="insurance"
-                  accept=".pdf,image/*"
-                  onChange={(e) => {
-                    if (e.target.files && e.target.files.length > 0) {
-                      setInsuranceFile(e.target.files[0]);
-                    }
-                  }}
-                  required
-                />
-              </div>
-
-              <div className={styles.inputGroup}>
-                <label htmlFor="membershipPlan">Formule d'adhésion</label>
-                <select
-                  id="membershipPlan"
-                  value={membershipPlan}
-                  onChange={(e) => setMembershipPlan(e.target.value)}
-                  required
+              <div className={styles.buttonsRow}>
+                <button
+                  type="button"
+                  onClick={handlePrevious}
+                  className={styles.prevButton}
                 >
-                  <option value="">Sélectionnez une formule</option>
-                  <option value="Standard">Standard</option>
-                  <option value="Pro">Pro</option>
-                  <option value="Premium">Premium</option>
-                </select>
+                  Précédent
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleNext}
+                  disabled={!canGoNextStep}
+                  className={`${styles.nextButton} ${!canGoNextStep ? styles.disabledButton : ''}`}
+                >
+                  Suivant
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Étape 3 */}
+          {step === 3 && (
+            <div className={styles.formStep}>
+              <div className={styles.inputGroup}>
+                <label htmlFor="kbisFile">Extrait Kbis (PDF)</label>
+                <input
+                  type="file"
+                  className={styles.fileInput}
+                  id="kbisFile"
+                  accept=".pdf"
+                  onChange={(e) => setKbisFile(e.target.files ? e.target.files[0] : null)}
+                  required
+                />
               </div>
 
+              <div className={styles.inputGroup}>
+                <label htmlFor="insuranceFile">Attestation d'assurance (PDF)</label>
+                <input
+                  type="file"
+                  id="insuranceFile"
+                  className={styles.fileInput}
+                  accept=".pdf"
+                  onChange={(e) => setInsuranceFile(e.target.files ? e.target.files[0] : null)}
+                  required
+                />
+              </div>
+
+              <div className={styles.buttonsRow}>
+                <button
+                  type="button"
+                  onClick={handlePrevious}
+                  className={styles.prevButton}
+                >
+                  Précédent
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleNext}
+                  disabled={!canGoNextStep}
+                  className={`${styles.nextButton} ${!canGoNextStep ? styles.disabledButton : ''}`}
+                >
+                  Suivant
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Étape 4 */}
+            {step === 4 && (
+              <div className={styles.formStep}>
+                <label>Choisissez votre abonnement</label>
+
+                <div className={styles.radioGroup}>
+                {['Standard', 'Pro', 'Premium'].map((plan) => (
+                  <label
+                    key={plan}
+                    className={`${styles.selectButton} ${membershipPlan === plan ? styles.selected : ''}`}
+                  >
+                    <input
+                      type="radio"
+                      name="membershipPlan"
+                      value={plan}
+                      checked={membershipPlan === plan}
+                      onChange={(e) => setMembershipPlan(e.target.value)}
+                      className={styles.hiddenInput}
+                    />
+                    {plan}
+                  </label>
+                ))}
+              </div>
+
+                <button type="button" className={styles.detailsButton} onClick={() => setIsModalOpen(true)}>
+                  Voir détails des formules
+                </button>
+
+                <div className={styles.buttonsRow}>
+                  <button
+                    type="button"
+                    onClick={handlePrevious}
+                    className={styles.prevButton}
+                  >
+                    Précédent
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={handleNext}
+                    disabled={!canGoNextStep}
+                    className={`${styles.nextButton} ${!canGoNextStep ? styles.disabledButton : ''}`}
+                  >
+                    Suivant
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Modale */}
+            {isModalOpen && (
+              <div className={styles.modalOverlay} onClick={() => setIsModalOpen(false)}>
+                <div className={styles.modalContent} onClick={e => e.stopPropagation()}>
+                  <button className={styles.closeButton} onClick={() => setIsModalOpen(false)}>×</button>
+
+                  <h1 className={styles.h1}>Nos Formules</h1>
+
+                  <p className={styles.intro}>
+                    Choisissez la formule qui correspond le mieux à vos besoins en tant qu'artisan.
+                  </p>
+
+                  <div className={styles.cards}>
+                    <div className={styles.card}>
+                      <h2 className={styles.cardTitle}>Standard</h2>
+                      <div className={styles.cardContent}>
+                        <ul className={styles.cardList}>
+                          <li><span className={styles.bullet}>✔</span> Accès aux annonces</li>
+                          <li><span className={styles.bullet}>✔</span> Réponse limitée à 3 annonces par mois</li>
+                          <li><span className={styles.bullet}>✔</span> Visibilité de base sur la plateforme</li>
+                        </ul>
+                      </div>
+                      <p className={styles.cardPrice}>29,99 € / mois</p>
+                    </div>
+
+                    <div className={`${styles.card} ${styles.recommended}`}>
+                      <div className={styles.tag}>Recommandée</div>
+                      <h2 className={styles.cardTitle}>Pro</h2>
+                      <div className={styles.cardContent}>
+                        <ul className={styles.cardList}>
+                          <li><span className={styles.bullet}>✔</span> Accès aux annonces</li>
+                          <li><span className={styles.bullet}>✔</span> Réponse limitée à 6 annonces par mois</li>
+                          <li><span className={styles.bullet}>✔</span> Visibilité prioritaire dans les recherches</li>
+                          <li><span className={styles.bullet}>✔</span> Statistiques limitées</li>
+                        </ul>
+                      </div>
+                      <p className={styles.cardPrice}>49,99 € / mois</p>
+                    </div>
+
+                    <div className={styles.card}>
+                      <h2 className={styles.cardTitle}>Premium</h2>
+                      <div className={styles.cardContent}>
+                        <ul className={styles.cardList}>
+                          <li><span className={styles.bullet}>✔</span> Accès aux annonces</li>
+                          <li><span className={styles.bullet}>✔</span> Réponse illimitée aux annonces</li>
+                          <li><span className={styles.bullet}>✔</span> Mise en avant sur la page d'accueil</li>
+                          <li><span className={styles.bullet}>✔</span> Statistiques complètes</li>
+                          <li><span className={styles.bullet}>✔</span> Badge Premium sur votre profil</li>
+                          <li><span className={styles.bullet}>✔</span> Accompagnement personnalisé</li>
+                        </ul>
+                      </div>
+                      <p className={styles.cardPrice}>69,99 € / mois</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Étape 5 */}
+          {step === 5 && (
+            <form onSubmit={handleFormSubmit} className={styles.formStep}>
               <div className={styles.inputGroup}>
                 <label htmlFor="email">Email</label>
                 <input
@@ -360,47 +590,69 @@ export default function ArtisanInscription() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
-                  minLength={6}
                 />
               </div>
 
               <div className={styles.inputGroup}>
-                <label htmlFor="confirmPassword">Confirmez le mot de passe</label>
+                <label htmlFor="confirmPassword">Confirmer mot de passe</label>
                 <input
                   type="password"
                   id="confirmPassword"
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   required
-                  minLength={6}
                 />
               </div>
 
-              <button type="submit" className={styles.submitButton}>
-                S'inscrire
-              </button>
+              <div className={styles.buttonsRow}>
+                <button
+                  type="button"
+                  onClick={handlePrevious}
+                  className={styles.prevButton}
+                >
+                  Précédent
+                </button>
 
-              <Link href="/auth/login_artisan" className={styles.backButton}>
-                Retour vers la connexion
-              </Link>
+                <button
+                  type="submit"
+                  disabled={!canGoNextStep}
+                  className={`${styles.nextButton} ${!canGoNextStep ? styles.disabledButton : ''}`}
+                >
+                  S’inscrire
+                </button>
+              </div>
             </form>
           )}
 
-          {step === 2 && (
-            <div className={styles.paymentSection}>
-              <h3>Paiement de la formule d'adhésion</h3>
-              <button onClick={handlePayment} className={styles.paymentButton}>
-                Payer avec Stripe
-              </button>
-            </div>
-          )}
+          {/* Étape 6 - Paiement Stripe */}
+            {step === 6 && sessionId && (
+              <div className={styles.paymentStep}>
+                <h2 className={styles.paymentTitle}>Paiement</h2>
+                <p className={styles.paymentText}>
+                  Votre inscription est presque terminée, veuillez procéder au paiement.
+                </p>
+                <div className={styles.buttonsRow}>
+                  <button onClick={handlePayment} className={styles.payButton}>
+                    Payer
+                  </button>
+                  <button onClick={() => setStep(5)} className={styles.prevButton}>
+                    Retour
+                  </button>
+                </div>
+              </div>
+            )}
 
-          <ToastContainer position="bottom-center" autoClose={3000} />
+          <Link href="/auth/login_artisan" className={styles.backButton}>
+            Retour vers la connexion
+          </Link>
+
+          <ToastContainer position="top-center" autoClose={4000} />
         </div>
       </div>
     </div>
   )
 }
+
 
 
 

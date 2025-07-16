@@ -3,6 +3,9 @@
 import { useEffect, useState } from 'react'
 import axios from 'axios'
 import { useRouter } from 'next/navigation'
+import styles from './NotificationList.module.scss'
+import MissionProgressBar from './MissionProgressBar'
+import { FaTimes } from 'react-icons/fa'
 
 type Notification = {
   id: number
@@ -27,15 +30,19 @@ export default function NotificationList({ onActiveMissionsChange }: { onActiveM
         headers: { Authorization: `Bearer ${token}` },
       })
       .then((res) => {
-        console.log('notifications:', res.data) // Pour debug
-        setNotifications(res.data)
+        const data = res.data.notifications || res.data
+        setNotifications(Array.isArray(data) ? data : [])
 
-        const acceptedMissions = res.data
-          .filter((n: Notification) => n.status === 'accepted' || n.status === 'completed')
-          .map((n: Notification) => ({
-            id: n.id,
-            status: n.status || 'accepted',
-          }))
+        const acceptedMissions = Array.isArray(data)
+          ? data.filter((n: Notification) =>
+              n.status === 'accepted' ||
+              n.status === 'in_progress' ||
+              n.status === 'completed')
+            .map((n: Notification) => ({
+              id: n.id,
+              status: n.status || 'accepted',
+            }))
+          : []
 
         if (onActiveMissionsChange) onActiveMissionsChange(acceptedMissions)
       })
@@ -60,15 +67,27 @@ export default function NotificationList({ onActiveMissionsChange }: { onActiveM
     }
   }
 
+  const deleteNotification = async (id: number, e: React.MouseEvent) => {
+    e.stopPropagation()
+    const token = localStorage.getItem('artisanToken')
+    if (!token) return
+
+    try {
+      await axios.delete(
+        `${process.env.NEXT_PUBLIC_API_URL}/artisans/notifications/${id}`,
+        { headers: { Authorization: `Bearer ${token}` } }
+      )
+      setNotifications(prev => prev.filter(n => n.id !== id))
+    } catch (err) {
+      console.error('Erreur suppression notification:', err)
+    }
+  }
+
   const handleNotificationClick = async (notification: Notification) => {
     setNotifications((prev) =>
       prev.map((n) => (n.id === notification.id ? { ...n, read: true } : n))
     )
-
     await markAsRead(notification.id)
-
-    // Debug console log
-    console.log('Navigating to:', notification.besoin_id ? `/annonces/${notification.besoin_id}` : notification.link)
 
     if (notification.besoin_id) {
       router.push(`/annonces/${notification.besoin_id}`)
@@ -79,36 +98,101 @@ export default function NotificationList({ onActiveMissionsChange }: { onActiveM
     }
   }
 
+  const normalizeStatus = (status: string): 'accepted' | 'in_progress' | 'completed' => {
+    switch(status) {
+      case 'accepted':
+      case 'in_progress':
+      case 'completed':
+        return status
+      default:
+        return 'accepted'
+    }
+  }
+
+  const getStatusText = (status: string): string => {
+    switch(status) {
+      case 'pending': return 'En attente'
+      case 'accepted': return 'Acceptée'
+      case 'in_progress': return 'En cours'
+      case 'completed': return 'Terminée'
+      case 'refused': return 'Refusée'
+      default: return status
+    }
+  }
+
   if (notifications.length === 0) return <p>Aucune notification.</p>
 
   return (
-    <div>
-      <h3>Notifications</h3>
-      <ul>
-        {notifications.map((n) => (
-          <li
-            key={n.id}
-            style={{ fontWeight: n.read ? 'normal' : 'bold', marginBottom: '10px' }}
-          >
-            <span
-              onClick={() => handleNotificationClick(n)}
-              style={{
-                cursor: 'pointer',
-                color: 'blue',
-                textDecoration: 'underline',
-                marginRight: 10,
-              }}
-            >
-              {n.message}
-            </span>
-            <br />
-            <small>{new Date(n.created_at).toLocaleString()}</small>
-          </li>
-        ))}
-      </ul>
+    <div className={styles.notificationWrapper}>
+      <div className={styles.notificationCardContainer}>
+        {notifications.length === 0 ? (
+          <div className={styles.emptyCard}>
+            <p className={styles.emptyState}>Aucune notification.</p>
+          </div>
+        ) : (
+          <div className={styles.notificationScrollContainer}>
+            <ul className={styles.notificationList}>
+              {notifications.map((n) => (
+                <li
+                  key={n.id}
+                  className={`
+                    ${styles.notificationCard}
+                    ${!n.read ? styles.unread : ''}
+                    ${n.status ? styles[n.status] : ''}
+                  `}
+                  onClick={() => handleNotificationClick(n)}
+                >
+                  <button
+                    className={styles.deleteButton}
+                    onClick={(e) => deleteNotification(n.id, e)}
+                    aria-label="Supprimer la notification"
+                  >
+                    <FaTimes />
+                  </button>
+
+                  <div className={styles.notificationContent}>
+                    <p>{n.message.replace(/Nouveau besoin:/g, 'Nouveau besoin :')}</p>
+                    {n.status && (
+                      <>
+                        <span className={`${styles.notificationStatus} ${styles[n.status]}`}>
+                          {getStatusText(n.status)}
+                        </span>
+                        <div className={styles.progressBarWrapper}>
+                          <MissionProgressBar
+                            status={normalizeStatus(n.status)}
+                            notificationId={n.id}
+                            onStatusChange={(newStatus) => {
+                              setNotifications(prev =>
+                                prev.map(notif =>
+                                  notif.id === n.id ? { ...notif, status: newStatus } : notif
+                                )
+                              )
+                            }}
+                            isArtisan={true}
+                          />
+                        </div>
+                      </>
+                    )}
+                  </div>
+                  <div className={styles.notificationMeta}>
+                    <span className={styles.notificationTime}>
+                      {new Date(n.created_at).toLocaleString()}
+                    </span>
+                  </div>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+      </div>
     </div>
   )
 }
+
+
+
+
+
 
 
 

@@ -83,31 +83,32 @@ const BesoinForm = () => {
   const handleSubmit = async () => {
     if (!token) return
 
-    const form = new FormData()
-    form.append('besoin[type_prestation]', formData.type_prestation)
-    form.append('besoin[description]', formData.description)
-    form.append('besoin[schedule]', JSON.stringify(formData.schedule))
-    form.append('besoin[address]', formData.address)
-
-    if (formData.custom_prestation) {
-      form.append('besoin[custom_prestation]', formData.custom_prestation)
+    // Préparer les données JSON au lieu de FormData
+    const submitData = {
+      type_prestation: formData.type_prestation,
+      description: formData.description,
+      address: formData.address,
+      schedule: formData.schedule,
+      images: formData.images // URLs S3 directement
     }
 
-    // On envoie directement les URLs S3
-    formData.images.forEach((url: string) => {
-      form.append('besoin[image_urls][]', url)
-    })
+    console.log('Données envoyées:', submitData) // Pour debug
 
     try {
-      await axios.post(`${apiUrl}/clients/besoins`, form, {
+      const response = await axios.post(`${apiUrl}/clients/besoins`, submitData, {
         headers: {
           Authorization: `Bearer ${token}`,
-          'Content-Type': 'multipart/form-data'
+          'Content-Type': 'application/json' // JSON au lieu de multipart
         }
       })
+      
+      console.log('Réponse serveur:', response.data)
       router.push('/')
-    } catch (error) {
+    } catch (error: any) { // Ajout du typage 'any'
       console.error('Erreur lors de la soumission', error)
+      if (error.response) {
+        console.error('Détails erreur:', error.response.data)
+      }
     }
   }
 

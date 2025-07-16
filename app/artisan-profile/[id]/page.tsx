@@ -8,17 +8,22 @@ import Image from 'next/image'
 import styles from './page.module.scss'
 import { useAuth } from '../../auth/AuthContext'
 
+type ProjectImageType = {
+  id: number
+  image_url: string
+}
+
 type ArtisanDetails = {
   id: string
   company_name: string
   address: string
-  email: string 
-  phone: string 
+  email: string
+  phone: string
   expertise_names: string[]
   avatar_url?: string | null
   description?: string
-  images_urls: string[]
   availability_slots: AvailabilitySlotType[]
+  project_images: ProjectImageType[]
 }
 
 type AvailabilitySlotType = {
@@ -34,7 +39,7 @@ export default function ArtisanProfilePage() {
 
   const [artisan, setArtisan] = useState<ArtisanDetails | null>(null)
   const [availabilitySlots, setAvailabilitySlots] = useState<AvailabilitySlotType[]>([])
-  const [popupIndex, setPopupIndex] = useState<number | null>(null)
+  const [selectedImage, setSelectedImage] = useState<string | null>(null)
 
   useEffect(() => {
     if (!params?.id) return
@@ -42,19 +47,16 @@ export default function ArtisanProfilePage() {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
 
     axios
-      axios
       .get(`${apiUrl}/artisans/${params.id}`, {
         withCredentials: true,
       })
       .then(res => {
         const data = res.data
-
         setArtisan({
           ...data,
-          images_urls: data.images_urls ?? [],
           availability_slots: data.availability_slots ?? [],
+          project_images: data.project_images ?? []
         })
-
         setAvailabilitySlots(data.availability_slots ?? [])
       })
       .catch(err => {
@@ -62,7 +64,6 @@ export default function ArtisanProfilePage() {
       })
   }, [params?.id])
 
-  // Modif : formatSlot renvoie objet { dayName, slotText } sans ":"
   const formatSlot = (startISO: string, endISO: string) => {
     const days = ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi']
     const start = new Date(startISO)
@@ -94,33 +95,9 @@ export default function ArtisanProfilePage() {
     alert("Message envoyé ! (fonctionnalité à implémenter)")
   }
 
-  const openPopup = (index: number) => {
-    setPopupIndex(index)
-  }
-
-  const closePopup = () => {
-    setPopupIndex(null)
-  }
-
-  const prevImage = () => {
-    if (artisan?.images_urls.length) {
-      setPopupIndex(prev =>
-        prev === null ? null : prev === 0 ? artisan.images_urls.length - 1 : prev - 1
-      )
-    }
-  }
-
-  const nextImage = () => {
-    if (artisan?.images_urls.length) {
-      setPopupIndex(prev =>
-        prev === null ? null : prev === artisan.images_urls.length - 1 ? 0 : prev + 1
-      )
-    }
-  }
+  const dayIndexMondayFirst = (day: number) => (day === 0 ? 7 : day)
 
   if (!artisan) return <p>Chargement du profil…</p>
-
-  const dayIndexMondayFirst = (day: number) => (day === 0 ? 7 : day)
 
   return (
     <div className={styles.container}>
@@ -162,32 +139,41 @@ export default function ArtisanProfilePage() {
             <p>{artisan.description || "Cet artisan n'a pas encore ajouté de description."}</p>
           </div>
 
-          {artisan.images_urls.length > 0 && (
+          {/* Section des réalisations */}
+          {artisan.project_images && artisan.project_images.length > 0 && (
             <div className={styles.card}>
-              <h2>Réalisations</h2>
-              <div className={styles.projectImages}>
-                {artisan.images_urls.map((url, i) => (
+              <h2>Nos réalisations</h2>
+              <div className={styles.gallery}>
+                {artisan.project_images.map((image) => (
                   <div
-                    key={i}
-                    className={styles.projectImageWrapper}
-                    onClick={() => openPopup(i)}
-                    style={{ cursor: 'pointer' }}
-                    aria-label={`Voir projet ${i + 1} en grand`}
-                    role="button"
-                    tabIndex={0}
-                    onKeyDown={e => {
-                      if (e.key === 'Enter' || e.key === ' ') openPopup(i)
-                    }}
+                    key={image.id}
+                    className={styles.galleryItem}
+                    onClick={() => setSelectedImage(image.image_url)}
                   >
                     <Image
-                      src={`${url}?t=${Date.now()}`}
-                      alt={`Projet ${i + 1}`}
+                      src={image.image_url}
+                      alt={`Réalisation ${image.id}`}
                       width={200}
                       height={150}
-                      style={{ objectFit: 'contain' }}
+                      className={styles.projectImage}
                     />
                   </div>
                 ))}
+              </div>
+            </div>
+          )}
+
+          {/* Modal pour afficher l'image en grand */}
+          {selectedImage && (
+            <div className={styles.modal} onClick={() => setSelectedImage(null)}>
+              <div className={styles.modalContent}>
+                <Image
+                  src={selectedImage}
+                  alt="Réalisation en détail"
+                  width={800}
+                  height={600}
+                  className={styles.fullSizeImage}
+                />
               </div>
             </div>
           )}
@@ -242,52 +228,10 @@ export default function ArtisanProfilePage() {
           </div>
         </div>
       </div>
-
-      {popupIndex !== null && artisan.images_urls.length > 0 ? (
-        <div
-          className={styles.popupOverlay}
-          onClick={closePopup}
-          role="dialog"
-          aria-modal="true"
-          aria-label="Vue agrandie de l'image"
-        >
-          <div className={styles.popupContent} onClick={e => e.stopPropagation()}>
-            <button
-              className={styles.closeButton}
-              onClick={closePopup}
-              aria-label="Fermer la vue agrandie"
-            >
-              ×
-            </button>
-            <button
-              className={styles.prevButton}
-              onClick={prevImage}
-              aria-label="Image précédente"
-            >
-              ‹
-            </button>
-            <div className={styles.popupImageWrapper}>
-              <Image
-                src={`${artisan.images_urls[popupIndex]}?t=${Date.now()}`}
-                alt={`Projet ${popupIndex + 1}`}
-                fill
-                style={{ objectFit: 'contain' }}
-                priority
-              />
-            </div>
-            <button
-              className={styles.nextButton}
-              onClick={nextImage}
-              aria-label="Image suivante"
-            >
-              ›
-            </button>
-          </div>
-        </div>
-      ) : null}
     </div>
   )
 }
+
 
 
 

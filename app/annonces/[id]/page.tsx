@@ -32,6 +32,8 @@ export default function AnnonceDetailPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [artisanToken, setArtisanToken] = useState<string | null>(null)
+  const [hasResponded, setHasResponded] = useState(false)
+  const [isCompleted, setIsCompleted] = useState(false)
 
   useEffect(() => {
     const token = localStorage.getItem('artisanToken')
@@ -41,48 +43,87 @@ export default function AnnonceDetailPage() {
     }
     setArtisanToken(token)
 
+    // D'abord charger l'annonce
     axios
       .get(`${apiUrl}/annonces/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       })
-      .then((res) => setBesoin(res.data))
+      .then((res) => {
+        setBesoin(res.data)
+        // Ensuite vérifier si l'artisan a déjà répondu
+        return checkIfResponded(token, res.data.client.id)
+      })
       .catch(() => setError('Annonce non trouvée ou accès non autorisé.'))
       .finally(() => setLoading(false))
   }, [id, router])
 
-  if (loading) return <p>Chargement...</p>
-  if (error) return <p>{error}</p>
-  if (!besoin) return <p>Aucune annonce trouvée.</p>
+  const checkIfResponded = async (token: string, clientId: number) => {
+    try {
+      const response = await axios.get(`${apiUrl}/client_notifications/check`, {
+        params: {
+          besoin_id: id,
+          client_id: clientId
+        },
+        headers: { Authorization: `Bearer ${token}` }
+      })
+      setHasResponded(response.data.hasResponded)
+    } catch (error) {
+      console.error("Erreur vérification réponse:", error)
+      setHasResponded(false)
+    }
+  }
+
+  if (loading) return <p className={styles.loading}>Chargement...</p>
+  if (error) return <p className={styles.error}>{error}</p>
+  if (!besoin) return <p className={styles.error}>Aucune annonce trouvée.</p>
 
   return (
     <div className={styles.container}>
       <div className={styles.card}>
-        <h1>{besoin.type_prestation}</h1>
-        <p>{besoin.description}</p>
-        <p>📍 {besoin.address}</p>
-        <div>
+        <h1 className={styles.cardTitle}>{besoin.type_prestation}</h1>
+        <p className={styles.cardText}>{besoin.description}</p>
+        <p className={styles.cardText}>📍 {besoin.address}</p>
+
+        <div className={styles.imagesContainer}>
           {besoin.image_urls.map((url, index) => (
-            <img key={index} src={url} alt="Image besoin" width={150} height={150} />
+            <img
+              key={index}
+              src={url}
+              alt={`Image besoin ${index + 1}`}
+              className={styles.annonceImage}
+            />
           ))}
         </div>
 
-        {/* Bouton intérêt - rendu uniquement si artisanToken est disponible */}
-        {artisanToken && (
-          <NotificationButton
-            besoinId={besoin.id}
-            clientId={besoin.client.id}
-            artisanToken={artisanToken}
-          />
-        )}
+        <div className={styles.clientInfo}>
+          <h2 className={styles.cardTitle}>Contact client</h2>
+          <p className={styles.cardText}><span className={styles.icon}>👤</span> {besoin.client.first_name} {besoin.client.last_name}</p>
+          <p className={styles.cardText}><span className={styles.icon}>✉️</span> {besoin.client.email}</p>
+          <p className={styles.cardText}><span className={styles.icon}>📞</span> {besoin.client.phone}</p>
+        </div>
 
-        <h2>Contact client</h2>
-        <p>{besoin.client.first_name} {besoin.client.last_name}</p>
-        <p>{besoin.client.email}</p>
-        <p>{besoin.client.phone}</p>
+        {artisanToken && (
+          <div className={styles.buttonContainer}>
+            <NotificationButton
+              besoinId={besoin.id}
+              clientId={besoin.client.id}
+              artisanToken={artisanToken}
+              disabled={hasResponded}
+              className={styles.interestButton}
+            />
+            {hasResponded && (
+              <p className={styles.disabledMessage}>
+                Vous avez déjà répondu à cette annonce
+              </p>
+            )}
+          </div>
+        )}
       </div>
     </div>
   )
 }
+
+
 
 
 

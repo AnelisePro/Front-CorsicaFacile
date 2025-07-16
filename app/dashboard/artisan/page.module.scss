@@ -1,28 +1,208 @@
-.container {
+@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&family=Nunito:wght@300;400;500;600;700&display=swap');
+
+.artisanDashboard {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+  font-family: 'Nunito', sans-serif;
+  color: #212121;
+  background-color: #FEFBF4;
+  min-height: 100vh;
+  
+  @media (max-width: 768px) {
+    padding: 15px;
+  }
+
+  // Styles pour les boutons dans le dashboard
+  button {
+    font-family: 'Nunito', sans-serif;
+  }
+  
+  // Styles pour les inputs et labels dans le dashboard
+  input, textarea, label {
+    font-family: 'Nunito', sans-serif;
+  }
+  
+  // Styles pour les liens dans le dashboard
+  a {
+    font-family: 'Nunito', sans-serif;
+  }
+}
+
+// Section profil avec Glass Effect
+.profileSection {
+  background: linear-gradient(135deg, 
+    rgba(254, 251, 244, 0.65) 0%, 
+    rgba(250, 247, 239, 0.70) 25%, 
+    rgba(246, 243, 235, 0.75) 50%, 
+    rgba(250, 247, 239, 0.70) 75%, 
+    rgba(254, 251, 244, 0.65) 100%
+  );
+  
+  // Backdrop blur pour l'effet glass
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  
+  // Bordure plus marquée
+  border: 2px solid rgba(255, 255, 255, 0.4);
+  
+  // Couleur du texte adaptée
+  color: #212121;
+  border-radius: 20px;
+  padding: 40px;
+  margin-bottom: 40px;
+  
+  // Ombres plus subtiles et douces
+  box-shadow: 
+    0 8px 25px rgba(33, 33, 33, 0.10),
+    0 2px 8px rgba(33, 33, 33, 0.06),
+    0 2px 8px rgba(255, 255, 255, 0.2) inset,
+    0 -2px 4px rgba(49, 49, 49, 0.05) inset;
+  
+  // Effet de survol pour plus d'interaction
+  transition: all 0.3s ease;
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 
+      0 12px 35px rgba(33, 33, 33, 0.12),
+      0 4px 12px rgba(33, 33, 33, 0.06),
+      0 2px 8px rgba(255, 255, 255, 0.25) inset;
+  }
+  
+  @media (max-width: 768px) {
+    padding: 30px 20px;
+    margin-bottom: 30px;
+  }
+}
+
+// Onglets centrés
+.tabs {
   display: flex;
-  flex-direction: row;
-  padding: 1rem;
-  padding-bottom: 120px;
-  gap: 1rem;
-}
+  justify-content: center;
+  gap: 20px;
+  margin-bottom: 40px;
+  background: #FEFBF4;
+  border-radius: 15px;
+  padding: 8px;
+  box-shadow: 0 4px 20px rgba(33, 33, 33, 0.1);
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+  margin-bottom: 40px;
+  border: 2px solid rgba(129, 160, 74, 0.1);
 
-.leftColumn {
-  flex: 2;
-}
-
-.rightColumn {
-  flex: 1;
-  min-width: 280px;
-}
-
-@media (max-width: 768px) {
-  .container {
+  @media (max-width: 768px) {
     flex-direction: column;
+    gap: 10px;
+    max-width: 100%;
   }
 
-  .rightColumn {
-    min-width: auto;
-    margin-top: 1rem;
+  button {
+    background: none;
+    border: none;
+    padding: 15px 30px;
+    font-weight: 600;
+    font-size: 16px;
+    font-family: 'Quicksand', sans-serif;
+    cursor: pointer;
+    border-radius: 10px;
+    transition: all 0.3s ease;
+    color: #212121;
+    flex: 1;
+    
+    @media (max-width: 768px) {
+      padding: 12px 20px;
+      font-size: 15px;
+    }
+    
+    &:hover {
+      background-color: #0f78b13b;
+      color: #212121;
+      padding: 12px 25px;
+      
+      @media (max-width: 768px) {
+        padding: 10px 15px;
+      }
+    }
+    
+    &.active {
+      background: linear-gradient(135deg, #0F78B1 0%, #0f78b1ad 100%);
+      color: #FEFBF4;
+      box-shadow: 0 4px 15px rgba(15, 120, 177, 0.3);
+      padding: 15px 30px;
+
+      @media (max-width: 768px) {
+        padding: 12px 20px;
+      }
+    }
   }
 }
+
+// Contenu des onglets
+.tabContent {
+  max-width: 900px;
+  margin: 0 auto;
+  min-height: 300px;
+  
+  @media (max-width: 768px) {
+    padding: 0 10px;
+  }
+  
+  // Message d'état vide
+  > p {
+    text-align: center;
+    color: #5E3E23;
+    font-size: 18px;
+    font-family: 'Nunito', sans-serif;
+    margin-top: 60px;
+    font-style: italic;
+  }
+}
+
+.notificationsContent,
+.creneauxContent,
+.realisationsContent {
+  background: rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 20px;
+  padding: 30px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  animation: fadeIn 0.3s ease-in-out;
+
+  @media (max-width: 768px) {
+    padding: 20px;
+    border-radius: 15px;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.notificationBadge {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  background-color: #ff4444;
+  color: white;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: bold;
+  padding: 2px;
+}
+
 

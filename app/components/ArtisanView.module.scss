@@ -1,142 +1,220 @@
-.artisanView {
-  max-width: 900px;
-  margin: 0 auto;
-  padding: 1rem;
-  font-family: 'Raleway', sans-serif;
-  color: #212121;
-}
+@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&family=Nunito:wght@300;400;500;600;700&display=swap');
 
-.infoField {
-  margin-bottom: 1rem;
+// Contenu du profil avec avatar à gauche et infos à droite
+.profileContent {
   display: flex;
-  flex-direction: column;
+  align-items: flex-start;
+  gap: 40px;
+  
+  @media (max-width: 768px) {
+    flex-direction: column;
+    gap: 25px;
+    text-align: center;
+    align-items: center;
+  }
 }
 
-.label {
-  font-weight: 600;
-  font-size: 1rem;
-  color: #212121;
-  margin-bottom: 0.25rem;
-  text-transform: capitalize;
+.avatarWrapper {
+  flex-shrink: 0;
+  border-radius: 50%;
+  overflow: hidden;
+  width: 150px;
+  height: 150px;
+  box-shadow: 0 8px 25px rgba(33, 33, 33, 0.2);
+  border: 4px solid #80a04aa7;
+  
+  @media (max-width: 768px) {
+    width: 120px;
+    height: 120px;
+  }
 }
 
-.value {
-  font-size: 1rem;
-  color: #212121;
-  margin: 0;
-}
-
-
-.cardProfile,
-.cardInfo,
-.cardGallery {
-  background: white;
-  border-radius: 10px;
-  box-shadow: 0 4px 10px rgb(0 0 0 / 0.1);
-  padding: 1.5rem;
-  margin-bottom: 1.5rem;
-}
-
-.cardProfile {
+.avatar {
+  object-fit: cover;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
   display: flex;
   align-items: center;
-  gap: 1rem;
-  
-  .avatar {
-    width: 80px;
-    height: 80px;
-    border-radius: 50%;
-    object-fit: cover;
-  }
+  justify-content: center;
+  font-size: 48px;
+  font-weight: 700;
+  color: white;
+  background: linear-gradient(135deg, #81A04A, #6d8a3e);
 
-  .companyName {
-    font-family: 'Quicksand', sans-serif;
-    font-weight: 700;
-    font-size: 2rem;
-    margin: 0;
-    color: #81A04A;
+  @media (max-width: 768px) {
+    width: 120px;
+    height: 120px;
+    font-size: 36px;
   }
 }
 
-.cardInfo {
+// Informations du profil
+.info {
+  flex-grow: 1;
+  font-family: 'Nunito', sans-serif;
+}
+
+// Container pour les 2 colonnes
+.infoColumns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 30px;
+  margin-bottom: 20px;
+  
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+}
+
+// Style pour chaque colonne
+.infoColumn {
   p {
-    margin: 0.4rem 0;
-    strong {
-      font-weight: 600;
+    margin: 12px 0;
+    font-size: 16px;
+    opacity: 0.95;
+    color: #333;
+    line-height: 1.6;
+    
+    @media (max-width: 768px) {
+      font-size: 15px;
+      text-align: left;
     }
   }
+  
+  strong {
+    font-weight: 600;
+    margin-right: 8px;
+    font-family: 'Quicksand', sans-serif;
+    color: #212121;
+    display: inline-block;
+    min-width: 120px;
+  }
 }
 
+// Section Documents
 .documents {
   display: flex;
-  gap: 1rem;
+  gap: 15px;
   flex-wrap: wrap;
-  margin-top: 1rem;
+  margin: 25px 0;
+
+  @media (max-width: 768px) {
+    justify-content: center;
+    gap: 10px;
+  }
 }
 
+// Boutons des documents
 .button {
   display: inline-block;
-  padding: 0.6rem 1.2rem;
-  border-radius: 8px;
-  background-color: #0F78B1;
+  padding: 12px 24px;
+  background: #0F78B1;
   color: white;
   text-decoration: none;
-  font-weight: 500;
-  transition: background-color 0.2s ease;
+  font-weight: 600;
+  font-family: 'Nunito', sans-serif;
+  border-radius: 20px;
+  transition: all 0.3s ease;
+  font-size: 14px;
   border: none;
   cursor: pointer;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 
   &:hover {
-    background-color: #0c5d89;
+    background: #0c5d89;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(15, 120, 177, 0.3);
+  }
+
+  @media (max-width: 768px) {
+    padding: 8px 16px;
+    font-size: 13px;
   }
 }
 
+.disabled {
+  background-color: #cccccc !important;
+  color: #666666 !important;
+  cursor: not-allowed;
+  transform: none !important;
+  box-shadow: none !important;
 
-.cardGallery {
-  .imagesGallery {
-    display: flex;
-    gap: 1rem;
-    overflow-x: auto;
-    padding-bottom: 0.5rem;
-
-    .image {
-      height: 120px;
-      border-radius: 8px;
-      border: 1px solid #333;
-      object-fit: cover;
-      flex-shrink: 0;
-    }
+  &:hover {
+    background-color: #cccccc !important;
+    transform: none !important;
+    box-shadow: none !important;
   }
 }
 
-.actions {
+// Styles uniformisés pour tous les boutons du profil
+.profileActionButton {
+  border: none;
+  padding: 14px 32px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 15px;
+  font-family: 'Nunito', sans-serif;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(33, 33, 33, 0.1);
+  min-width: 200px;
+  text-align: center;
+  
+  @media (max-width: 768px) {
+    display: block;
+    margin: 10px auto;
+    width: 100%;
+    max-width: 280px;
+    min-width: unset;
+  }
+}
+
+// Conteneur des boutons en mode View
+.profileButtons {
   display: flex;
-  gap: 1rem;
-  justify-content: flex-start;
-
-  button {
-    padding: 0.6rem 1.2rem;
-    border-radius: 6px;
-    border: none;
-    font-family: 'Raleway', sans-serif;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background-color 0.25s ease;
-
-    &.editBtn {
-      background-color: #0F78B1;
-      color: #FEFBF4;
-      &:hover {
-        background-color: #0c608d;
-      }
-    }
-
-    &.deleteBtn {
-      background-color: #ff4d4f;
-      color: #FEFBF4;
-      &:hover {
-        background-color: #d93b3e;
-      }
-    }
+  gap: 15px;
+  margin-top: 20px;
+  
+  @media (max-width: 768px) {
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
   }
 }
+
+// Boutons en mode View
+.editButton, .deleteButton {
+  @extend .profileActionButton;
+  
+  @media (max-width: 768px) {
+    margin-bottom: 10px;
+  }
+}
+
+.editButton {
+  background-color: #81A04A;
+  color: #FEFBF4;
+  border: 2px solid rgba(129, 160, 74, 0.3);
+  
+  &:hover {
+    background-color: #6d8a3e;
+    transform: translateY(-2px);
+  }
+}
+
+.deleteButton {
+  background-color: #5E3E23;
+  color: #FEFBF4;
+  
+  &:hover {
+    background-color: #4a3220;
+    transform: translateY(-2px);
+  }
+}
+
+
+
+
+

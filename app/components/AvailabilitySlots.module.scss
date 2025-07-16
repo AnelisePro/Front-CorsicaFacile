@@ -1,21 +1,13 @@
-@import url('https://fonts.googleapis.com/css2?family=Quicksand&family=Raleway&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&family=Nunito:wght@300;400;500;600;700&display=swap');
 
 .container {
   padding: 1rem;
 }
 
-.title {
-  font-family: 'Quicksand', sans-serif;
-  font-weight: 700;
-  font-size: 1.8rem;
-  margin-bottom: 1rem;
-  color: #81A04A;
-}
-
 .cardsContainer {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 1.2rem;
 }
 
 .card {
@@ -29,7 +21,7 @@
 }
 
 .slotText {
-  font-family: 'Raleway', sans-serif;
+  font-family: 'Nunito', sans-serif;
   font-size: 1rem;
   color: #212121;
   margin: 0;
@@ -42,7 +34,7 @@
 
 .btnEdit,
 .btnDelete {
-  font-family: 'Raleway', sans-serif;
+  font-family: 'Nunito', sans-serif;
   font-weight: 800;
   background-color: transparent;
   border: none;
@@ -54,71 +46,20 @@
 }
 
 .btnEdit {
-  color: #0F78B1;
+  color: #81A04A;
 }
 
 .btnDelete {
   color: #ff4d4f;
 }
 
-
-/* FormGroup reste à toi de gérer */
-.formGroup {
-  margin-top: 2rem;
-  font-family: 'Raleway', sans-serif;
-
-  h3 {
-    font-family: 'Quicksand', sans-serif;
-    font-weight: 700;
-    font-size: 1.4rem;
-    margin-bottom: 1rem;
-    color: #81A04A;
-  }
-
-  label {
-    display: block;
-    margin-bottom: 0.5rem;
-  }
-
-  input, select {
-    padding: 0.4rem 0.6rem;
-    border-radius: 4px;
-    border: 1px solid #ccc;
-    font-size: 1rem;
-    font-family: 'Raleway', sans-serif;
-    width: 100%;
-    max-width: 300px;
-    margin-bottom: 1rem;
-  }
-
-  button[type='submit'] {
-    background-color: #0F78B1;
-    color: #FEFBF4;
-    border: none;
-    padding: 0.6rem 1.2rem;
-    border-radius: 5px;
-    font-family: 'Raleway', sans-serif;
-    font-weight: 600;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-  }
-
-  button[type='submit']:hover {
-    background-color: #0c5f8b;
-  }
-}
-
-.slotText strong {
-  font-weight: 700;
-  margin-right: 0.3rem;
-}
-
 .formGroupCard {
   background-color: #fff;
   border-radius: 12px;
-  padding: 1.5rem 2rem;
+  padding: 2rem;
   box-shadow: 0 6px 12px rgb(0 0 0 / 0.1);
-  max-width: 460px;
+  width: 100%;
+  max-width: 810px;
   margin-top: 2rem;
   font-family: 'Raleway', sans-serif;
 
@@ -128,13 +69,15 @@
     font-size: 1.6rem;
     margin-bottom: 1.5rem;
     color: #81A04A;
+    text-align: center;
   }
 }
 
 .form {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  align-items: center;
+  gap: 1.5rem;
 }
 
 .row {
@@ -150,69 +93,84 @@
   font-weight: 600;
   font-size: 1rem;
   color: #212121;
-  min-width: 140px;
-
-  select,
-  input[type='time'] {
-    margin-top: 0.4rem;
-    padding: 0.5rem 0.75rem;
-    border-radius: 8px;
-    border: 1.5px solid #ccc;
-    font-size: 1rem;
-    font-family: 'Raleway', sans-serif;
-    transition: border-color 0.3s ease;
-
-    &:focus {
-      outline: none;
-      border-color: #0F78B1;
-      box-shadow: 0 0 6px #0c6391af;
-    }
-  }
+  min-width: 160px;
 }
 
 .checkboxLabel {
-  margin-top: 7%;
   display: flex;
   align-items: center;
-  font-weight: 600;
   font-size: 1rem;
   color: #212121;
   gap: 0.5rem;
   cursor: pointer;
-  min-width: 140px;
+  min-width: 160px;
+  margin-top: 0.5rem;
+}
 
-  input[type='checkbox'] {
-    width: 18px;
-    height: 18px;
-    cursor: pointer;
-    accent-color: #0F78B1;
+.checkboxInput {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+  accent-color: #81A04A;
+  border: 1px solid #80a04a89;
+  border-radius: 4px;
+}
+
+.timeInput {
+  margin-top: 0.4rem;
+  padding: 0.6rem 0.8rem;
+  border-radius: 8px;
+  border: 2px solid #80a04a89;
+  font-size: 1rem;
+  font-family: 'Raleway', sans-serif;
+  transition: all 0.3s ease;
+  width: 100%;
+  max-width: 200px;
+
+  &:focus {
+    outline: none;
+    border-color: #6d8a3e8e;
+    box-shadow: 0 0 0 2px rgba(129, 160, 74, 0.2);
   }
 }
 
-.input {
-  width: 140px;
-}
+.selectInput {
+  margin-top: 0.4rem;
+  padding: 0.6rem 0.8rem;
+  border-radius: 8px;
+  border: 2px solid #80a04a89;
+  font-size: 1rem;
+  font-family: 'Ninuto', sans-serif;
+  transition: all 0.3s ease;
+  width: 100%;
+  max-width: 200px;
 
-.select {
-  width: 140px;
+  &:focus {
+    outline: none;
+    border-color: #6d8a3e;
+    box-shadow: 0 0 0 2px rgba(129, 160, 74, 0.2);
+  }
 }
 
 .submitBtn {
-  align-self: flex-start;
-  background-color: #0F78B1;
+  align-self: center;
+  background-color: #81A04A;
   color: #fff;
   border: none;
-  padding: 0.4rem 1rem;
+  padding: 0.8rem 2rem;
   border-radius: 8px;
-  font-family: 'Raleway', sans-serif;
+  font-family: 'Ninuto', sans-serif;
   font-weight: 700;
-  font-size: 0.9rem;
+  font-size: 1.1rem;
   cursor: pointer;
-  transition: background-color 0.3s ease;
+  transition: all 0.3s ease;
+  margin-top: 0.5rem;
 
   &:hover {
-    background-color: #0c6696;
+    background-color: #6d8a3e;
+    transform: translateY(-2px);
   }
 }
+
 
 

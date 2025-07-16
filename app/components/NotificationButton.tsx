@@ -10,9 +10,11 @@ interface Props {
   besoinId: number
   clientId: number
   artisanToken: string
+  disabled?: boolean
+  className?: string
 }
 
-export default function NotificationButton({ besoinId, clientId, artisanToken }: Props) {
+export default function NotificationButton({ besoinId, clientId, artisanToken, disabled = false, className }: Props) {
   const [loading, setLoading] = useState(false)
 
   const fetchArtisanInfo = async () => {
@@ -28,6 +30,11 @@ export default function NotificationButton({ besoinId, clientId, artisanToken }:
   }
 
   const handleInterest = async () => {
+    if (disabled) {
+      toast.info("Vous avez déjà répondu à cette annonce")
+      return
+    }
+
     setLoading(true)
     try {
       if (!artisanToken) {
@@ -68,10 +75,15 @@ export default function NotificationButton({ besoinId, clientId, artisanToken }:
   }
 
   return (
-    <button onClick={handleInterest} disabled={loading}>
+    <button
+      onClick={handleInterest}
+      disabled={disabled || loading}
+      className={className}
+    >
       {loading ? 'Envoi...' : 'Je suis intéressé par cette annonce'}
     </button>
   )
 }
+
 
 

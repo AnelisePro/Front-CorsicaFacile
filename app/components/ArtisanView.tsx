@@ -1,3 +1,5 @@
+'use client'
+
 import React from 'react'
 import styles from './ArtisanView.module.scss'
 import Image from 'next/image'
@@ -20,15 +22,14 @@ type Artisan = {
   avatar_url?: string
   kbis_url?: string
   insurance_url?: string
-  images_urls: string[]
 }
 
 type ArtisanViewProps = {
   artisan: Artisan
   planInfo: PlanInfo | null
-  intervalTranslations: Record<string, string>
   onEdit: () => void
   onDelete: () => void
+  intervalTranslations?: Record<string, string> // Ajoutez cette prop optionnelle
 }
 
 function capitalizeFirstOnly(text: string) {
@@ -36,141 +37,107 @@ function capitalizeFirstOnly(text: string) {
   return text.charAt(0).toUpperCase() + text.slice(1).toLowerCase()
 }
 
+
 export default function ArtisanView({
   artisan,
   planInfo,
-  intervalTranslations,
   onEdit,
   onDelete,
+  intervalTranslations = { day: 'jour', week: 'semaine', month: 'mois', year: 'an' } // Valeur par défaut
 }: ArtisanViewProps) {
+  console.log('Artisan data:', artisan)
+  console.log('KBIS URL:', artisan.kbis_url)
+  console.log('Insurance URL:', artisan.insurance_url)
   return (
-    <div className={styles.artisanView}>
-
-      {/* Card 1 : avatar + nom */}
-      <div className={styles.cardProfile}>
-        {artisan.avatar_url && (
+    <div className={styles.profileContent}>
+      {/* Avatar à gauche */}
+      <div className={styles.avatarWrapper}>
+        {artisan.avatar_url ? (
           <Image
             src={artisan.avatar_url}
             alt={`${artisan.company_name} avatar`}
             className={styles.avatar}
-            loading="lazy"
-            width={80}
-            height={80}
+            width={150}
+            height={150}
             style={{ borderRadius: '50%', objectFit: 'cover' }}
           />
-        )}
-        <h1 className={styles.companyName}>{artisan.company_name}</h1>
-      </div>
-
-      {/* Card 2 : infos */}
-      <div className={styles.cardInfo}>
-        <div className={styles.infoField}>
-          <label className={styles.label}>{capitalizeFirstOnly('adresse')}</label>
-          <p className={styles.value}>{artisan.address}</p>
-        </div>
-
-        <div className={styles.infoField}>
-          <label className={styles.label}>{capitalizeFirstOnly("domaine d'expertise")}</label>
-          <p className={styles.value}>
-            {artisan.expertise_names.length > 0
-              ? artisan.expertise_names.join(', ')
-              : 'Non spécifié'}
-          </p>
-        </div>
-
-        {artisan.description && (
-          <div className={styles.infoField}>
-            <label className={styles.label}>
-              {capitalizeFirstOnly("à propos de l'entreprise")}
-            </label>
-            <p className={styles.value}>{artisan.description}</p>
+        ) : (
+          <div className={styles.avatar}>
+            {artisan.company_name.charAt(0).toUpperCase()}
           </div>
         )}
+      </div>
 
-        <div className={styles.infoField}>
-          <label className={styles.label}>{capitalizeFirstOnly('siren')}</label>
-          <p className={styles.value}>{artisan.siren}</p>
-        </div>
+      {/* Informations en 2 colonnes */}
+      <div className={styles.info}>
+        <div className={styles.infoColumns}>
+          {/* Colonne 1 */}
+          <div className={styles.infoColumn}>
+            <p><strong>Nom :</strong> {artisan.company_name}</p>
+            <p><strong>Adresse :</strong> {artisan.address}</p>
+            <p><strong>Expertise :</strong> {artisan.expertise_names.join(', ')}</p>
+            <p><strong>Email :</strong> {artisan.email}</p>
+          </div>
 
-        <div className={styles.infoField}>
-          <label className={styles.label}>{capitalizeFirstOnly('email')}</label>
-          <p className={styles.value}>{artisan.email}</p>
-        </div>
-
-        <div className={styles.infoField}>
-          <label className={styles.label}>{capitalizeFirstOnly('téléphone')}</label>
-          <p className={styles.value}>{artisan.phone}</p>
-        </div>
-
-        <div className={styles.infoField}>
-          <label className={styles.label}>{capitalizeFirstOnly('abonnement')}</label>
-          <p className={styles.value}>{artisan.membership_plan}</p>
-        </div>
-
-        {planInfo && (
-          <div className={styles.infoField}>
-            <label className={styles.label}>{capitalizeFirstOnly('tarif')}</label>
-            <p className={styles.value}>
-              {planInfo.amount / 100} {planInfo.currency.toUpperCase()} /{' '}
-              {intervalTranslations[planInfo.interval] || planInfo.interval}
+          {/* Colonne 2 */}
+          <div className={styles.infoColumn}>
+            <p><strong>Téléphone :</strong> {artisan.phone}</p>
+            <p><strong>SIREN :</strong> {artisan.siren}</p>
+            {artisan.description && (
+              <p><strong>Description :</strong> {artisan.description}</p>
+            )}
+            <p>
+              <strong>Plan :</strong> {capitalizeFirstOnly(artisan.membership_plan)}
+              {planInfo && (
+                <span> - {planInfo.amount / 100}€/{intervalTranslations[planInfo.interval] || planInfo.interval}</span>
+              )}
             </p>
           </div>
-        )}
+        </div>
 
+        {/* Section Documents */}
         <div className={styles.documents}>
-          {artisan.kbis_url && (
-            <a
-              href={artisan.kbis_url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={styles.button}
-            >
-              Voir le KBIS
-            </a>
-          )}
-          {artisan.insurance_url && (
-            <a
-              href={artisan.insurance_url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className={styles.button}
-            >
-              Voir l'Assurance Pro
-            </a>
-          )}
-        </div>
-      </div>
+  <a
+    href={artisan.kbis_url || '#'}
+    target={artisan.kbis_url ? '_blank' : undefined}
+    rel="noopener noreferrer"
+    className={`${styles.button} ${!artisan.kbis_url ? styles.disabled : ''}`}
+    onClick={(e) => !artisan.kbis_url && e.preventDefault()}
+  >
+    📄 {artisan.kbis_url ? 'Voir le KBIS' : 'KBIS non disponible'}
+  </a>
 
-      {/* Card 3 : galerie d’images */}
-      <div className={styles.cardGallery}>
-        <div className={styles.imagesGallery}>
-          {artisan.images_urls.map((url, i) => (
-            <Image
-              key={i}
-              src={url}
-              alt={`Image ${i + 1} de ${artisan.company_name}`}
-              loading="lazy"
-              width={160}
-              height={120}
-              className={styles.image}
-              style={{ objectFit: 'cover', borderRadius: '8px', border: '1px solid #333' }}
-            />
-          ))}
-        </div>
-      </div>
+  <a
+    href={artisan.insurance_url || '#'}
+    target={artisan.insurance_url ? '_blank' : undefined}
+    rel="noopener noreferrer"
+    className={`${styles.button} ${!artisan.insurance_url ? styles.disabled : ''}`}
+    onClick={(e) => !artisan.insurance_url && e.preventDefault()}
+  >
+    🛡️ {artisan.insurance_url ? 'Voir l\'Assurance Pro' : 'Assurance non disponible'}
+  </a>
+</div>
 
-      {/* Actions */}
-      <div className={styles.actions}>
-        <button onClick={onEdit} className={styles.editBtn}>
-          Modifier
-        </button>
-        <button onClick={onDelete} className={styles.deleteBtn}>
-          Supprimer le compte
-        </button>
+        {/* Boutons d'action */}
+        <div className={styles.profileButtons}>
+          <button onClick={onEdit} className={styles.editButton}>
+            Modifier mon profil
+          </button>
+          <button onClick={onDelete} className={styles.deleteButton}>
+            Supprimer mon compte
+          </button>
+        </div>
       </div>
     </div>
   )
 }
+
+
+
+
+
+
+
 
 
 

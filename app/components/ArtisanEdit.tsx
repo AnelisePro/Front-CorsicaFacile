@@ -3,6 +3,7 @@ import styles from './ArtisanEdit.module.scss'
 import Image from 'next/image'
 import axios from 'axios'
 
+// Types
 type Artisan = {
   company_name: string
   address: string
@@ -12,7 +13,6 @@ type Artisan = {
   email: string
   phone: string
   membership_plan: string
-  images_urls: string[]
   avatar_url?: string
   kbis_url?: string
   insurance_url?: string
@@ -22,24 +22,17 @@ type Artisan = {
 
 type ArtisanEditProps = {
   artisan: Artisan | null
-  handleChange: (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
-  ) => void
-  handleFileChange: (e: React.ChangeEvent<HTMLInputElement>) => void
-  handleImagesChange: (e: React.ChangeEvent<HTMLInputElement>) => void
-  removeExistingImage: (url: string) => void
-  removeNewImage: (index: number) => void
-  newImages: File[]
+  handleChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => void
+  handleFileChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   isEditing: boolean
   expertises: string[]
   membershipPlans: string[]
   setArtisan: React.Dispatch<React.SetStateAction<Artisan | null>>
-  handleUpdate: () => Promise<void>
+  handleUpdate: (updatedArtisan?: Artisan) => Promise<void>
   handleCancel: () => void
   kbisFile: File | null
   insuranceFile: File | null
   avatarFile: File | null
-  deletedImageUrls: string[]
   setKbisFile: React.Dispatch<React.SetStateAction<File | null>>
   setInsuranceFile: React.Dispatch<React.SetStateAction<File | null>>
   setAvatarFile: React.Dispatch<React.SetStateAction<File | null>>
@@ -50,11 +43,6 @@ const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000'
 export default function ArtisanEdit({
   artisan,
   handleChange,
-  handleFileChange,
-  handleImagesChange,
-  removeExistingImage,
-  removeNewImage,
-  newImages,
   isEditing,
   expertises,
   membershipPlans,
@@ -64,16 +52,16 @@ export default function ArtisanEdit({
   kbisFile,
   insuranceFile,
   avatarFile,
-  deletedImageUrls,
   setKbisFile,
   setInsuranceFile,
   setAvatarFile,
 }: ArtisanEditProps) {
   const [uploading, setUploading] = useState(false)
 
-  if (!artisan) return <p>Chargement des données...</p>
+  if (!artisan) return <p className={styles.loadingText}>Chargement des données...</p>
 
-  async function getPresignedUrl(fileName: string, contentType: string, purpose: string) {
+  // Fonctions d'upload
+  const getPresignedUrl = async (fileName: string, contentType: string, purpose: string) => {
     const token = localStorage.getItem('artisanToken') || ''
     const response = await axios.post(
       `${apiUrl}/presigned_url`,
@@ -83,84 +71,79 @@ export default function ArtisanEdit({
     return response.data.url as string
   }
 
-  async function uploadToS3(file: File, presignedUrl: string) {
+  const uploadToS3 = async (file: File, presignedUrl: string) => {
     await axios.put(presignedUrl, file, {
       headers: { 'Content-Type': file.type },
     })
   }
 
-  // Gestion upload Avatar
-  async function handleAvatarChange(e: React.ChangeEvent<HTMLInputElement>) {
-    if (!e.target.files?.length) return
-    const file = e.target.files[0]
-    setAvatarFile(file)
-  }
-
-  // Gestion upload KBIS
-  async function handleKbisChange(e: React.ChangeEvent<HTMLInputElement>) {
-    if (!e.target.files?.length) return
-    const file = e.target.files[0]
-    setKbisFile(file)
-  }
-
-  // Gestion upload Assurance Pro
-  async function handleInsuranceChange(e: React.ChangeEvent<HTMLInputElement>) {
-    if (!e.target.files?.length) return
-    const file = e.target.files[0]
-    setInsuranceFile(file)
-  }
-
-  // Fonction pour uploader fichiers (avatar, kbis, assurance)
-  async function uploadFile(file: File, purpose: string) {
-    setUploading(true)
+  const uploadFile = async (file: File, purpose: string) => {
     try {
       const presignedUrl = await getPresignedUrl(file.name, file.type, purpose)
       await uploadToS3(file, presignedUrl)
-      const publicUrl = presignedUrl.split('?')[0]
-      return publicUrl
+      return presignedUrl.split('?')[0]
     } catch (error) {
       console.error(`Erreur upload ${purpose}:`, error)
-      alert(`Erreur lors de l’upload du fichier ${purpose}.`)
-      return null
+      throw new Error(`Erreur lors de l'upload du fichier ${purpose}`)
+    }
+  }
+
+  // Gestionnaires de fichiers
+  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files?.[0]) {
+      setAvatarFile(e.target.files[0])
+    }
+  }
+
+  const handleKbisChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files?.[0]) {
+      setKbisFile(e.target.files[0])
+    }
+  }
+
+  const handleInsuranceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files?.[0]) {
+      setInsuranceFile(e.target.files[0])
+    }
+  }
+
+  const handleSave = async () => {
+    if (!artisan) return
+
+    setUploading(true)
+    try {
+      const updatedArtisan = { ...artisan }
+
+      if (avatarFile) {
+        const avatarUrl = await uploadFile(avatarFile, 'profile_picture')
+        if (avatarUrl) updatedArtisan.avatar_url = avatarUrl
+      }
+
+      if (kbisFile) {
+        const kbisUrl = await uploadFile(kbisFile, 'kbis')
+        if (kbisUrl) updatedArtisan.kbis_url = kbisUrl
+      }
+
+      if (insuranceFile) {
+        const insuranceUrl = await uploadFile(insuranceFile, 'insurance')
+        if (insuranceUrl) updatedArtisan.insurance_url = insuranceUrl
+      }
+
+      await handleUpdate(updatedArtisan)
+    } catch (error) {
+      console.error('Erreur lors de l\'enregistrement:', error)
+      alert("Erreur lors de l'enregistrement. Veuillez réessayer.")
     } finally {
       setUploading(false)
     }
   }
 
-  // Appelée au moment de la sauvegarde, upload tous les fichiers modifiés avant d'appeler handleUpdate
-  async function handleSave() {
-    if (!artisan) return
-
-    let updatedArtisan = { ...artisan }
-
-    // Upload avatar si modifié
-    if (avatarFile) {
-      const avatarUrl = await uploadFile(avatarFile, 'profile_picture')
-      if (avatarUrl) updatedArtisan.avatar_url = avatarUrl
-    }
-
-    // Upload KBIS si modifié
-    if (kbisFile) {
-      const kbisUrl = await uploadFile(kbisFile, 'kbis')
-      if (kbisUrl) updatedArtisan.kbis_url = kbisUrl
-    }
-
-    // Upload Assurance Pro si modifié
-    if (insuranceFile) {
-      const insuranceUrl = await uploadFile(insuranceFile, 'insurance')
-      if (insuranceUrl) updatedArtisan.insurance_url = insuranceUrl
-    }
-
-    setArtisan(updatedArtisan)
-
-    // Appelle la fonction externe pour sauvegarder l'artisan (ex: API)
-    await handleUpdate()
-  }
-
   return (
-    <form className={styles.form} onSubmit={e => e.preventDefault()}>
+    <form className={styles.form}>
       <div className={styles.card}>
-        <h3>Informations de l’entreprise</h3>
+        <h3 className={styles.title}>Informations de l'entreprise</h3>
+
+        {/* Champ Nom de l'entreprise */}
         <div className={styles.formGroup}>
           <label htmlFor="company_name">Nom de l'entreprise</label>
           <input
@@ -169,9 +152,11 @@ export default function ArtisanEdit({
             value={artisan.company_name}
             onChange={handleChange}
             required
+            className={styles.formInput}
           />
         </div>
 
+        {/* Champ Adresse */}
         <div className={styles.formGroup}>
           <label htmlFor="address">Adresse</label>
           <input
@@ -180,20 +165,11 @@ export default function ArtisanEdit({
             value={artisan.address}
             onChange={handleChange}
             required
+            className={styles.formInput}
           />
         </div>
 
-        <div className={styles.formGroup}>
-          <label htmlFor="description">Description</label>
-          <textarea
-            id="description"
-            name="description"
-            value={artisan.description || ''}
-            onChange={handleChange}
-            rows={4}
-          />
-        </div>
-
+        {/* Champ SIREN */}
         <div className={styles.formGroup}>
           <label htmlFor="siren">SIREN</label>
           <input
@@ -202,9 +178,11 @@ export default function ArtisanEdit({
             value={artisan.siren}
             onChange={handleChange}
             required
+            className={styles.formInput}
           />
         </div>
 
+        {/* Champ Email */}
         <div className={styles.formGroup}>
           <label htmlFor="email">Email</label>
           <input
@@ -214,20 +192,25 @@ export default function ArtisanEdit({
             value={artisan.email}
             onChange={handleChange}
             required
+            className={styles.formInput}
           />
         </div>
 
+        {/* Champ Téléphone */}
         <div className={styles.formGroup}>
           <label htmlFor="phone">Téléphone</label>
           <input
             id="phone"
             name="phone"
+            type="tel"
             value={artisan.phone}
             onChange={handleChange}
             required
+            className={styles.formInput}
           />
         </div>
 
+        {/* Champ Plan d'adhésion */}
         <div className={styles.formGroup}>
           <label htmlFor="membership_plan">Plan d'adhésion</label>
           <select
@@ -235,212 +218,157 @@ export default function ArtisanEdit({
             name="membership_plan"
             value={artisan.membership_plan}
             onChange={handleChange}
+            className={styles.formSelect}
           >
             {membershipPlans.map(plan => (
-              <option key={plan} value={plan}>
-                {plan}
-              </option>
+              <option key={plan} value={plan}>{plan}</option>
             ))}
           </select>
         </div>
 
+        {/* Champ Expertises */}
         <div className={styles.formGroup}>
           <label htmlFor="expertise_names">Expertises</label>
           <select
             id="expertise_names"
             name="expertise_names"
-            value={artisan.expertise_names[0] || ''}
+            multiple
+            value={artisan.expertise_names}
             onChange={handleChange}
+            className={styles.expertiseSelect}
+            size={Math.min(6, expertises.length)}
           >
-            <option value="">-- Choisir une expertise --</option>
             {expertises.map(exp => (
-              <option key={exp} value={exp}>
-                {exp}
-              </option>
+              <option key={exp} value={exp}>{exp}</option>
             ))}
           </select>
         </div>
 
-        {/* Avatar */}
+        {/* Champ Description */}
         <div className={styles.formGroup}>
-          <label htmlFor="avatar" className={styles.fileLabel}>
-            Changer la photo de profil
-          </label>
-          <input
-            id="avatar"
-            type="file"
-            name="avatar"
-            accept="image/*"
-            onChange={handleAvatarChange}
-            disabled={uploading}
-            className={styles.fileInput}
+          <label htmlFor="description">Description</label>
+          <textarea
+            id="description"
+            name="description"
+            value={artisan.description || ''}
+            onChange={handleChange}
+            className={styles.formTextarea}
+            rows={4}
           />
-          {artisan.avatar_url && (
-            <div
-              className={styles.avatarPreview}
-              style={{
-                position: 'relative',
-                width: '120px',
-                height: '120px',
-                borderRadius: '50%',
-                overflow: 'hidden',
-              }}
-            >
-              <Image
-                src={artisan.avatar_url}
-                alt="Avatar artisan"
-                fill
-                style={{ objectFit: 'cover' }}
+        </div>
+
+        {/* Section Avatar */}
+        <div className={styles.avatarSectionContainer}>
+          <div className={styles.avatarSection}>
+            {artisan.avatar_url && (
+              <div className={styles.avatarPreview}>
+                <Image
+                  src={artisan.avatar_url}
+                  alt="Avatar artisan"
+                  width={120}
+                  height={120}
+                  style={{ objectFit: 'cover' }}
+                />
+              </div>
+            )}
+            <div className={styles.avatarActions}>
+              <label htmlFor="avatar" className={styles.fileLabel}>
+                Changer la photo de profil
+              </label>
+              <input
+                id="avatar"
+                type="file"
+                name="avatar"
+                accept="image/*"
+                onChange={handleAvatarChange}
+                disabled={uploading}
+                className={styles.fileInput}
               />
             </div>
-          )}
-        </div>
-
-        {/* KBIS */}
-        <div className={styles.formGroup}>
-          <label htmlFor="kbis" className={styles.fileLabel}>
-            {artisan.kbis_url ? 'Remplacer le KBIS' : 'Ajouter un KBIS'}
-          </label>
-          <input
-            id="kbis"
-            type="file"
-            name="kbis"
-            accept="application/pdf,image/*"
-            onChange={handleKbisChange}
-            disabled={uploading}
-            className={styles.fileInput}
-          />
-          {artisan.kbis_url && (
-            <a href={artisan.kbis_url} target="_blank" rel="noopener noreferrer" className={styles.link}>
-              Voir le KBIS actuel
-            </a>
-          )}
-          {kbisFile && <p>Fichier sélectionné : {kbisFile.name}</p>}
-        </div>
-
-        {/* Assurance Pro */}
-        <div className={styles.formGroup}>
-          <label htmlFor="insurance" className={styles.fileLabel}>
-            {artisan.insurance_url ? 'Remplacer l’Assurance Pro' : 'Ajouter l’Assurance Pro'}
-          </label>
-          <input
-            id="insurance"
-            type="file"
-            name="insurance"
-            accept="application/pdf,image/*"
-            onChange={handleInsuranceChange}
-            disabled={uploading}
-            className={styles.fileInput}
-          />
-          {artisan.insurance_url && (
-            <a href={artisan.insurance_url} target="_blank" rel="noopener noreferrer" className={styles.link}>
-              Voir l’Assurance Pro actuelle
-            </a>
-          )}
-          {insuranceFile && <p>Fichier sélectionné : {insuranceFile.name}</p>}
-        </div>
-      </div>
-
-      <div className={styles.card}>
-        <h3>Images des réalisations</h3>
-
-        <div className={styles.formGroup}>
-          <label>Images existantes</label>
-          <div className={styles.imagesGrid}>
-            {artisan.images_urls.length > 0 ? (
-              artisan.images_urls.map((url, idx) => (
-                <div key={idx} className={styles.imageWrapper}>
-                  <div
-                    className={styles.imageWrapper}
-                    style={{ position: 'relative', width: '100px', height: '100px' }}
-                  >
-                    <Image
-                      src={`${url}?t=${Date.now()}`}
-                      alt={`Réalisation ${idx + 1}`}
-                      fill
-                      style={{ objectFit: 'cover', borderRadius: '8px' }}
-                    />
-                  </div>
-                  <button
-                    type="button"
-                    aria-label="Supprimer cette image"
-                    onClick={() => removeExistingImage(url)}
-                    className={styles.deleteBtn}
-                    disabled={uploading}
-                  >
-                    ×
-                  </button>
-                </div>
-              ))
-            ) : (
-              <p>Aucune image enregistrée.</p>
-            )}
           </div>
         </div>
 
-        <div className={styles.formGroup}>
-          <label htmlFor="newImages" className={styles.fileLabel}>
-            Ajouter de nouvelles images
-          </label>
-          <input
-            id="newImages"
-            type="file"
-            accept="image/*"
-            multiple
-            onChange={handleImagesChange}
-            disabled={uploading}
-            className={styles.fileInput}
-          />
-          <div className={styles.imagesGrid}>
-            {newImages.map((file, idx) => (
-              <div key={idx} className={styles.imageWrapper}>
-                <div
-                  className={styles.imageWrapper}
-                  style={{ position: 'relative', width: '100px', height: '100px' }}
+        {/* Section Fichiers */}
+        <div className={styles.fileSection}>
+          <div className={styles.fileButtonGroup}>
+            <div className={styles.fileItem}>
+              <label htmlFor="kbis" className={styles.fileLabel}>
+                {artisan.kbis_url ? 'Changer KBIS' : 'Ajouter KBIS'}
+              </label>
+              <input
+                id="kbis"
+                type="file"
+                name="kbis"
+                accept=".pdf,image/*"
+                onChange={handleKbisChange}
+                disabled={uploading}
+                className={styles.fileInput}
+              />
+              {artisan.kbis_url && (
+                <a
+                  href={artisan.kbis_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={styles.fileLink}
                 >
-                  <Image
-                    src={URL.createObjectURL(file)}
-                    alt={`Prévisualisation ${idx + 1}`}
-                    fill
-                    style={{ objectFit: 'cover', borderRadius: '8px' }}
-                  />
-                </div>
-                <button
-                  type="button"
-                  aria-label="Supprimer cette image"
-                  onClick={() => removeNewImage(idx)}
-                  className={styles.deleteBtn}
-                  disabled={uploading}
+                  Voir KBIS actuel
+                </a>
+              )}
+            </div>
+
+            <div className={styles.fileItem}>
+              <label htmlFor="insurance" className={styles.fileLabel}>
+                {artisan.insurance_url ? 'Changer Assurance Pro' : 'Ajouter Assurance Pro'}
+              </label>
+              <input
+                id="insurance"
+                type="file"
+                name="insurance"
+                accept=".pdf,image/*"
+                onChange={handleInsuranceChange}
+                disabled={uploading}
+                className={styles.fileInput}
+              />
+              {artisan.insurance_url && (
+                <a
+                  href={artisan.insurance_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={styles.fileLink}
                 >
-                  ×
-                </button>
-              </div>
-            ))}
+                  Voir Assurance actuelle
+                </a>
+              )}
+            </div>
           </div>
         </div>
-      </div>
 
-      <div className={styles.buttons}>
-        <button
-          type="button"
-          onClick={handleSave}
-          className={styles.saveBtn}
-          disabled={!isEditing || uploading}
-        >
-          Enregistrer
-        </button>
-        <button
-          type="button"
-          onClick={handleCancel}
-          className={styles.cancelBtn}
-          disabled={uploading}
-        >
-          Annuler
-        </button>
+        {/* Boutons */}
+        <div className={styles.buttonsContainer}>
+          <button
+            type="button"
+            onClick={handleSave}
+            disabled={uploading}
+            className={styles.saveButton}
+          >
+            {uploading ? 'Enregistrement en cours...' : 'Enregistrer'}
+          </button>
+          <button
+            type="button"
+            onClick={handleCancel}
+            className={styles.cancelButton}
+          >
+            Annuler
+          </button>
+        </div>
       </div>
     </form>
   )
 }
+
+
+
+
 
 
 

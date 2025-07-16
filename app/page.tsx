@@ -124,7 +124,7 @@ export default function Home() {
               fill
               style={{ objectFit: 'cover' }}
             />
-            <a href="/inscription" className={styles.ctaButtonOutline} style={{ zIndex: 1, position: 'relative' }}>
+            <a href="/mon-espace" className={styles.ctaButtonOutline} style={{ zIndex: 1, position: 'relative' }}>
               Inscription / Connexion
             </a>
           </div>

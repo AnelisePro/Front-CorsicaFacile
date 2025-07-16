@@ -1,0 +1,130 @@
+@import url('https://fonts.googleapis.com/css2?family=Quicksand&family=Raleway&display=swap');
+
+$primary-color: #5E3E23;
+$secondary-color: #81A04A;
+$background-color: #FEFBF4;
+$text-color: #212121;
+$shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+
+.main-container {
+  max-width: 64rem;
+  margin: 0 auto;
+  padding: 1rem;
+  background-color: $background-color;
+
+  h1 {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: $secondary-color;
+    margin-bottom: 1rem;
+    position: relative;
+    display: inline-block;
+    font-family: 'Quicksand', sans-serif;
+
+    &::after {
+      content: '';
+      display: block;
+      width: 50%;
+      height: 4px;
+      background-color: $primary-color;
+      margin-top: 0.5rem;
+      border-radius: 2px;
+      animation: expand 1s ease-out;
+    }
+
+    @media (max-width: 480px) {
+      font-size: 1.8rem;
+      margin-bottom: 0.8rem;
+    }
+  }
+
+  .content-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+
+    @media (min-width: 768px) {
+      flex-direction: row;
+      align-items: center;
+      gap: 2rem;
+    }
+
+    .text {
+      color: $text-color;
+      font-size: 1.1rem;
+      line-height: 1.7;
+      font-family: 'Raleway', sans-serif;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      height: auto;
+      flex: 1;
+
+      @media (min-width: 768px) {
+        height: 400px;
+      }
+
+      p {
+        margin-bottom: 1rem;
+
+        &:last-child {
+          margin-bottom: 0;
+        }
+      }
+
+      ol {
+        list-style: none;
+        padding-left: 0;
+        margin-top: 0;
+
+        li {
+          position: relative;
+          padding-left: 2rem;
+          margin-bottom: 1rem;
+          font-weight: 600;
+          color: $primary-color;
+
+          &::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            top: 0;
+            color: $secondary-color;
+            font-weight: bold;
+            font-size: 1.2rem;
+            line-height: 1;
+          }
+        }
+      }
+
+      @media (max-width: 480px) {
+        font-size: 1rem;
+        line-height: 1.5;
+      }
+    }
+
+    .image {
+      flex-shrink: 0;
+      width: 100%;
+      max-width: 350px;
+      border-radius: 0.75rem;
+      box-shadow: $shadow;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      height: auto;
+
+      &:hover {
+        transform: scale(1.02);
+        box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+      }
+    }
+  }
+}
+
+@keyframes expand {
+  from {
+    width: 0;
+  }
+  to {
+    width: 50%;
+  }
+}

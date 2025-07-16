@@ -1,0 +1,233 @@
+.progressContainer {
+  width: 100%;
+  padding: 0;
+  margin: 0;
+}
+
+.stepsContainer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
+  width: 100%;
+  padding: 0;
+  margin: 0;
+}
+
+.stepItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  z-index: 2;
+  flex: 1;
+}
+
+.stepCircle {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: bold;
+  margin-bottom: 2px;
+  transition: all 0.3s ease;
+  font-size: 0.7rem;
+  z-index: 2;
+}
+
+.active {
+  background-color: #4CAF50;
+  color: white;
+}
+
+.inactive {
+  background-color: #e0e0e0;
+  color: #9e9e9e;
+}
+
+.current {
+  box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.3);
+}
+
+.stepLabel {
+  font-size: 0.6rem;
+  color: #666;
+  text-align: center;
+  margin-top: 1px;
+}
+
+.activeLabel {
+  color: #4CAF50;
+  font-weight: 500;
+}
+
+.stepConnector {
+  position: absolute;
+  top: 12px;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background-color: #e0e0e0;
+  z-index: 0;
+}
+
+.activeConnector {
+  background-color: #4CAF50;
+}
+
+/* Couleurs spécifiques pour chaque statut */
+.accepted {
+  .active {
+    background-color: #81A04A;
+  }
+
+  .activeLabel {
+    color: #81A04A;
+  }
+
+  .activeConnector {
+    background-color: #81A04A;
+  }
+}
+
+.completed {
+  .active {
+    background-color: #4CAF50;
+  }
+
+  .activeLabel {
+    color: #4CAF50;
+  }
+
+  .activeConnector {
+    background-color: #4CAF50;
+  }
+}
+
+.pending {
+  .active {
+    background-color: #F3CF60;
+  }
+
+  .activeLabel {
+    color: #F3CF60;
+  }
+
+  .activeConnector {
+    background-color: #F3CF60;
+  }
+}
+
+.refused {
+  .active {
+    background-color: #DC3545;
+  }
+
+  .activeLabel {
+    color: #DC3545;
+  }
+
+  .activeConnector {
+    background-color: #DC3545;
+  }
+}
+
+
+.stepCircle {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: bold;
+  margin-bottom: 2px;
+  transition: all 0.3s ease;
+  font-size: 0.7rem;
+  position: relative;
+  z-index: 2;
+  cursor: default;
+
+  &:hover {
+    transform: scale(1.1);
+  }
+}
+
+.active {
+  .stepCircle {
+    background-color: #4CAF50;
+    color: white;
+    cursor: pointer;
+
+    &:hover {
+      transform: scale(1.1);
+      box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.3);
+    }
+  }
+
+  .stepLabel {
+    color: #4CAF50;
+    font-weight: 500;
+  }
+
+  .stepConnector {
+    background-color: #4CAF50;
+  }
+}
+
+.inactive {
+  .stepCircle {
+    background-color: #e0e0e0;
+    color: #9e9e9e;
+  }
+}
+
+.current {
+  .stepCircle {
+    box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.3);
+  }
+}
+
+.accepted {
+  .active {
+    .stepCircle {
+      background-color: #81A04A;
+    }
+    .stepLabel {
+      color: #81A04A;
+    }
+    .stepConnector {
+      background-color: #81A04A;
+    }
+  }
+}
+
+.completed {
+  .active {
+    .stepCircle {
+      background-color: #4CAF50;
+    }
+    .stepLabel {
+      color: #4CAF50;
+    }
+    .stepConnector {
+      background-color: #4CAF50;
+    }
+  }
+}
+
+/* Style spécifique pour les artisans */
+.artisanView {
+  .stepCircle {
+    cursor: default !important;
+    pointer-events: none !important;
+    opacity: 0.8;
+  }
+
+  .stepCircle:hover {
+    transform: none !important;
+    box-shadow: none !important;
+  }
+}

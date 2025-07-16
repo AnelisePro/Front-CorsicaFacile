@@ -6,21 +6,6 @@
   padding: 2rem 1rem;
 }
 
-.backButton {
-  background: #0F78B1;
-  color: #FEFBF4;
-  font-weight: 700;
-  border: none;
-  padding: 0.5rem 1rem;
-  border-radius: 0.5rem;
-  margin-bottom: 1rem;
-  cursor: pointer;
-
-  &:hover {
-    background: #0c608e;
-  }
-}
-
 .grid {
   display: flex;
   flex-direction: column;
@@ -63,19 +48,6 @@
     font-family: 'Quicksand', sans-serif;
     color: #81A04A;
   }
-
-  p {
-    color: #212121;
-  }
-
-  ul {
-    padding-left: 1rem;
-    list-style-type: disc;
-
-    li {
-      margin-bottom: 0.5rem;
-    }
-  }
 }
 
 .profileHeader {
@@ -115,13 +87,13 @@
   border-radius: 1rem;
 }
 
-.projectImages {
+.gallery {
   display: flex;
   overflow-x: auto;
   gap: 1rem;
 }
 
-.projectImageWrapper {
+.projectImage {
   width: 150px;
   height: 150px;
   border-radius: 0.5rem;
@@ -132,51 +104,14 @@
   justify-content: center;
   background: #FEFBF4;
   border: 1px solid #81A04A;
-}
-
-.contactForm {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-
-  input,
-  textarea {
-    width: 100%;
-    border: 1px solid #81A04A;
-    border-radius: 0.375rem;
-    padding: 0.5rem 0.75rem;
-    font-size: 0.875rem;
-    color: #212121;
-    font-family: 'Quicksand', sans-serif;
-
-    &:focus {
-      outline: none;
-      border-color: #0F78B1;
-      box-shadow: 0 0 3px 1px #0F78B1;
-    }
-  }
-
-  button {
-    background: #0F78B1;
-    color: #FEFBF4;
-    font-weight: 700;
-    border: none;
-    padding: 0.75rem 1rem;
-    border-radius: 0.5rem;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-
-    &:hover {
-      background: #0c608e;
-    }
-  }
+  cursor: pointer;
+  object-fit: cover;
 }
 
 .availabilityRow {
   display: flex;
   justify-content: space-between;
-  padding-bottom: 0.5rem;
-  padding-top: 0.5rem;
+  padding: 0.5rem 0;
   border-bottom: 1px solid #ccc;
 
   &:last-child {
@@ -186,7 +121,6 @@
 
 .day {
   text-align: left;
-  font-weight: 400;
   color: #212121;
 }
 
@@ -195,108 +129,25 @@
   color: #212121;
 }
 
-
-/* POPUP STYLES — design sobre et élégant */
-
-.popupOverlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background-color: rgba(0, 0, 0, 0.85);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
+.blueIcon {
+  color: #0F78B1;
 }
 
-.popupContent {
-  position: relative;
-  background: transparent;
-  padding: 0;
-  max-width: 60vw;
-  max-height: 90vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 1.5rem;
-}
+.contactInfo {
+  font-family: 'Quicksand', sans-serif;
+  color: #212121;
+  line-height: 1.5;
+  font-size: 1rem;
 
-.popupImageWrapper {
-  position: relative;
-  width: 70vw;
-  height: 70vh;
-  border-radius: 0.75rem;
-  overflow: hidden;
-  background: #ffffff;
-  box-shadow: 0 0 30px rgba(0, 0, 0, 0.3);
-}
+  p {
+    margin: 0.5rem 0;
+    font-weight: 500;
 
-.closeButton {
-  position: absolute;
-  top: -2rem;
-  right: -2rem;
-  width: 2.5rem;
-  height: 2.5rem;
-  border: none;
-  background: #ffffff;
-  color: #333;
-  font-size: 1.5rem;
-  font-weight: bold;
-  border-radius: 50%;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
-  cursor: pointer;
-  transition: background 0.3s;
-
-  &:hover {
-    background: #f0f0f0;
+    a {
+      color: #0F78B1;
+      text-decoration: none;
+    }
   }
-}
-
-.prevButton,
-.nextButton {
-  width: 3rem;
-  height: 3rem;
-  border: none;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.8);
-  color: #333;
-  font-size: 1.5rem;
-  font-weight: bold;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  user-select: none;
-  transition: background-color 0.3s;
-
-  &:hover {
-    background: #ffffff;
-  }
-}
-
-.prevButton {
-  position: absolute;
-  left: -4rem;
-  top: 50%;
-  transform: translateY(-50%);
-}
-
-.nextButton {
-  position: absolute;
-  right: -4rem;
-  top: 50%;
-  transform: translateY(-50%);
-}
-
-/* Scrollbar styling for horizontal image thumbnails */
-.projectImages::-webkit-scrollbar {
-  height: 6px;
-}
-.projectImages::-webkit-scrollbar-thumb {
-  background-color: #ccc;
-  border-radius: 3px;
 }
 
 .loginButton {
@@ -311,31 +162,65 @@
   font-family: 'Raleway', sans-serif;
 
   &:hover {
-    background: #0c618f;
+    background: #0c608e;
   }
 }
 
-.blueIcon {
-  color: #0F78B1;
+/* Modal Styles */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.9);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
 }
 
-.contactInfo {
-  font-family: 'Raleway', sans-serif;
-  color: #212121;
-  line-height: 1.5;
-  font-size: 1rem;
+.modalContent {
+  position: relative;
+  max-width: 90vw;
+  max-height: 90vh;
+}
 
-  p {
-    margin: 0.5rem 0;
-    font-weight: 500;
+.fullSizeImage {
+  max-width: 100%;
+  max-height: 85vh;
+  object-fit: contain;
+  border-radius: 8px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+}
 
-    a {
-      color: #0F78B1;
-      text-decoration: none;
-      font-weight: 400;
-    }
+.backButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: #0F78B1;
+  color: #FEFBF4;
+  font-weight: 700;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  margin-bottom: 1rem;
+  cursor: pointer;
+  font-family: 'Quicksand', sans-serif;
+  transition: all 0.2s ease;
+  text-decoration: none;
+
+  &:hover {
+    background: #0c608e;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  }
+
+  &:active {
+    transform: translateY(0);
   }
 }
+
 
 
 

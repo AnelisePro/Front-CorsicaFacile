@@ -27,7 +27,7 @@ export default function Footer() {
           <h3>Ressources clients</h3>
           <ul>
           <li><Link href="/comment-ca-marche/clients">Comment ça marche ?</Link></li>
-            <li><Link href="/declarer-mon-besoin">Déclarer un besoin</Link></li>
+            <li><Link href="/besoin">Déclarer un besoin</Link></li>
             <li><Link href="/mon-espace">Accéder à mon espace</Link></li>
           </ul>
         </div>
@@ -36,6 +36,7 @@ export default function Footer() {
           <ul>
             <li><Link href="/comment-ca-marche/artisans">Comment ça marche ?</Link></li>
             <li><Link href="/annonces">Voir les annonces</Link></li>
+            <li><Link href="/formules">Nos formules</Link></li>
             <li><Link href="/mon-espace">Accéder à mon espace</Link></li>
           </ul>
         </div>

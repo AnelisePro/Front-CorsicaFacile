@@ -9,7 +9,7 @@ import ArtisanView from '../../components/ArtisanView'
 import ArtisanEdit from '../../components/ArtisanEdit'
 import AvailabilitySlots from '../../components/AvailabilitySlots'
 import NotificationList from '../../components/NotificationList'
-import ProgressStepper from '../../components/ProgressStepper'
+import ProjectImagesManager from '../../components/ProjectImagesManager'
 import styles from './page.module.scss'
 
 const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
@@ -23,14 +23,20 @@ type Artisan = {
   email: string
   phone: string
   membership_plan: string
-  images_urls: string[]
   avatar_url?: string
+  kbis_url?: string
+  insurance_url?: string
 }
 
 type PlanInfo = {
   amount: number
   currency: string
   interval: string
+}
+
+type Mission = {
+  id: number
+  status: string
 }
 
 const membershipPlans = ['Standard', 'Pro', 'Premium']
@@ -43,18 +49,17 @@ const intervalTranslations = {
 
 export default function ArtisanDashboard() {
   const { user, setUser } = useAuth()
-
+  const [activeTab, setActiveTab] = useState<'notifications' | 'creneaux' | 'realisations'>('notifications')
   const [token, setToken] = useState<string | null>(null)
   const [artisan, setArtisan] = useState<Artisan | null>(null)
   const [planInfo, setPlanInfo] = useState<PlanInfo | null>(null)
-  const [isEditing, setIsEditing] = useState(false)
+  const [isEditing, setIsEditing] = useState<boolean>(false)
   const [expertises, setExpertises] = useState<string[]>([])
   const [kbisFile, setKbisFile] = useState<File | null>(null)
   const [insuranceFile, setInsuranceFile] = useState<File | null>(null)
   const [avatarFile, setAvatarFile] = useState<File | null>(null)
-  const [newImages, setNewImages] = useState<File[]>([])
-  const [deletedImageUrls, setDeletedImageUrls] = useState<string[]>([])
-  const [activeMissions, setActiveMissions] = useState<{ id: number, status: string }[]>([])
+  const [activeMissions, setActiveMissions] = useState<Mission[]>([])
+  const [unreadCount, setUnreadCount] = useState<number>(0);
 
   useEffect(() => {
     const artisanToken = localStorage.getItem('artisanToken')
@@ -113,8 +118,6 @@ export default function ArtisanDashboard() {
     setKbisFile(null)
     setInsuranceFile(null)
     setAvatarFile(null)
-    setNewImages([])
-    setDeletedImageUrls([])
 
     async function fetchArtisan() {
       if (!token) return
@@ -143,15 +146,50 @@ export default function ArtisanDashboard() {
     fetchArtisan()
   }
 
-  function handleChange(e: React.ChangeEvent<any>) {
+  function handleChange(
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
+  ) {
     if (!artisan) return
     const { name, value } = e.target
     if (name === 'expertise_names') {
-      setArtisan(prev => (prev ? { ...prev, [name]: [value] } : prev))
+      const selectedOptions = Array.from(
+        (e.target as HTMLSelectElement).selectedOptions
+      ).map((option) => option.value)
+      setArtisan((prev) => (prev ? { ...prev, [name]: selectedOptions } : prev))
     } else {
-      setArtisan(prev => (prev ? { ...prev, [name]: value } : prev))
+      setArtisan((prev) => (prev ? { ...prev, [name]: value } : prev))
     }
   }
+
+  // Ajoutez cet effet pour récupérer le nombre de notifications :
+  // Dans le useEffect pour les notifications
+  useEffect(() => {
+    if (!token || activeTab === 'notifications') return;
+
+    const fetchUnreadCount = async () => {
+      try {
+        const response = await axios.get(`${apiUrl}/artisans/notifications`, {
+          headers: { Authorization: `Bearer ${token}` },
+          withCredentials: true,
+        });
+        // Vérifiez la structure de la réponse
+        console.log('Notifications response:', response.data);
+
+        // Si l'API retourne un objet avec notifications et unread_count
+        const count = response.data.unread_count || 0;
+        setUnreadCount(count);
+      } catch (error) {
+        console.error("Erreur lors de la récupération des notifications", error);
+      }
+    };
+
+    fetchUnreadCount();
+    const interval = setInterval(fetchUnreadCount, 30000);
+    return () => clearInterval(interval);
+  }, [token, activeTab]);
+
 
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     if (!e.target.files || e.target.files.length === 0) return
@@ -170,29 +208,6 @@ export default function ArtisanDashboard() {
     }
   }
 
-  function handleImagesChange(e: React.ChangeEvent<HTMLInputElement>) {
-    if (!e.target.files) return
-    const files = Array.from(e.target.files)
-    setNewImages(prev => [...prev, ...files])
-  }
-
-  function removeExistingImage(url: string) {
-    setDeletedImageUrls(prev => [...prev, url])
-    if (artisan) {
-      setArtisan(prev => {
-        if (!prev) return prev
-        return {
-          ...prev,
-          images_urls: prev.images_urls.filter(imgUrl => imgUrl !== url),
-        }
-      })
-    }
-  }
-
-  function removeNewImage(index: number) {
-    setNewImages(prev => prev.filter((_, i) => i !== index))
-  }
-
   async function handleUpdate() {
     if (!artisan) return
 
@@ -201,7 +216,6 @@ export default function ArtisanDashboard() {
 
       Object.entries(artisan).forEach(([key, value]) => {
         if (
-          key === 'images_urls' ||
           key === 'avatar_url' ||
           key === 'kbis_url' ||
           key === 'insurance_url'
@@ -212,21 +226,13 @@ export default function ArtisanDashboard() {
         if (typeof value === 'string') {
           formData.append(`artisan[${key}]`, value)
         } else if (Array.isArray(value)) {
-          value.forEach(v => formData.append(`artisan[${key}][]`, v))
+          value.forEach((v) => formData.append(`artisan[${key}][]`, v))
         }
       })
 
       if (kbisFile) formData.append('artisan[kbis]', kbisFile)
       if (insuranceFile) formData.append('artisan[insurance]', insuranceFile)
       if (avatarFile) formData.append('artisan[avatar]', avatarFile)
-
-      newImages.forEach(file => {
-        formData.append('artisan[project_images][]', file)
-      })
-
-      deletedImageUrls.forEach(url => {
-        formData.append('artisan[deleted_image_urls][]', url)
-      })
 
       const res = await axios.put(`${apiUrl}/artisans/me`, formData, {
         headers: {
@@ -244,31 +250,20 @@ export default function ArtisanDashboard() {
         toast.success('Informations mises à jour avec succès !')
         setIsEditing(false)
 
-        async function fetchArtisan() {
-          if (!token) return
-          try {
-            const res = await axios.get(`${apiUrl}/artisans/me`, {
-              headers: { Authorization: `Bearer ${token}` },
-              withCredentials: true,
-            })
-            setArtisan(res.data.artisan)
-
-            if (res.data.plan_info) {
-              const apiPlanInfo = res.data.plan_info
-              setPlanInfo({
-                amount: apiPlanInfo.amount,
-                currency: apiPlanInfo.currency,
-                interval: apiPlanInfo.interval,
-              })
-            } else {
-              setPlanInfo(null)
-            }
-          } catch (error) {
-            toast.error("Impossible de récupérer les infos de l'artisan.")
-          }
+        if (res.data.artisan) {
+          setArtisan(res.data.artisan)
         }
 
-        fetchArtisan()
+        if (res.data.plan_info) {
+          const apiPlanInfo = res.data.plan_info
+          setPlanInfo({
+            amount: apiPlanInfo.amount,
+            currency: apiPlanInfo.currency,
+            interval: apiPlanInfo.interval,
+          })
+        } else {
+          setPlanInfo(null)
+        }
 
         if (res.data.artisan?.avatar_url && user) {
           setUser({
@@ -280,8 +275,6 @@ export default function ArtisanDashboard() {
         setKbisFile(null)
         setInsuranceFile(null)
         setAvatarFile(null)
-        setNewImages([])
-        setDeletedImageUrls([])
       }
     } catch (error) {
       toast.error('Erreur lors de la mise à jour.')
@@ -307,12 +300,14 @@ export default function ArtisanDashboard() {
 
   if (!user) return <p>Chargement...</p>
   if (!artisan) return <p>Chargement des données artisan...</p>
+  if (!token) return <p>Chargement du token...</p>
 
   return (
-    <div className={styles.container}>
+    <div className={styles.artisanDashboard}>
       <ToastContainer />
 
-      <div className={styles.leftColumn}>
+      {/* Section Profil avec Glass Effect */}
+      <section className={styles.profileSection}>
         {!isEditing ? (
           <ArtisanView
             artisan={artisan}
@@ -327,10 +322,6 @@ export default function ArtisanDashboard() {
             setArtisan={setArtisan}
             handleChange={handleChange}
             handleFileChange={handleFileChange}
-            handleImagesChange={handleImagesChange}
-            removeExistingImage={removeExistingImage}
-            removeNewImage={removeNewImage}
-            newImages={newImages}
             isEditing={isEditing}
             expertises={expertises}
             membershipPlans={membershipPlans}
@@ -342,29 +333,74 @@ export default function ArtisanDashboard() {
             setAvatarFile={setAvatarFile}
             handleUpdate={handleUpdate}
             handleCancel={handleCancel}
-            deletedImageUrls={deletedImageUrls}
           />
         )}
-      </div>
+      </section>
 
-      <div className={styles.rightColumn}>
-        <NotificationList onActiveMissionsChange={setActiveMissions} />
-        {activeMissions.length > 0 && (
-          <div style={{ marginTop: '20px' }}>
-            <h4>Suivi de mission</h4>
-            <div style={{ marginBottom: '10px' }}>
-              <strong>Mission en cours :</strong><br />
-              ID : {activeMissions[0].id}<br />
-              Statut : {activeMissions[0].status}
-            </div>
-            <ProgressStepper currentStep={activeMissions[0].status === 'accepted' ? 2 : 3} />
+      {/* Onglets */}
+      <nav className={styles.tabs}>
+        <button
+          className={`${styles.tab} ${activeTab === 'creneaux' ? styles.active : ''}`}
+          onClick={() => setActiveTab('creneaux')}
+        >
+          Créneaux
+        </button>
+        <button
+          className={`${styles.tab} ${activeTab === 'realisations' ? styles.active : ''}`}
+          onClick={() => setActiveTab('realisations')}
+        >
+          Réalisations
+        </button>
+        <button
+          className={`${styles.tab} ${activeTab === 'notifications' ? styles.active : ''}`}
+          onClick={() => {
+            setActiveTab('notifications');
+            setUnreadCount(0);
+          }}
+          style={{ position: 'relative' }}
+        >
+          Notifications
+          {activeTab !== 'notifications' && unreadCount > 0 && (
+            <span className={styles.notificationBadge}>
+              {unreadCount > 9 ? '9+' : unreadCount}
+            </span>
+          )}
+        </button>
+      </nav>
+
+      {/* Contenu des onglets */}
+      <section className={styles.tabContent}>
+        {activeTab === 'creneaux' && (
+          <div className={styles.creneauxContent}>
+            <AvailabilitySlots isEditing={isEditing} />
           </div>
         )}
-        <AvailabilitySlots isEditing={isEditing} />
-      </div>
+        
+        {activeTab === 'realisations' && (
+          <div className={styles.realisationsContent}>
+            {token && (
+              <ProjectImagesManager
+                token={token}
+                isEditing={isEditing}
+              />
+            )}
+          </div>
+        )}
+
+        {activeTab === 'notifications' && (
+          <div className={styles.notificationsContent}>
+            <NotificationList onActiveMissionsChange={setActiveMissions} />
+          </div>
+        )}
+      </section>
     </div>
   )
 }
+
+
+
+
+
 
 
 

@@ -210,7 +210,6 @@ export default function AvailabilitySlots({ isEditing }: Props) {
 
   return (
     <section className={styles.container}>
-      <h2 className={styles.title}>Liste des créneaux</h2>
       <div className={styles.cardsContainer}>
         {slots.map(slot => (
           <div key={slot.id} className={styles.card}>
@@ -248,12 +247,10 @@ export default function AvailabilitySlots({ isEditing }: Props) {
                   value={newSlot.day}
                   onChange={e => setNewSlot({ ...newSlot, day: e.target.value })}
                   required
-                  className={styles.select}
+                  className={styles.selectInput}
                 >
                   {days.slice(1).concat(days[0]).map(day => (
-                    <option key={day} value={day}>
-                      {day}
-                    </option>
+                    <option key={day} value={day}>{day}</option>
                   ))}
                 </select>
               </label>
@@ -263,7 +260,7 @@ export default function AvailabilitySlots({ isEditing }: Props) {
                   type="checkbox"
                   checked={isFullDayUnavailable}
                   onChange={e => setIsFullDayUnavailable(e.target.checked)}
-                  className={styles.checkbox}
+                  className={styles.checkboxInput}
                 />
                 Indisponible
               </label>
@@ -277,8 +274,8 @@ export default function AvailabilitySlots({ isEditing }: Props) {
                     type="time"
                     value={newSlot.start_time}
                     onChange={e => setNewSlot({ ...newSlot, start_time: e.target.value })}
-                    required={!isFullDayUnavailable}
-                    className={styles.input}
+                    required
+                    className={styles.timeInput}
                   />
                 </label>
 
@@ -288,8 +285,8 @@ export default function AvailabilitySlots({ isEditing }: Props) {
                     type="time"
                     value={newSlot.end_time}
                     onChange={e => setNewSlot({ ...newSlot, end_time: e.target.value })}
-                    required={!isFullDayUnavailable}
-                    className={styles.input}
+                    required
+                    className={styles.timeInput}
                   />
                 </label>
               </div>

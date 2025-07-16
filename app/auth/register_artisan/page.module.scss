@@ -1,4 +1,13 @@
+@use "sass:color";
 @import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Raleway:wght@400;700&display=swap');
+
+$primary-color: #5E3E23;
+$secondary-color: #81A04A;
+
+// =========================================
+// Styles existants
+// =========================================
 
 .splitContainer {
   display: flex;
@@ -83,29 +92,65 @@
   margin-bottom: 1rem;
   display: flex;
   flex-direction: column;
+
+  label {
+    font-weight: 400;
+    margin-bottom: 0.25rem;
+    font-size: 0.9rem;
+    color: $primary-color;
+    font-family: 'Raleway', sans-serif;
+  }
+
+  input,
+  select {
+    padding: 0.5rem;
+    border-radius: 6px;
+    border: 1px solid #81A04A;
+    font-size: 1rem;
+    outline: none;
+    color: $primary-color;
+
+    &:focus {
+      border-color: #81A04A;
+      box-shadow: 0 0 0 2px #80a04ab7;
+    }
+  }
 }
 
-.inputGroup label {
-  font-weight: 400;
-  margin-bottom: 0.25rem;
-  font-size: 0.9rem;
-  color: #212121;
-}
-
-.inputGroup input,
-.inputGroup select {
+.fileInput {
   padding: 0.5rem;
-  border-radius: 6px;
-  border: 1px solid #81A04A;
-  font-size: 1rem;
-  outline: none;
+  border: 2px dashed $secondary-color;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: border-color 0.3s ease;
+
+  &:hover {
+    border-color: $primary-color;
+  }
+
+  &::-webkit-file-upload-button {
+    background: $primary-color;
+    color: #fff;
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-family: 'Raleway', sans-serif;
+  }
+
+  &::file-selector-button {
+    background: $primary-color;
+    color: #fff;
+    padding: 0.5rem 1rem;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-family: 'Raleway', sans-serif;
+  }
 }
 
-.inputGroup input:focus,
-.inputGroup select:focus {
-  border-color: #81A04A;
-  box-shadow: 0 0 0 2px #a5b4fc;
-}
 
 .submitButton {
   background-color: #0F78B1;
@@ -117,10 +162,10 @@
   font-size: 1.1rem;
   cursor: pointer;
   transition: background-color 0.3s ease;
-}
 
-.submitButton:hover {
-  background-color: #0b5e8a;
+  &:hover {
+    background-color: #0b5e8a;
+  }
 }
 
 .paymentSection {
@@ -138,10 +183,10 @@
   font-size: 1.1rem;
   cursor: pointer;
   transition: background-color 0.3s ease;
-}
 
-.paymentButton:hover {
-  background-color: #67803b;
+  &:hover {
+    background-color: #67803b;
+  }
 }
 
 .backButton {
@@ -149,7 +194,389 @@
   color: #0F78B1;
   font-size: 0.9rem;
   text-decoration: underline;
-  margin-top: 4%;
+  margin-top: 8%;
+}
+
+// =========================================
+// Modale
+// =========================================
+
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0,0,0,0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.modalContent {
+  background: white;
+  padding: 2rem;
+  border-radius: 1rem;
+  max-width: 800px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+}
+
+.closeButton {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background: transparent;
+  border: none;
+  font-size: 2rem;
+  cursor: pointer;
+  color: #5E3E23;
+}
+
+// =========================================
+// Titre animé
+// =========================================
+
+.h1 {
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: $secondary-color;
+  margin-bottom: 2rem;
+  position: relative;
+  display: inline-block;
+  font-family: 'Quicksand', sans-serif;
+
+  &::after {
+    content: '';
+    display: block;
+    width: 50%;
+    height: 4px;
+    background-color: $primary-color;
+    margin-top: 0.5rem;
+    border-radius: 2px;
+    animation: expand 1s ease-out;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 1.8rem;
+    margin-bottom: 1.2rem;
+  }
+}
+
+@keyframes expand {
+  from {
+    width: 0;
+  }
+  to {
+    width: 50%;
+  }
+}
+
+// =========================================
+// Cartes
+// =========================================
+
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 2rem;
+}
+
+.card {
+  background-color: #fff;
+  border: 2px solid $secondary-color;
+  border-radius: 1rem;
+  padding: 1.5rem;
+  text-align: center;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+  transition: transform 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 400px;
+  position: relative;
+
+  &:hover {
+    transform: translateY(-5px);
+  }
+}
+
+.cardContent {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: color.scale($primary-color, $lightness: -15%);
+}
+
+.recommended {
+  border-color: $primary-color;
+  background-color: #fdf7f1;
+
+  .tag {
+    position: absolute;
+    top: -15px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: $primary-color;
+    color: #fff;
+    padding: 0.3rem 1rem;
+    border-radius: 999px;
+    font-size: 0.9rem;
+    font-weight: bold;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  }
+}
+
+.cardTitle {
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+  color: $primary-color;
+  font-family: 'Quicksand', sans-serif;
+}
+
+.cardList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  font-family: Raleway, sans-serif;
+
+  li {
+    margin-bottom: 0.5rem;
+    font-size: 1rem;
+    text-align: start;
+    display: flex;
+    align-items: flex-start;
+    justify-content: flex-start;
+
+    span {
+      color: $secondary-color;
+      font-weight: bold;
+      margin-right: 0.5rem;
+      font-size: 1.1rem;
+    }
+  }
+}
+
+.bullet {
+  color: $secondary-color;
+}
+
+.cardPrice {
+  font-size: 1.4rem;
+  font-weight: bold;
+  color: #0F78B1;
+}
+
+.intro {
+  font-size: 1.2rem;
+  margin-bottom: 3rem;
+  text-align: center;
+  font-family: Raleway, sans-serif;
+  color: color.scale($primary-color, $lightness: -15%);
+}
+
+// =========================================
+// Étapes formulaire et barre de progression
+// =========================================
+
+.progressWrapper {
+  position: relative;
+  height: 40px;
+  margin-bottom: 2rem;
+}
+
+
+.progressBarContainer {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 100%;
+  height: 6px;
+  background-color: #a4a7ab45;
+  border-radius: 3px;
+  transform: translateY(-50%);
+  z-index: 1;
+}
+
+.progressBar {
+  height: 100%;
+  background-color: #0F78B1;
+  border-radius: 3px;
+  transition: width 0.3s ease;
+  z-index: 2;
+}
+
+.steps {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: absolute;
+  top: 50%;
+  width: 100%;
+  transform: translateY(-50%);
+  z-index: 3;
+  pointer-events: none;
+}
+
+.stepCircle {
+  width: 28px;
+  height: 28px;
+  background-color: #fff;
+  border: 2px solid #d1e6f0;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9rem;
+  font-weight: bold;
+  color: #0F78B1;
+  z-index: 4;
+}
+
+.stepCircle.active {
+  background-color: #0F78B1;
+  color: #fff;
+  border-color: #0F78B1;
+}
+
+.formStep {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.buttonsRow {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.nextButton,
+.prevButton,
+.detailsButton {
+  padding: 0.6rem 1.5rem;
+  font-family: 'Quicksand', sans-serif;
+  font-weight: 600;
+  font-size: 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  border: none;
+  transition: background-color 0.3s ease;
+}
+
+.nextButton {
+  background-color: $secondary-color;
+  color: white;
+
+  &:hover:not(:disabled) {
+    background-color: color.scale($secondary-color, $lightness: -15%);
+  }
+}
+
+.prevButton {
+  background-color: transparent;
+  color: $primary-color;
+  border: 2px solid $primary-color;
+
+  &:hover {
+    background-color: $primary-color;
+    color: white;
+  }
+}
+
+.detailsButton {
+  background-color: transparent;
+  color: $secondary-color;
+  border: 1px solid $secondary-color;
+  align-self: center;
+
+  &:hover {
+    background-color: $secondary-color;
+    color: white;
+  }
+}
+
+.disabledButton {
+  opacity: 0.6;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.radioGroup {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+  flex-wrap: wrap;
+}
+
+.hiddenInput {
+  display: none;
+}
+
+.selectButton {
+  padding: 0.6rem 1.5rem;
+  border: 2px solid $secondary-color;
+  border-radius: 6px;
+  background-color: transparent;
+  color: $secondary-color;
+  font-weight: 400;
+  font-family: 'Quicksand', sans-serif;
+  cursor: pointer;
+  transition: all 0.3s ease;
+
+  &:hover {
+    background-color: color.scale($secondary-color, $lightness: -15%);
+    color: white;
+  }
+}
+
+.selected {
+  background-color: $secondary-color;
+  color: white;
+  border-color: $secondary-color;
+}
+
+
+.paymentStep {
+  text-align: center;
+  padding: 2rem;
+}
+
+.paymentTitle {
+  color: $primary-color;
+  font-family: 'Raleway', sans-serif;
+  font-size: 2rem;
+  margin-bottom: 1rem;
+}
+
+.paymentText {
+  color: $primary-color;
+  font-family: 'Raleway', sans-serif;
+  font-size: 1.1rem;
+  margin-bottom: 2rem;
+}
+
+.payButton {
+  background-color: #0F78B1;
+  color: white;
+  font-weight: 600;
+  font-family: 'Quicksand', sans-serif;
+  font-size: 1rem;
+  border: none;
+  border-radius: 6px;
+  padding: 0.75rem 1.5rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+
+  &:hover {
+    background-color: darken(#0F78B1, 10%);
+  }
 }
 
 

@@ -1,0 +1,79 @@
+$primary-color: #5E3E23;
+$secondary-color: #81A04A;
+
+.h1 {
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: $secondary-color;
+  margin-bottom: 2rem;
+  position: relative;
+  display: inline-block;
+  font-family: 'Quicksand', sans-serif;
+
+  &::after {
+    content: '';
+    display: block;
+    width: 50%;
+    height: 4px;
+    background-color: $primary-color;
+    margin-top: 0.5rem;
+    border-radius: 2px;
+    animation: expand 1s ease-out;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 1.8rem;
+    margin-bottom: 1.2rem;
+  }
+}
+
+.section {
+  margin-bottom: 2.5rem;
+  font-family: 'Quicksand', sans-serif;
+  color: scale-color($primary-color, $lightness: -15%);
+}
+
+.sectionTitle {
+  font-size: 1.8rem;
+  color: $primary-color;
+  margin-bottom: 0.8rem;
+  font-weight: 700;
+  border-bottom: 2px solid $secondary-color;
+  padding-bottom: 0.3rem;
+
+  @media (max-width: 480px) {
+    font-size: 1.5rem;
+  }
+}
+
+.sectionText {
+  font-size: 1.1rem;
+  line-height: 1.6;
+  margin-bottom: 0.6rem;
+  color: scale-color($primary-color, $lightness: 5%);
+
+  strong {
+    color: $primary-color;
+  }
+
+  a {
+    color: $secondary-color;
+    text-decoration: underline;
+    transition: color 0.3s ease;
+
+    &:hover,
+    &:focus {
+      color: scale-color($secondary-color, $lightness: -10%);
+    }
+  }
+}
+
+@keyframes expand {
+  from {
+    width: 0;
+  }
+  to {
+    width: 50%;
+  }
+}
+

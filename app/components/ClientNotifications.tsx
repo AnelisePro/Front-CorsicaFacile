@@ -4,7 +4,7 @@ import React from 'react'
 import axios from 'axios'
 import { toast } from 'react-toastify'
 import Link from 'next/link'
-import ProgressStepper from './ProgressStepper'
+import styles from './ClientNotifications.module.scss'
 
 const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
 
@@ -14,8 +14,9 @@ interface Notification {
   link: string
   artisan_id: number
   artisan_name: string
-  status: 'pending' | 'accepted' | 'refused' | 'completed'
+  status: 'pending' | 'accepted' | 'refused' | 'in_progress' | 'completed'
   besoin_id: number
+  annonce_title: string
 }
 
 interface Props {
@@ -24,8 +25,7 @@ interface Props {
 }
 
 export default function ClientNotifications({ notifications, setNotifications }: Props) {
-
-  const handleResponse = async (id: number, action: 'accepted' | 'refused' | 'completed') => {
+  const handleResponse = async (id: number, action: 'accepted' | 'refused') => {
     try {
       const token = localStorage.getItem('clientToken')
       if (!token) throw new Error('Token manquant')
@@ -43,10 +43,57 @@ export default function ClientNotifications({ notifications, setNotifications }:
           notif.id === id ? { ...notif, status: action } : notif
         )
       )
-      toast.success(`Demande ${action}`)
+      toast.success(`Demande ${action === 'accepted' ? 'acceptée' : 'refusée'}`)
     } catch (error) {
       console.error(error)
       toast.error('Erreur lors de la mise à jour de la notification.')
+    }
+  }
+
+  const handleDeleteNotification = async (id: number) => {
+    try {
+      const token = localStorage.getItem('clientToken')
+      if (!token) throw new Error('Token manquant')
+
+      await axios.delete(`${apiUrl}/client_notifications/${id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+
+      setNotifications((prev) => prev.filter((notif) => notif.id !== id))
+      toast.success('Notification supprimée')
+    } catch (error) {
+      console.error(error)
+      toast.error('Erreur lors de la suppression de la notification.')
+    }
+  }
+
+  const getStatusLabel = (status: string) => {
+    switch (status) {
+      case 'accepted':
+        return 'Acceptée'
+      case 'refused':
+        return 'Refusée'
+      case 'in_progress':
+        return 'En Cours'
+      case 'completed':
+        return 'Terminée'
+      default:
+        return 'En attente'
+    }
+  }
+
+  const getStatusClassName = (status: string) => {
+    switch (status) {
+      case 'accepted':
+        return styles.statusAccepted
+      case 'refused':
+        return styles.statusRefused
+      case 'in_progress':
+        return styles.statusInProgress
+      case 'completed':
+        return styles.statusCompleted
+      default:
+        return styles.statusPending
     }
   }
 
@@ -54,46 +101,61 @@ export default function ClientNotifications({ notifications, setNotifications }:
 
   return (
     <div>
-      <h2>Notifications</h2>
-      <ul>
+      <ul className={styles.notificationList}>
         {notifications.map((notif) => (
-          <li key={notif.id} style={{ marginBottom: '1rem' }}>
-            <p>{notif.message}</p>
-            <Link href={notif.link}>
-              Voir profil artisan
-            </Link>
-            <div>
-              {notif.status === 'pending' && (
-                <>
-                  <button onClick={() => handleResponse(notif.id, 'accepted')}>Accepter</button>
-                  <button onClick={() => handleResponse(notif.id, 'refused')}>Refuser</button>
-                </>
-              )}
+          <li key={notif.id} className={styles.notificationItem}>
+            <div className={styles.notificationContent}>
+              <p className={styles.notificationMessage}>
+                Un artisan est intéressé par votre annonce{' '}
+                <span className={styles.annonceTitle}>{notif.annonce_title}</span>
+              </p>
+              
+              <Link href={notif.link} className={styles.profileLink}>
+                Voir profil artisan
+              </Link>
 
-              {notif.status === 'accepted' && (
-                <div>
-                  <ProgressStepper currentStep={2} />
-                  <button onClick={() => handleResponse(notif.id, 'completed')}>
-                    Marquer comme terminée
+              <div className={styles.statusTag}>
+                <span className={`${styles.statusBadge} ${getStatusClassName(notif.status)}`}>
+                  {getStatusLabel(notif.status)}
+                </span>
+              </div>
+
+              {notif.status === 'pending' && (
+                <div className={styles.actionButtons}>
+                  <button
+                    onClick={() => handleResponse(notif.id, 'accepted')}
+                    className={styles.acceptButton}
+                  >
+                    Accepter
+                  </button>
+                  <button
+                    onClick={() => handleResponse(notif.id, 'refused')}
+                    className={styles.refuseButton}
+                  >
+                    Refuser
                   </button>
                 </div>
               )}
-
-              {notif.status === 'completed' && (
-                <div>
-                  <ProgressStepper currentStep={3} />
-                  <p>Mission terminée ✅</p>
-                </div>
-              )}
-
-              {notif.status === 'refused' && <p>Statut : Refusée</p>}
             </div>
+
+            <button
+              onClick={() => handleDeleteNotification(notif.id)}
+              aria-label="Supprimer la notification"
+              className={styles.deleteButton}
+            >
+              &times;
+            </button>
           </li>
         ))}
       </ul>
     </div>
   )
 }
+
+
+
+
+
 
 
 

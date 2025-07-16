@@ -1,0 +1,119 @@
+'use client'
+
+import React from 'react'
+import axios from 'axios'
+import { toast } from 'react-toastify'
+import styles from './MissionProgressBar.module.scss'
+
+interface MissionProgressBarProps {
+  status: 'accepted' | 'in_progress' | 'completed'
+  notificationId: number
+  onStatusChange?: (newStatus: 'accepted' | 'in_progress' | 'completed') => void
+  isArtisan?: boolean // Ajoutez cette prop pour distinguer les utilisateurs
+}
+
+const MissionProgressBar = ({
+  status,
+  notificationId,
+  onStatusChange,
+  isArtisan = false // Valeur par défaut
+}: MissionProgressBarProps) => {
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
+
+  const getCurrentStep = () => {
+    switch(status) {
+      case 'accepted': return 0
+      case 'in_progress': return 1
+      case 'completed': return 2
+      default: return -1
+    }
+  }
+
+  const currentStep = getCurrentStep()
+
+  const steps = [
+    { id: 0, label: 'Acceptée', status: 'accepted' },
+    { id: 1, label: 'En cours', status: 'in_progress' },
+    { id: 2, label: 'Terminée', status: 'completed' }
+  ]
+
+  // Fonction générique pour mettre à jour le statut - seulement pour les clients
+  const updateMissionStatus = async (newStatus: 'in_progress' | 'completed') => {
+    if (isArtisan) return // Bloque l'action pour les artisans
+
+    try {
+      const token = localStorage.getItem('clientToken')
+      if (!token) {
+        toast.error('Vous devez être connecté pour effectuer cette action')
+        return
+      }
+
+      const response = await axios.put(
+        `${apiUrl}/client_notifications/${notificationId}`,
+        { client_notification: { status: newStatus } },
+        { headers: { Authorization: `Bearer ${token}` } }
+      )
+
+      if (response.status === 200) {
+        const messages = {
+          'in_progress': 'La mission a été marquée comme En Cours par le client',
+          'completed': 'La mission a été marquée comme terminée par le client'
+        }
+
+        toast.success(messages[newStatus])
+
+        if (onStatusChange) {
+          onStatusChange(newStatus)
+        }
+
+        setTimeout(() => {
+          window.location.reload()
+        }, 2000)
+      }
+    } catch (error) {
+      console.error('Erreur lors de la mise à jour du statut:', error)
+      toast.error('Erreur lors de la mise à jour du statut de la mission')
+    }
+  }
+
+  return (
+    <div className={styles.progressContainer}>
+      <div className={styles.stepsContainer}>
+        {steps.map((step, index) => {
+          const isActive = step.id <= currentStep
+          const isCurrent = step.id === currentStep
+
+          // Désactive complètement la cliquabilité pour les artisans
+          const isClickable = !isArtisan && (
+            (step.status === 'in_progress' && status === 'accepted') ||
+            (step.status === 'completed' && (status === 'accepted' || status === 'in_progress'))
+          )
+
+          return (
+            <div key={step.id} className={styles.stepItem}>
+              <div
+                className={`${styles.stepCircle} ${isActive ? styles.active : styles.inactive} ${isCurrent ? styles.current : ''}`}
+                style={isClickable ? { cursor: 'pointer' } : { cursor: 'default' }}
+                title={isClickable ? `Cliquez pour marquer comme ${step.label}` : ''}
+              >
+                {step.id + 1}
+              </div>
+              <div className={`${styles.stepLabel} ${isActive ? styles.activeLabel : ''}`}>
+                {step.label}
+              </div>
+              {index < steps.length - 1 && (
+                <div className={`${styles.stepConnector} ${isActive ? styles.activeConnector : ''}`}></div>
+              )}
+            </div>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
+
+export default MissionProgressBar
+
+
+
+

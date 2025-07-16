@@ -1,0 +1,202 @@
+.notificationList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.notificationItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 25px;
+  border: 1px solid rgba(129, 160, 74, 0.2);
+  border-radius: 15px;
+  background: #FEFBF4;
+  box-shadow: 0 5px 20px rgba(33, 33, 33, 0.08);
+  transition: all 0.3s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(33, 33, 33, 0.12);
+    border-color: #81A04A;
+  }
+
+  @media (max-width: 768px) {
+    padding: 20px;
+  }
+}
+
+.notificationContent {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.notificationMessage {
+  font-size: 15px;
+  margin: 0;
+  color: #212121;
+  font-weight: 500;
+  font-family: 'Nunito', sans-serif;
+  line-height: 1.5;
+}
+
+.profileLink {
+  color: #0F78B1;
+  text-decoration: none;
+  font-weight: 600;
+  font-family: 'Nunito', sans-serif;
+  transition: color 0.3s ease;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.statusTag {
+  display: flex;
+  align-items: center;
+  margin-top: 5px;
+}
+
+.statusBadge {
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  font-family: 'Quicksand', sans-serif;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  transition: all 0.3s ease;
+}
+
+// 🎨 Mêmes couleurs que NotificationList
+.statusPending {
+  background-color: rgba(243, 207, 96, 0.2);
+  color: #F3CF60;
+}
+
+.statusAccepted {
+  background-color: rgba(129, 160, 74, 0.2);
+  color: #81A04A;
+}
+
+.statusInProgress {
+  background-color: rgba(255, 165, 0, 0.2);
+  color: #FFA500;
+}
+
+.statusCompleted {
+  background-color: rgba(119, 123, 120, 0.31); // #777b784f équivalent
+  color: #777b78;
+}
+
+.statusRefused {
+  background-color: rgba(220, 53, 69, 0.2);
+  color: #DC3545;
+}
+
+.actionButtons {
+  display: flex;
+  gap: 12px;
+  margin-top: 15px;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    gap: 8px;
+  }
+}
+
+.acceptButton {
+  background: linear-gradient(135deg, #81A04A 0%, #0F78B1 100%);
+  color: #FEFBF4;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: 'Nunito', sans-serif;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(129, 160, 74, 0.3);
+
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(129, 160, 74, 0.4);
+  }
+
+  @media (max-width: 768px) {
+    width: 100%;
+  }
+}
+
+.refuseButton {
+  background-color: #5E3E23;
+  color: #FEFBF4;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: 'Nunito', sans-serif;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(94, 62, 35, 0.3);
+
+  &:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(94, 62, 35, 0.4);
+  }
+
+  @media (max-width: 768px) {
+    width: 100%;
+  }
+}
+
+.deleteButton {
+  top: 0.5rem;
+  right: 0.5rem;
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  color: #999;
+  cursor: pointer;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+  z-index: 10;
+
+  &:hover {
+    background-color: #f8f9fa;
+    color: #dc3545;
+    transform: scale(1.1);
+  }
+
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(220, 53, 69, 0.2);
+  }
+}
+
+.annonceTitle {
+  font-weight: 600;
+  font-family: 'Quicksand', sans-serif;
+  color: #0F78B1;
+  font-style: italic;
+  background-color: rgba(15, 120, 177, 0.1);
+  padding: 4px 8px;
+  border-radius: 6px;
+  border: 1px solid rgba(15, 120, 177, 0.2);
+  transition: all 0.3s ease;
+}
+
+
+
