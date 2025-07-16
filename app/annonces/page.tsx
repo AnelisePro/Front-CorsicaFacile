@@ -23,7 +23,6 @@ type Besoin = {
   }
 }
 
-// Fonction pour extraire le nom du fichier depuis une URL ou clé
 const extractFilename = (urlOrKey: string) => {
   try {
     const url = new URL(urlOrKey)
@@ -33,7 +32,6 @@ const extractFilename = (urlOrKey: string) => {
   }
 }
 
-// Détermine le content-type selon l'extension du fichier
 const getContentType = (filename: string) => {
   if (filename.endsWith('.svg')) return 'image/svg+xml'
   if (filename.endsWith('.png')) return 'image/png'
@@ -54,34 +52,27 @@ export default function ArtisansAnnonces() {
   const router = useRouter()
   const searchParams = useSearchParams()
 
-  // Chargement des besoins de l'artisan
   useEffect(() => {
-    if (typeof window === 'undefined') return
-
     const artisanToken = localStorage.getItem('artisanToken')
     if (!artisanToken) {
       router.push('/auth/login_artisan')
       return
     }
 
-    axios
-      .get(`${apiUrl}/artisans/besoins`, {
-        headers: { Authorization: `Bearer ${artisanToken}` },
-      })
-      .then((res) => setBesoins(res.data))
-      .catch(() => setError('Erreur lors du chargement des annonces'))
-      .finally(() => setLoading(false))
+    axios.get(`${apiUrl}/artisans/besoins`, {
+      headers: { Authorization: `Bearer ${artisanToken}` },
+    })
+    .then((res) => setBesoins(res.data))
+    .catch(() => setError('Erreur lors du chargement des annonces'))
+    .finally(() => setLoading(false))
   }, [router])
 
-  // Chargement des expertises disponibles pour filtre
   useEffect(() => {
-    axios
-      .get(`${apiUrl}/api/expertises`)
+    axios.get(`${apiUrl}/api/expertises`)
       .then((res) => setExpertises(res.data))
       .catch((err) => console.error('Erreur lors du chargement des expertises', err))
   }, [])
 
-  // À chaque fois que besoins changent ou que le paramètre id change, sélectionner le besoin
   useEffect(() => {
     const idParam = searchParams.get('id')
     if (idParam && besoins.length > 0) {
@@ -90,7 +81,6 @@ export default function ArtisansAnnonces() {
     }
   }, [searchParams, besoins])
 
-  // Fermer dropdown si clic à l'extérieur
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       const dropdown = document.querySelector(`.${styles.dropdown}`)
@@ -104,7 +94,6 @@ export default function ArtisansAnnonces() {
     }
   }, [])
 
-  // Filtre des besoins selon expertise et localisation
   const filteredBesoins = besoins.filter((b) => {
     const matchesExpertise = selectedExpertise ? b.type_prestation === selectedExpertise : true
     const matchesLocation = searchLocation
@@ -121,10 +110,10 @@ export default function ArtisansAnnonces() {
       <h1 className={styles.title}>Toutes les annonces</h1>
 
       <div className={styles.filters}>
-        <div className={styles.dropdown}>
+        <div className={styles.dropdownContainer}>
           <button
             className={styles.dropdownToggle}
-            onClick={() => setIsDropdownOpen((prev) => !prev)}
+            onClick={() => setIsDropdownOpen(prev => !prev)}
             aria-haspopup="listbox"
             aria-expanded={isDropdownOpen}
             type="button"
@@ -139,8 +128,6 @@ export default function ArtisansAnnonces() {
                   setIsDropdownOpen(false)
                 }}
                 role="option"
-                tabIndex={0}
-                onKeyDown={(e) => e.key === 'Enter' && (setSelectedExpertise(''), setIsDropdownOpen(false))}
               >
                 Tous les types
               </li>
@@ -152,8 +139,6 @@ export default function ArtisansAnnonces() {
                     setIsDropdownOpen(false)
                   }}
                   role="option"
-                  tabIndex={0}
-                  onKeyDown={(e) => e.key === 'Enter' && (setSelectedExpertise(exp), setIsDropdownOpen(false))}
                 >
                   {exp}
                 </li>
@@ -172,7 +157,9 @@ export default function ArtisansAnnonces() {
         />
       </div>
 
-      {filteredBesoins.length === 0 && <p className={styles.noAnnonce}>Aucune annonce pour le moment.</p>}
+      {filteredBesoins.length === 0 && (
+        <p className={styles.noAnnonce}>Aucune annonce pour le moment.</p>
+      )}
 
       <div className={styles.grid}>
         {filteredBesoins.map((b) => (
@@ -227,9 +214,7 @@ export default function ArtisansAnnonces() {
             </div>
 
             <h3 className={styles.contactTitle}>Contacter le client</h3>
-            <p>
-              {selectedBesoin.client.first_name} {selectedBesoin.client.last_name}
-            </p>
+            <p>{selectedBesoin.client.first_name} {selectedBesoin.client.last_name}</p>
             <p>{selectedBesoin.client.email}</p>
             <p>{selectedBesoin.client.phone}</p>
           </div>
@@ -238,6 +223,7 @@ export default function ArtisansAnnonces() {
     </div>
   )
 }
+
 
 
 
