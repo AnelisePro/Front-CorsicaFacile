@@ -9,6 +9,7 @@ import { toast, ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 import ClientNotifications from '../../components/ClientNotifications'
 import MissionProgressBar from '../../components/MissionProgressBar'
+import MessagingTab from '../../components/MessagingTab'
 
 const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
 
@@ -65,7 +66,7 @@ export default function ClientDashboard() {
   const [besoins, setBesoins] = useState<Besoin[]>([])
   const [editingBesoinId, setEditingBesoinId] = useState<number | null>(null)
   const [notifications, setNotifications] = useState<Notification[]>([])
-  const [activeTab, setActiveTab] = useState<'annonces' | 'notifications' | 'points'>('annonces')
+  const [activeTab, setActiveTab] = useState<'annonces' | 'notifications' | 'points' | 'messagerie'>('annonces')
   const [unreadCount, setUnreadCount] = useState<number>(0)
 
   const [editForm, setEditForm] = useState<{
@@ -662,6 +663,12 @@ const formatCreneauFromObject = (schedule: Schedule | any, besoinId?: number) =>
         >
           Points
         </button>
+        <button
+          className={`${styles.tab} ${activeTab === 'messagerie' ? styles.active : ''}`}
+          onClick={() => setActiveTab('messagerie')}
+        >
+          Messagerie
+        </button>
       </nav>
 
       {/* Contenu des onglets */}
@@ -821,6 +828,12 @@ const formatCreneauFromObject = (schedule: Schedule | any, besoinId?: number) =>
 
         {activeTab === 'points' && (
           <p>Fonctionnalité Points à implémenter</p>
+        )}
+
+        {activeTab === 'messagerie' && (
+          <div className={styles.messagerieContent}>
+            <MessagingTab />
+          </div>
         )}
       </section>
     </main>

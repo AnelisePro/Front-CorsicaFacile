@@ -11,12 +11,11 @@ const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
 type Commune = {
   nom: string
   codesPostaux: string[]
+  codeDepartement: string
 }
 
 async function fetchJSON<T>(url: string): Promise<T> {
-  const res = await fetch(url, {
-    credentials: 'include',
-  })
+  const res = await fetch(url)
   if (!res.ok) throw new Error('Erreur réseau')
   return res.json()
 }
@@ -101,15 +100,26 @@ export default function SearchForm({ defaultExpertise = '', defaultLocation = ''
 
     try {
       const isPostalCode = /^\d+$/.test(value)
+      
+      // Utiliser votre propre API endpoint
       const endpoint = isPostalCode
-        ? `https://geo.api.gouv.fr/communes?codePostal=${value}&fields=nom,codesPostaux&limit=10`
-        : `https://geo.api.gouv.fr/communes?nom=${value}&fields=nom,codesPostaux&limit=10`
+        ? `/api/communes?codePostal=${value}`
+        : `/api/communes?nom=${value}`
 
       const data = await fetchJSON<Commune[]>(endpoint)
 
-      const formatted = isPostalCode
-        ? [...new Set(data.flatMap((c) => c.codesPostaux.filter(cp => cp.startsWith(value))))]
-        : [...new Set(data.map((c) => c.nom))]
+      let formatted: string[]
+      if (isPostalCode) {
+        formatted = [
+          ...new Set(
+            data.flatMap(c => 
+              c.codesPostaux.filter(cp => cp.startsWith(value))
+            )
+          )
+        ]
+      } else {
+        formatted = [...new Set(data.map(c => c.nom))]
+      }
 
       setLocationSuggestions(formatted)
       setShowLocationSuggestions(true)
@@ -151,19 +161,23 @@ export default function SearchForm({ defaultExpertise = '', defaultLocation = ''
           <FiMapPin className={styles.icon} />
           <input
             type="text"
-            placeholder="Ville ou code postal"
+            placeholder="Ville ou code postal (Corse uniquement)"
             value={location}
             onChange={(e) => handleLocationChange(e.target.value)}
             required
           />
           {showLocationSuggestions && (
             <ul className={styles.suggestions}>
-              {locationSuggestions.map((entry) => (
-                <li key={entry} onClick={() => {
-                  setLocation(entry)
-                  setShowLocationSuggestions(false)
-                }}>{entry}</li>
-              ))}
+              {locationSuggestions.length > 0 ? (
+                locationSuggestions.map((entry) => (
+                  <li key={entry} onClick={() => {
+                    setLocation(entry)
+                    setShowLocationSuggestions(false)
+                  }}>{entry}</li>
+                ))
+              ) : (
+                <li className={styles.noResults}>Aucune commune corse trouvée</li>
+              )}
             </ul>
           )}
         </div>
@@ -178,6 +192,8 @@ export default function SearchForm({ defaultExpertise = '', defaultLocation = ''
     </form>
   )
 }
+
+
 
 
 

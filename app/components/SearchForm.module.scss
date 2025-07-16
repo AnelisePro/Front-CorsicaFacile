@@ -174,4 +174,17 @@ $blur-bg: rgba(255, 255, 255, 0.35);
   }
 }
 
+// Dans votre fichier SearchForm.module.scss
+.noResults {
+  padding: 8px 12px;
+  color: #666;
+  font-style: italic;
+  cursor: default;
+  
+  &:hover {
+    background-color: transparent;
+  }
+}
+
+
 

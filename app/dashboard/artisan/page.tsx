@@ -11,6 +11,7 @@ import AvailabilitySlots from '../../components/AvailabilitySlots'
 import NotificationList from '../../components/NotificationList'
 import ProjectImagesManager from '../../components/ProjectImagesManager'
 import ImageModal from '../../components/ImageModal'
+import MessagingTab from '../../components/MessagingTab'
 import styles from './page.module.scss'
 
 const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
@@ -55,7 +56,7 @@ const intervalTranslations = {
 
 export default function ArtisanDashboard() {
   const { user, setUser } = useAuth()
-  const [activeTab, setActiveTab] = useState<'notifications' | 'creneaux' | 'realisations'>('creneaux')
+  const [activeTab, setActiveTab] = useState<'notifications' | 'creneaux' | 'realisations' | 'messagerie'>('creneaux')
   const [token, setToken] = useState<string | null>(null)
   const [artisan, setArtisan] = useState<Artisan | null>(null)
   const [planInfo, setPlanInfo] = useState<PlanInfo | null>(null)
@@ -412,6 +413,12 @@ export default function ArtisanDashboard() {
             </span>
           )}
         </button>
+        <button
+          className={`${styles.tab} ${activeTab === 'messagerie' ? styles.active : ''}`}
+          onClick={() => setActiveTab('messagerie')}
+        >
+          Messagerie
+        </button>
       </nav>
 
       {/* Contenu des onglets */}
@@ -437,6 +444,12 @@ export default function ArtisanDashboard() {
         {activeTab === 'notifications' && (
           <div className={styles.notificationsContent}>
             <NotificationList onActiveMissionsChange={setActiveMissions} />
+          </div>
+        )}
+
+        {activeTab === 'messagerie' && (
+          <div className={styles.messagerieContent}>
+            <MessagingTab />
           </div>
         )}
       </section>

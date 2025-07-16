@@ -7,6 +7,7 @@ import { FaMapMarkerAlt } from 'react-icons/fa'
 import Image from 'next/image'
 import styles from './page.module.scss'
 import { useAuth } from '../../auth/AuthContext'
+import { toast } from 'react-toastify'
 
 type ProjectImageType = {
   id: number
@@ -40,6 +41,7 @@ export default function ArtisanProfilePage() {
   const [artisan, setArtisan] = useState<ArtisanDetails | null>(null)
   const [availabilitySlots, setAvailabilitySlots] = useState<AvailabilitySlotType[]>([])
   const [selectedImage, setSelectedImage] = useState<string | null>(null)
+  const [messageContent, setMessageContent] = useState('')
 
   useEffect(() => {
     if (!params?.id) return
@@ -90,12 +92,58 @@ export default function ArtisanProfilePage() {
     return { dayName, slotText: `${formatHour(start)} - ${formatHour(end)}` }
   }
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    alert("Message envoyé ! (fonctionnalité à implémenter)")
-  }
-
   const dayIndexMondayFirst = (day: number) => (day === 0 ? 7 : day)
+
+  // Fonction pour créer/récupérer une conversation et envoyer un message
+  const sendMessage = async (message: string) => {
+    try {
+      if (!artisan) {
+        toast.error('Informations artisan non disponibles')
+        return
+      }
+
+      const token = localStorage.getItem('clientToken')
+      if (!token) {
+        toast.error('Vous devez être connecté pour envoyer un message')
+        return
+      }
+
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
+
+      // 1. Créer ou récupérer la conversation
+      const conversationResponse = await axios.post(
+        `${apiUrl}/clients/conversations`,
+        {
+          artisan_id: artisan.id
+        },
+        {
+          headers: { Authorization: `Bearer ${token}` }
+        }
+      )
+
+      const conversationId = conversationResponse.data.id
+
+      // 2. Envoyer le message dans cette conversation
+      const messageResponse = await axios.post(
+        `${apiUrl}/clients/conversations/${conversationId}/send_message`,
+        {
+          message: {
+            content: message
+          }
+        },
+        {
+          headers: { Authorization: `Bearer ${token}` }
+        }
+      )
+
+      toast.success('Message envoyé avec succès !')
+      setMessageContent('') // Réinitialiser le state
+      return messageResponse.data
+    } catch (error) {
+      console.error('Erreur lors de l\'envoi du message:', error)
+      toast.error('Erreur lors de l\'envoi du message')
+    }
+  }
 
   if (!artisan) return <p>Chargement du profil…</p>
 
@@ -213,16 +261,40 @@ export default function ArtisanProfilePage() {
           <div className={styles.card}>
             <h2>Contacter l'artisan</h2>
             {user && user.role === 'client' ? (
-              <div className={styles.contactInfo}>
-                <p>Email : <a href={`mailto:${artisan.email}`}>{artisan.email}</a></p>
-                <p>Téléphone : <a href={`tel:${artisan.phone}`}>{artisan.phone}</a></p>
+              <div>
+                <div className={styles.contactInfo}>
+                  <p>Email : <a href={`mailto:${artisan.email}`}>{artisan.email}</a></p>
+                  <p>Téléphone : <a href={`tel:${artisan.phone}`}>{artisan.phone}</a></p>
+                </div>
+                
+                <div className={styles.messageForm}>
+                  <h3>Envoyer un message via notre messagerie</h3>
+                  <form onSubmit={async (e) => {
+                    e.preventDefault()
+                    if (messageContent.trim()) {
+                      await sendMessage(messageContent)
+                    }
+                  }}>
+                    <textarea
+                      value={messageContent}
+                      onChange={(e) => setMessageContent(e.target.value)}
+                      placeholder="Écrivez votre message ici..."
+                      required
+                      rows={4}
+                      className={styles.messageTextarea}
+                    />
+                    <button type="submit" className={styles.sendButton}>
+                      Envoyer le message
+                    </button>
+                  </form>
+                </div>
               </div>
             ) : (
               <button
                 className={styles.loginButton}
                 onClick={() => router.push('/auth/login_client')}
               >
-                Connectez-vous pour voir les coordonnées
+                Connectez-vous pour contacter l'artisan
               </button>
             )}
           </div>
@@ -231,6 +303,7 @@ export default function ArtisanProfilePage() {
     </div>
   )
 }
+
 
 
 
