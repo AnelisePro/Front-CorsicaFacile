@@ -66,6 +66,7 @@ export default function ClientDashboard() {
   const [editingBesoinId, setEditingBesoinId] = useState<number | null>(null)
   const [notifications, setNotifications] = useState<Notification[]>([])
   const [activeTab, setActiveTab] = useState<'annonces' | 'notifications' | 'points'>('annonces')
+  const [unreadCount, setUnreadCount] = useState<number>(0)
 
   const [editForm, setEditForm] = useState<{
     type_prestation: string,
@@ -171,6 +172,39 @@ export default function ClientDashboard() {
 
     fetchNotifications()
   }, [])
+
+  // Indicateur de notifications
+  useEffect(() => {
+  if (activeTab === 'notifications') return
+
+  const fetchUnreadCount = async () => {
+    try {
+      const token = localStorage.getItem('clientToken')
+      if (!token) return
+
+      const response = await axios.get(`${apiUrl}/client_notifications`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      
+      const notificationsData = response.data.notifications || []
+      
+      // Compter les notifications qui demandent une action (pending)
+      const pendingNotifications = notificationsData.filter((notif: Notification) => 
+        notif.status === 'pending'
+      )
+      
+      setUnreadCount(pendingNotifications.length)
+    } catch (error) {
+      console.error("Erreur lors de la récupération des notifications", error)
+    }
+  }
+
+  fetchUnreadCount()
+  // Actualiser toutes les 30 secondes
+  const interval = setInterval(fetchUnreadCount, 30000)
+  return () => clearInterval(interval)
+}, [activeTab])
+
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!client) return
@@ -602,19 +636,28 @@ const formatCreneauFromObject = (schedule: Schedule | any, besoinId?: number) =>
       {/* Onglets */}
       <nav className={styles.tabs}>
         <button
-          className={activeTab === 'annonces' ? styles.active : ''}
+          className={`${styles.tab} ${activeTab === 'annonces' ? styles.active : ''}`}
           onClick={() => setActiveTab('annonces')}
         >
-          Annonces
+          Mes Annonces
         </button>
         <button
-          className={activeTab === 'notifications' ? styles.active : ''}
-          onClick={() => setActiveTab('notifications')}
+          className={`${styles.tab} ${activeTab === 'notifications' ? styles.active : ''}`}
+          onClick={() => {
+            setActiveTab('notifications')
+            setUnreadCount(0)
+          }}
+          style={{ position: 'relative' }}
         >
           Notifications
+          {activeTab !== 'notifications' && unreadCount > 0 && (
+            <span className={styles.notificationBadge}>
+              {unreadCount > 9 ? '9+' : unreadCount}
+            </span>
+          )}
         </button>
         <button
-          className={activeTab === 'points' ? styles.active : ''}
+          className={`${styles.tab} ${activeTab === 'points' ? styles.active : ''}`}
           onClick={() => setActiveTab('points')}
         >
           Points

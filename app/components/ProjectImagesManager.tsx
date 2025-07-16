@@ -13,20 +13,30 @@ type ProjectImage = {
 type Props = {
   token: string | null
   isEditing?: boolean
+  onImageClick: (image: ProjectImage, images: ProjectImage[]) => void
 }
 
 const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
 
-export default function ProjectImagesManager({ token, isEditing = false }: Props) {
+export default function ProjectImagesManager({ token, isEditing = false, onImageClick }: Props) {
   const [images, setImages] = useState<ProjectImage[]>([])
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [error, setError] = useState<string | null>(null)
-  const [selectedImage, setSelectedImage] = useState<ProjectImage | null>(null)
-  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null)
+  const [uploadSuccess, setUploadSuccess] = useState(false)
 
   useEffect(() => {
     fetchImages()
   }, [])
+
+  // Nettoyage de l'URL de prévisualisation
+  useEffect(() => {
+    return () => {
+      if (previewUrl) {
+        URL.revokeObjectURL(previewUrl)
+      }
+    }
+  }, [previewUrl])
 
   async function fetchImages() {
     if (!token) {
@@ -64,6 +74,16 @@ export default function ProjectImagesManager({ token, isEditing = false }: Props
       setImages((prev) => [...prev, res.data])
       setSelectedFile(null)
       setError(null)
+      
+      // Nettoyage de la prévisualisation
+      if (previewUrl) {
+        URL.revokeObjectURL(previewUrl)
+      }
+      setPreviewUrl(null)
+      
+      // Affichage du message de succès
+      setUploadSuccess(true)
+      setTimeout(() => setUploadSuccess(false), 3000)
     } catch (err) {
       setError("Erreur lors de l'upload de l'image.")
     }
@@ -87,18 +107,25 @@ export default function ProjectImagesManager({ token, isEditing = false }: Props
 
   function handleFileChange(e: ChangeEvent<HTMLInputElement>) {
     if (e.target.files && e.target.files.length > 0) {
-      setSelectedFile(e.target.files[0])
+      const file = e.target.files[0]
+      setSelectedFile(file)
+      
+      // Nettoyage de l'ancienne prévisualisation
+      if (previewUrl) {
+        URL.revokeObjectURL(previewUrl)
+      }
+      
+      // Création de la nouvelle prévisualisation
+      const objectUrl = URL.createObjectURL(file)
+      setPreviewUrl(objectUrl)
+      setUploadSuccess(false)
     }
   }
 
-  const openModal = (image: ProjectImage) => {
-    setSelectedImage(image)
-    setIsModalOpen(true)
-  }
-
-  const closeModal = () => {
-    setIsModalOpen(false)
-    setSelectedImage(null)
+  const handleImageClick = (image: ProjectImage) => {
+    if (!isEditing) {
+      onImageClick(image, images)
+    }
   }
 
   return (
@@ -119,7 +146,7 @@ export default function ProjectImagesManager({ token, isEditing = false }: Props
                   width={300}
                   height={200}
                   style={{ objectFit: 'cover', cursor: 'pointer' }}
-                  onClick={() => !isEditing && openModal(img)}
+                  onClick={() => handleImageClick(img)}
                 />
                 {isEditing && (
                   <button
@@ -140,46 +167,57 @@ export default function ProjectImagesManager({ token, isEditing = false }: Props
       )}
 
       {isEditing && (
-        <div className={styles.uploadControls}>
-          <label className={`${styles.fileInputLabel} ${selectedFile ? styles.hasFile : ''}`}>
-            <input
-              type="file"
-              onChange={handleFileChange}
-              className={styles.hiddenFileInput}
-              accept="image/*"
-            />
-            {selectedFile ? selectedFile.name : 'Choisir une image'}
-          </label>
-          <button
-            onClick={handleUpload}
-            disabled={!selectedFile}
-            className={styles.uploadButton}
-          >
-            Ajouter une image
-          </button>
-        </div>
-      )}
-
-      {/* Modal pour afficher l'image en grand */}
-      {isModalOpen && selectedImage && (
-        <div className={styles.modalOverlay} onClick={closeModal}>
-          <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
-            <button className={styles.closeButton} onClick={closeModal}>
-              ✕
+        <div className={styles.uploadSection}>
+          <div className={styles.uploadControls}>
+            <label className={`${styles.fileInputLabel} ${selectedFile ? styles.hasFile : ''}`}>
+              <input
+                type="file"
+                onChange={handleFileChange}
+                className={styles.hiddenFileInput}
+                accept="image/*"
+              />
+              {selectedFile ? selectedFile.name : 'Choisir une image'}
+            </label>
+            <button
+              onClick={handleUpload}
+              disabled={!selectedFile}
+              className={styles.uploadButton}
+            >
+              Ajouter une image
             </button>
-            <Image
-              src={selectedImage.image_url}
-              alt="Image agrandie"
-              width={800}
-              height={600}
-              style={{ objectFit: 'contain', maxWidth: '90vw', maxHeight: '90vh' }}
-            />
           </div>
+
+          {/* Prévisualisation de l'image */}
+          {previewUrl && (
+            <div className={styles.previewContainer}>
+              <div className={styles.previewImageContainer}>
+                <Image
+                  src={previewUrl}
+                  alt="Aperçu"
+                  className={styles.previewImage}
+                  width={200}
+                  height={150}
+                  style={{ objectFit: 'cover' }}
+                />
+              </div>
+            </div>
+          )}
+
+          {/* Message de succès */}
+          {uploadSuccess && (
+            <div className={styles.successMessage}>
+              <span className={styles.successIcon}>✓</span>
+              Image bien ajoutée !
+            </div>
+          )}
         </div>
       )}
     </div>
   )
 }
+
+
+
 
 
 

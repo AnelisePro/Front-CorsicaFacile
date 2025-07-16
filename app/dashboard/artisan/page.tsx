@@ -10,6 +10,7 @@ import ArtisanEdit from '../../components/ArtisanEdit'
 import AvailabilitySlots from '../../components/AvailabilitySlots'
 import NotificationList from '../../components/NotificationList'
 import ProjectImagesManager from '../../components/ProjectImagesManager'
+import ImageModal from '../../components/ImageModal'
 import styles from './page.module.scss'
 
 const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
@@ -39,6 +40,11 @@ type Mission = {
   status: string
 }
 
+type ProjectImage = {
+  id: number
+  image_url: string
+}
+
 const membershipPlans = ['Standard', 'Pro', 'Premium']
 const intervalTranslations = {
   day: 'jour',
@@ -49,7 +55,7 @@ const intervalTranslations = {
 
 export default function ArtisanDashboard() {
   const { user, setUser } = useAuth()
-  const [activeTab, setActiveTab] = useState<'notifications' | 'creneaux' | 'realisations'>('notifications')
+  const [activeTab, setActiveTab] = useState<'notifications' | 'creneaux' | 'realisations'>('creneaux')
   const [token, setToken] = useState<string | null>(null)
   const [artisan, setArtisan] = useState<Artisan | null>(null)
   const [planInfo, setPlanInfo] = useState<PlanInfo | null>(null)
@@ -60,6 +66,10 @@ export default function ArtisanDashboard() {
   const [avatarFile, setAvatarFile] = useState<File | null>(null)
   const [activeMissions, setActiveMissions] = useState<Mission[]>([])
   const [unreadCount, setUnreadCount] = useState<number>(0);
+  const [isImageModalOpen, setIsImageModalOpen] = useState(false)
+  const [selectedImage, setSelectedImage] = useState<ProjectImage | null>(null)
+  const [allImages, setAllImages] = useState<ProjectImage[]>([])
+  const [currentImageIndex, setCurrentImageIndex] = useState(0)
 
   useEffect(() => {
     const artisanToken = localStorage.getItem('artisanToken')
@@ -108,6 +118,37 @@ export default function ArtisanDashboard() {
 
     fetchExpertises()
   }, [])
+
+  // Fonctions pour gérer le modal d'images
+  const openImageModal = (image: ProjectImage, images: ProjectImage[]) => {
+    const index = images.findIndex(img => img.id === image.id)
+    setCurrentImageIndex(index)
+    setSelectedImage(image)
+    setAllImages(images)
+    setIsImageModalOpen(true)
+  }
+
+  const closeImageModal = () => {
+    setIsImageModalOpen(false)
+    setSelectedImage(null)
+    setAllImages([])
+  }
+
+  const goToNextImage = () => {
+    if (currentImageIndex < allImages.length - 1) {
+      const nextIndex = currentImageIndex + 1
+      setCurrentImageIndex(nextIndex)
+      setSelectedImage(allImages[nextIndex])
+    }
+  }
+
+  const goToPreviousImage = () => {
+    if (currentImageIndex > 0) {
+      const prevIndex = currentImageIndex - 1
+      setCurrentImageIndex(prevIndex)
+      setSelectedImage(allImages[prevIndex])
+    }
+  }
 
   function handleEdit() {
     setIsEditing(true)
@@ -299,14 +340,19 @@ export default function ArtisanDashboard() {
   }
 
   if (!user) return <p>Chargement...</p>
-  if (!artisan) return <p>Chargement des données artisan...</p>
+  if (!artisan) {
+    return (
+      <div className={styles.dashboard}>
+        <p>Chargement...</p>
+      </div>
+    )
+  }
   if (!token) return <p>Chargement du token...</p>
 
   return (
     <div className={styles.artisanDashboard}>
       <ToastContainer />
 
-      {/* Section Profil avec Glass Effect */}
       <section className={styles.profileSection}>
         {!isEditing ? (
           <ArtisanView
@@ -382,6 +428,7 @@ export default function ArtisanDashboard() {
               <ProjectImagesManager
                 token={token}
                 isEditing={isEditing}
+                onImageClick={openImageModal}
               />
             )}
           </div>
@@ -393,6 +440,19 @@ export default function ArtisanDashboard() {
           </div>
         )}
       </section>
+
+      {/* Modal d'images - rendu au niveau du dashboard */}
+      {isImageModalOpen && selectedImage && (
+        <ImageModal
+          isOpen={isImageModalOpen}
+          image={selectedImage}
+          images={allImages}
+          currentIndex={currentImageIndex}
+          onClose={closeImageModal}
+          onNext={goToNextImage}
+          onPrevious={goToPreviousImage}
+        />
+      )}
     </div>
   )
 }

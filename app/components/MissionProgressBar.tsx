@@ -9,14 +9,14 @@ interface MissionProgressBarProps {
   status: 'accepted' | 'in_progress' | 'completed'
   notificationId: number
   onStatusChange?: (newStatus: 'accepted' | 'in_progress' | 'completed') => void
-  isArtisan?: boolean // Ajoutez cette prop pour distinguer les utilisateurs
+  isArtisan?: boolean
 }
 
 const MissionProgressBar = ({
   status,
   notificationId,
   onStatusChange,
-  isArtisan = false // Valeur par défaut
+  isArtisan = false
 }: MissionProgressBarProps) => {
   const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
 
@@ -37,7 +37,7 @@ const MissionProgressBar = ({
     { id: 2, label: 'Terminée', status: 'completed' }
   ]
 
-  // Fonction générique pour mettre à jour le statut - seulement pour les clients
+  // Fonction pour mettre à jour le statut - seulement pour les clients
   const updateMissionStatus = async (newStatus: 'in_progress' | 'completed') => {
     if (isArtisan) return // Bloque l'action pour les artisans
 
@@ -76,14 +76,28 @@ const MissionProgressBar = ({
     }
   }
 
+  // Fonction pour gérer le clic sur un cercle
+  const handleCircleClick = (step: any) => {
+    if (isArtisan) return // Pas de clic pour les artisans
+
+    const isClickable = (
+      (step.status === 'in_progress' && status === 'accepted') ||
+      (step.status === 'completed' && (status === 'accepted' || status === 'in_progress'))
+    )
+
+    if (isClickable) {
+      updateMissionStatus(step.status as 'in_progress' | 'completed')
+    }
+  }
+
   return (
-    <div className={styles.progressContainer}>
+    <div className={`${styles.progressContainer} ${isArtisan ? styles.artisanView : ''}`}>
       <div className={styles.stepsContainer}>
         {steps.map((step, index) => {
           const isActive = step.id <= currentStep
           const isCurrent = step.id === currentStep
 
-          // Désactive complètement la cliquabilité pour les artisans
+          // Détermine si le cercle est cliquable (seulement pour les clients)
           const isClickable = !isArtisan && (
             (step.status === 'in_progress' && status === 'accepted') ||
             (step.status === 'completed' && (status === 'accepted' || status === 'in_progress'))
@@ -92,8 +106,8 @@ const MissionProgressBar = ({
           return (
             <div key={step.id} className={styles.stepItem}>
               <div
-                className={`${styles.stepCircle} ${isActive ? styles.active : styles.inactive} ${isCurrent ? styles.current : ''}`}
-                style={isClickable ? { cursor: 'pointer' } : { cursor: 'default' }}
+                className={`${styles.stepCircle} ${isActive ? styles.active : styles.inactive} ${isCurrent ? styles.current : ''} ${isClickable ? styles.clickable : ''}`}
+                onClick={() => handleCircleClick(step)}
                 title={isClickable ? `Cliquez pour marquer comme ${step.label}` : ''}
               >
                 {step.id + 1}
@@ -113,6 +127,7 @@ const MissionProgressBar = ({
 }
 
 export default MissionProgressBar
+
 
 
 
