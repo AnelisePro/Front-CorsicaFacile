@@ -1,5 +1,5 @@
 @use "sass:color";
-@import url('https://fonts.googleapis.com/css2?family=Quicksand&family=Raleway&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&family=Nunito:wght@300;400;500;600;700&display=swap');
 
 $primary-color: #5E3E23;
 $secondary-color: #81A04A;
@@ -102,7 +102,7 @@ $secondary-color: #81A04A;
   list-style: none;
   padding: 0;
   margin: 0;
-  font-family: Raleway;
+  font-family: Nunito;
 
   li {
     margin-bottom: 0.5rem;
@@ -128,14 +128,14 @@ $secondary-color: #81A04A;
 .cardPrice {
   font-size: 1.4rem;
   font-weight: bold;
-  color: #0F78B1;
+  color: #3498db;
 }
 
 .intro {
   font-size: 1.2rem;
   margin-bottom: 3rem;
   text-align: center;
-  font-family: Raleway;
+  font-family: Nunito;
   color: color.scale($primary-color, $lightness: -15%);
 }
 

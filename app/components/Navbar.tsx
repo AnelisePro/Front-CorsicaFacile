@@ -12,6 +12,7 @@ import 'react-toastify/dist/ReactToastify.css'
 export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false)
   const [dropdownOpen, setDropdownOpen] = useState(false)
+  const [scrolled, setScrolled] = useState(false)
   const dropdownRef = useRef<HTMLLIElement>(null)
   const pathname = usePathname()
   const router = useRouter()
@@ -25,6 +26,15 @@ export default function Navbar() {
     }
     document.addEventListener('click', handleClickOutside)
     return () => document.removeEventListener('click', handleClickOutside)
+  }, [])
+
+   // DÉTECTION DU SCROLL
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 50)
+    }
+    window.addEventListener('scroll', handleScroll)
+    return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
   const espaceLink = user
@@ -55,114 +65,102 @@ export default function Navbar() {
   }
 
   return (
-    <>
-      <header className={styles.header}>
-        <nav className={styles.navbar}>
-          <div className={styles.logo}>
-            <Link href="/">
-              <Image
-                src="/images/logo1.png"
-                alt="Logo CorsicaFacile"
-                width={0}
-                height={0}
-                style={{ height: '100%', width: 'auto' }}
-                priority
-              />
+  <>
+    <header className={styles.header}>
+      <nav className={`${styles.navbar} ${scrolled ? styles.scrolled : ''}`}>
+       <div className={styles.logo}>
+        <Link href="/">
+          <Image
+            src="/images/logoNav.svg"
+            alt="Logo CorsicaFacile"
+            width={0}
+            height={0}
+            priority
+          />
+        </Link>
+      </div>
+
+        <div
+          className={`${styles.burger} ${menuOpen ? styles.open : ''}`}
+          onClick={() => setMenuOpen(!menuOpen)}
+        >
+          <div />
+          <div />
+          <div />
+        </div>
+
+        <ul className={`${styles.navLinks} ${menuOpen ? styles.show : ''}`}>
+          <li>
+            <Link href="/" className={pathname === '/' ? styles.active : ''}>
+              Accueil
             </Link>
-          </div>
-
-          <div
-            className={`${styles.burger} ${menuOpen ? styles.open : ''}`}
-            onClick={() => setMenuOpen(!menuOpen)}
-          >
-            <div />
-            <div />
-            <div />
-          </div>
-
-          <ul className={`${styles.navLinks} ${menuOpen ? styles.show : ''}`}>
-            <li>
-              <Link href="/" className={pathname === '/' ? styles.active : ''}>
-                Accueil
-              </Link>
-            </li>
-            <li>
-              <Link
-                href="/qui-sommes-nous"
-                className={pathname === '/qui-sommes-nous' ? styles.active : ''}
-              >
-                Qui sommes-nous
-              </Link>
-            </li>
-            <li
-              className={styles.dropdown}
-              ref={dropdownRef}
-              onClick={() => setDropdownOpen(!dropdownOpen)}
+          </li>
+          <li>
+            <Link
+              href="/qui-sommes-nous"
+              className={pathname === '/qui-sommes-nous' ? styles.active : ''}
             >
-              <span>Comment ça marche ▾</span>
-              <ul className={`${styles.dropdownMenu} ${dropdownOpen ? styles.show : ''}`}>
-                <li>
-                  <Link href="/comment-ca-marche/clients">Clients</Link>
-                </li>
-                <li>
-                  <Link href="/comment-ca-marche/artisans">Artisans</Link>
-                </li>
-              </ul>
-            </li>
+              Qui sommes-nous
+            </Link>
+          </li>
+          <li
+            className={styles.dropdown}
+            ref={dropdownRef}
+            onClick={() => setDropdownOpen(!dropdownOpen)}
+          >
+            <span>Comment ça marche</span>
+            <ul className={`${styles.dropdownMenu} ${dropdownOpen ? styles.show : ''}`}>
+              <li>
+                <Link href="/comment-ca-marche/clients">Clients</Link>
+              </li>
+              <li>
+                <Link href="/comment-ca-marche/artisans">Artisans</Link>
+              </li>
+            </ul>
+          </li>
+          <li>
+            <Link href="/besoin" className={pathname === '/besoin' ? styles.active : ''}>
+              Déclarer mon besoin
+            </Link>
+          </li>
+          {user?.role === 'artisan' && (
             <li>
-              <Link href="/besoin" className={pathname === '/besoin' ? styles.active : ''}>
-                Déclarer mon besoin
+              <Link href="/annonces" className={pathname === '/missions' ? styles.active : ''}>
+                Annonces
               </Link>
             </li>
+          )}
+        </ul>
 
-            {user?.role === 'artisan' && (
-              <li>
-                <Link href="/annonces" className={pathname === '/annonces' ? styles.active : ''}>
-                  Annonces
-                </Link>
-              </li>
-            )}
-
-            <li>
-              {user ? (
-                <Link href={espaceLink} className={styles.avatarLink}>
-                  <Image
-                    src={avatarUrl}
-                    alt="Avatar utilisateur"
-                    width={50}
-                    height={50}
-                    className={styles.avatar}
-                    onError={(e) => {
-                      ;(e.currentTarget as HTMLImageElement).src = '/images/avatar.svg'
-                    }}
-                  />
-                </Link>
-              ) : (
-                <Link
-                  href="/mon-espace"
-                  className={`${styles.cta} ${
-                    pathname.startsWith('/dashboard') || pathname === '/mon-espace'
-                      ? styles.active
-                      : ''
-                  }`}
-                >
-                  Mon Espace
-                </Link>
-              )}
-            </li>
-
-            {user && (
-              <li>
-                <button className={styles.logoutButton} onClick={handleLogout}>
-                  Déconnexion
-                </button>
-              </li>
-            )}
-          </ul>
-        </nav>
-      </header>
-    </>
-  )
+        <div className={styles.rightSection}>
+          {user ? (
+            <>
+              <Link href={espaceLink} className={styles.avatarLink}>
+                <Image
+                  src={avatarUrl}
+                  alt="Avatar utilisateur"
+                  width={32}
+                  height={32}
+                  className={styles.avatar}
+                  onError={(e) => {
+                    (e.currentTarget as HTMLImageElement).src = '/images/avatar.svg'
+                  }}
+                />
+              </Link>
+              <button className={styles.logoutButton} onClick={handleLogout}>
+                Déconnexion
+              </button>
+            </>
+          ) : (
+            <Link href="/mon-espace" className={styles.cta}>
+              Lancer l'application
+            </Link>
+          )}
+        </div>
+      </nav>
+    </header>
+  </>
+)
 }
 
 

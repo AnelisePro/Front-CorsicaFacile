@@ -3,10 +3,10 @@ import styles from './page.module.scss'
 export default function Formules() {
   return (
     <main style={{ padding: '2rem', maxWidth: '1000px', margin: '0 auto' }}>
-      <h1 className={styles.h1}>Nos Formules</h1>
+      <h1 className={styles.h1}>Nos Formules Artisans</h1>
 
       <p className={styles.intro}>
-        Choisissez la formule qui correspond le mieux à vos besoins en tant qu'artisan.
+        Choisissez la formule qui correspond le mieux à vos besoins.
       </p>
 
       <div className={styles.cards}>

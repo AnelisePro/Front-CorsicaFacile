@@ -20,23 +20,8 @@ type Besoin = {
     last_name: string
     email: string
     phone: string
+    avatar_url?: string
   }
-}
-
-const extractFilename = (urlOrKey: string) => {
-  try {
-    const url = new URL(urlOrKey)
-    return url.pathname.split('/').pop() || urlOrKey
-  } catch {
-    return urlOrKey
-  }
-}
-
-const getContentType = (filename: string) => {
-  if (filename.endsWith('.svg')) return 'image/svg+xml'
-  if (filename.endsWith('.png')) return 'image/png'
-  if (filename.endsWith('.jpg') || filename.endsWith('.jpeg')) return 'image/jpeg'
-  return 'application/octet-stream'
 }
 
 export default function ArtisansAnnonces() {
@@ -81,19 +66,6 @@ export default function ArtisansAnnonces() {
     }
   }, [searchParams, besoins])
 
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      const dropdown = document.querySelector(`.${styles.dropdown}`)
-      if (dropdown && !dropdown.contains(event.target as Node)) {
-        setIsDropdownOpen(false)
-      }
-    }
-    document.addEventListener('mousedown', handleClickOutside)
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside)
-    }
-  }, [])
-
   const filteredBesoins = besoins.filter((b) => {
     const matchesExpertise = selectedExpertise ? b.type_prestation === selectedExpertise : true
     const matchesLocation = searchLocation
@@ -102,127 +74,210 @@ export default function ArtisansAnnonces() {
     return matchesExpertise && matchesLocation
   })
 
-  if (loading) return <p className={styles.loading}>Chargement...</p>
-  if (error) return <p className={styles.error}>{error}</p>
+  if (loading) return (
+    <div className={styles.loadingContainer}>
+      <div className={styles.spinner}></div>
+      <p className={styles.loadingText}>Chargement des annonces...</p>
+    </div>
+  )
+
+  if (error) return (
+    <div className={styles.errorContainer}>
+      <p className={styles.errorText}>{error}</p>
+    </div>
+  )
 
   return (
     <div className={styles.container}>
-      <h1 className={styles.title}>Toutes les annonces</h1>
+      <header className={styles.header}>
+        <h1 className={styles.title}>Toutes les annonces</h1>
+        <p className={styles.subtitle}>Trouvez des opportunités près de chez vous</p>
+      </header>
 
-      <div className={styles.filters}>
-        <div className={styles.dropdownContainer}>
+      <div className={styles.filtersContainer}>
+        <div className={styles.searchBar}>
+          <input
+            type="text"
+            placeholder="Rechercher par localisation..."
+            value={searchLocation}
+            onChange={(e) => setSearchLocation(e.target.value)}
+            className={styles.searchInput}
+            aria-label="Recherche par localisation"
+          />
+          <svg className={styles.searchIcon} viewBox="0 0 24 24" width="20" height="20">
+            <path d="M15.5 14h-.79l-.28-.27a6.5 6.5 0 0 0 1.48-5.34c-.47-2.78-2.79-5-5.59-5.34a6.505 6.505 0 0 0-7.27 7.27c.34 2.8 2.56 5.12 5.34 5.59a6.5 6.5 0 0 0 5.34-1.48l.27.28v.79l4.25 4.25c.41.41 1.08.41 1.49 0 .41-.41.41-1.08 0-1.49L15.5 14zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+          </svg>
+        </div>
+
+        <div className={styles.filterDropdown}>
           <button
-            className={styles.dropdownToggle}
+            className={styles.dropdownButton}
             onClick={() => setIsDropdownOpen(prev => !prev)}
             aria-haspopup="listbox"
             aria-expanded={isDropdownOpen}
-            type="button"
           >
-            {selectedExpertise || 'Type de prestation'}
+            <span>{selectedExpertise || 'Toutes les catégories'}</span>
+            <svg className={styles.dropdownIcon} viewBox="0 0 24 24" width="16" height="16">
+              <path d="M7 10l5 5 5-5z"/>
+            </svg>
           </button>
+
           {isDropdownOpen && (
-            <ul className={styles.dropdownMenu} role="listbox">
-              <li
+            <div className={styles.dropdownMenu}>
+              <div
+                className={styles.dropdownItem}
                 onClick={() => {
                   setSelectedExpertise('')
                   setIsDropdownOpen(false)
                 }}
-                role="option"
               >
-                Tous les types
-              </li>
+                Toutes les catégories
+              </div>
               {expertises.map((exp, i) => (
-                <li
+                <div
                   key={i}
+                  className={styles.dropdownItem}
                   onClick={() => {
                     setSelectedExpertise(exp)
                     setIsDropdownOpen(false)
                   }}
-                  role="option"
                 >
                   {exp}
-                </li>
+                </div>
               ))}
-            </ul>
+            </div>
           )}
         </div>
-
-        <input
-          type="text"
-          placeholder="Rechercher par localisation"
-          value={searchLocation}
-          onChange={(e) => setSearchLocation(e.target.value)}
-          className={styles.input}
-          aria-label="Recherche par localisation"
-        />
       </div>
 
-      {filteredBesoins.length === 0 && (
-        <p className={styles.noAnnonce}>Aucune annonce pour le moment.</p>
-      )}
+      {filteredBesoins.length === 0 ? (
+        <div className={styles.emptyState}>
+          <svg className={styles.emptyIcon} viewBox="0 0 24 24" width="60" height="60">
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v6h-2zm0 8h2v2h-2z"/>
+          </svg>
+          <p className={styles.emptyText}>Aucune annonce ne correspond à vos critères</p>
+        </div>
+      ) : (
+        <div className={styles.grid}>
+          {filteredBesoins.map((b) => (
+            <div key={b.id} className={styles.card}>
+              <div className={styles.cardHeader}>
+                {b.client.avatar_url ? (
+                  <img
+                    src={b.client.avatar_url}
+                    alt={`${b.client.first_name} ${b.client.last_name}`}
+                    className={styles.clientAvatar}
+                    width={40}
+                    height={40}
+                  />
+                ) : (
+                  <div className={styles.avatarPlaceholder}>
+                    {b.client.first_name.charAt(0)}{b.client.last_name.charAt(0)}
+                  </div>
+                )}
+                <h2 className={styles.cardTitle}>{b.type_prestation}</h2>
+              </div>
 
-      <div className={styles.grid}>
-        {filteredBesoins.map((b) => (
-          <div key={b.id} className={styles.card}>
-            <h2 className={styles.cardTitle}>{b.type_prestation}</h2>
-            <p className={styles.description}>{b.description}</p>
-            <div className={styles.cardFooter}>
-              <span className={styles.location}>📍 {b.address}</span>
-              <button
-                className={styles.button}
-                type="button"
-                onClick={() => setSelectedBesoin(b)}
-                aria-label={`Afficher les détails pour ${b.type_prestation}`}
-              >
-                En savoir plus
-              </button>
+              <p className={styles.cardDescription}>{b.description}</p>
+
+              <div className={styles.cardMeta}>
+                <div className={styles.locationContainer}>
+                  <svg className={styles.locationIcon} viewBox="0 0 24 24" width="16" height="16">
+                    <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+                  </svg>
+                  <span className={styles.locationText}>{b.address}</span>
+                </div>
+
+                <button
+                  className={styles.detailsButton}
+                  onClick={() => setSelectedBesoin(b)}
+                >
+                  Voir les détails
+                </button>
+              </div>
             </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
 
       {selectedBesoin && (
         <div className={styles.modalOverlay} onClick={() => setSelectedBesoin(null)}>
-          <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
+          <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
             <button
-              className={styles.closeButton}
+              className={styles.closeModalButton}
               onClick={() => setSelectedBesoin(null)}
-              aria-label="Fermer la fenêtre"
-              type="button"
+              aria-label="Fermer"
             >
-              ✕
+              <svg viewBox="0 0 24 24" width="24" height="24">
+                <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+              </svg>
             </button>
-            <h2 className={styles.modalTitle}>Informations supplémentaires</h2>
 
-            <div className={styles.images}>
-              {selectedBesoin.image_urls.length > 0 ? (
-                selectedBesoin.image_urls.map((url, i) => (
-                  <img
-                    key={i}
-                    src={url}
-                    alt="Image besoin"
-                    width={150}
-                    height={150}
-                    className={styles.image}
-                    loading="lazy"
-                    decoding="async"
-                  />
-                ))
+            <div className={styles.modalHeader}>
+              <h2 className={styles.modalTitle}>{selectedBesoin.type_prestation}</h2>
+              {selectedBesoin.client.avatar_url ? (
+                <img
+                  src={selectedBesoin.client.avatar_url}
+                  alt={`${selectedBesoin.client.first_name} ${selectedBesoin.client.last_name}`}
+                  className={styles.modalAvatar}
+                  width={50}
+                  height={50}
+                />
               ) : (
-                <p>Aucune image disponible.</p>
+                <div className={styles.modalAvatarPlaceholder}>
+                  {selectedBesoin.client.first_name.charAt(0)}{selectedBesoin.client.last_name.charAt(0)}
+                </div>
               )}
             </div>
 
-            <h3 className={styles.contactTitle}>Contacter le client</h3>
-            <p>{selectedBesoin.client.first_name} {selectedBesoin.client.last_name}</p>
-            <p>{selectedBesoin.client.email}</p>
-            <p>{selectedBesoin.client.phone}</p>
+            <div className={styles.modalBody}>
+              <div className={styles.modalSection}>
+                <h3 className={styles.sectionTitle}>Description</h3>
+                <p className={styles.sectionContent}>{selectedBesoin.description}</p>
+              </div>
+
+              <div className={styles.modalSection}>
+                <h3 className={styles.sectionTitle}>Localisation</h3>
+                <p className={styles.sectionContent}>{selectedBesoin.address}</p>
+              </div>
+
+              {selectedBesoin.image_urls.length > 0 && (
+                <div className={styles.modalSection}>
+                  <h3 className={styles.sectionTitle}>Images</h3>
+                  <div className={styles.imageGallery}>
+                    {selectedBesoin.image_urls.map((url, i) => (
+                      <img
+                        key={i}
+                        src={url}
+                        alt={`Image ${i + 1}`}
+                        className={styles.modalImage}
+                        loading="lazy"
+                      />
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              <div className={styles.modalSection}>
+                <h3 className={styles.sectionTitle}>Contact</h3>
+                <div className={styles.contactInfo}>
+                  <p className={styles.contactName}>{selectedBesoin.client.first_name} {selectedBesoin.client.last_name}</p>
+                  <a href={`mailto:${selectedBesoin.client.email}`} className={styles.contactEmail}>
+                    {selectedBesoin.client.email}
+                  </a>
+                  <a href={`tel:${selectedBesoin.client.phone}`} className={styles.contactPhone}>
+                    {selectedBesoin.client.phone}
+                  </a>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       )}
     </div>
   )
 }
+
 
 
 

@@ -82,18 +82,20 @@ $blur-bg: rgba(255, 255, 255, 0.35);
   outline: none;
 }
 
+// ✅ CORRECTION DU Z-INDEX ET OVERFLOW
 .suggestions {
   position: absolute;
   top: calc(100% + 6px);
   left: 0;
   right: 0;
-  background: #f0f4f8; // 🎨 fond plus contrasté, gris bleuté clair
+  background: #f0f4f8;
   border-radius: 1rem;
   box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12);
-  z-index: 20;
+  z-index: 9999; // ✅ Z-INDEX TRÈS ÉLEVÉ
   animation: fadeIn 0.3s ease-in-out;
   max-height: 280px;
   overflow-y: auto;
+  overflow-x: hidden;
   padding: 0.5rem;
 }
 
@@ -108,6 +110,7 @@ $blur-bg: rgba(255, 255, 255, 0.35);
   transition: background 0.2s ease, color 0.2s ease;
   background: #ffffff; 
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+  flex-shrink: 0;
 }
 
 .suggestions li:hover {
@@ -119,7 +122,7 @@ $blur-bg: rgba(255, 255, 255, 0.35);
   padding: 0.8rem 1.3rem;
   font-size: 1rem;
   font-weight: 600;
-  background: linear-gradient(to right, #0F78B1, #3BA9D4); // bleu moyen vers bleu clair
+  background: linear-gradient(to right, #0F78B1, #3BA9D4);
   color: #FEFBF4;
   border: none;
   border-radius: 1rem;
@@ -136,7 +139,6 @@ $blur-bg: rgba(255, 255, 255, 0.35);
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.18);
 }
 
-
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -147,7 +149,6 @@ $blur-bg: rgba(255, 255, 255, 0.35);
     transform: translateY(0);
   }
 }
-
 
 @media (max-width: 640px) {
   .row {
@@ -174,7 +175,6 @@ $blur-bg: rgba(255, 255, 255, 0.35);
   }
 }
 
-// Dans votre fichier SearchForm.module.scss
 .noResults {
   padding: 8px 12px;
   color: #666;
@@ -185,6 +185,7 @@ $blur-bg: rgba(255, 255, 255, 0.35);
     background-color: transparent;
   }
 }
+
 
 
 

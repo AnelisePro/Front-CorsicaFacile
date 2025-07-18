@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&family=Nunito:wght@300;400;500;600;700&display=swap');
 
 .footer {
   background-color: #5E3E23;
@@ -7,6 +7,7 @@
   color: #FEFBF4;
   border-top: 1px solid #FEFBF4;
   margin-top: auto;
+  font-family: Nunito;
 }
 
 .columns {
@@ -56,6 +57,7 @@
   margin-bottom: 1rem;
   border-radius: 50%; 
   overflow: hidden;
+  margin-left: 50px;
 }
 
 .bottomLine {
@@ -94,5 +96,9 @@
     flex-direction: column;
     align-items: center;
     font-size: 0.8rem;
+  }
+
+  .logo {
+    margin-left: 0px;
   }
 }

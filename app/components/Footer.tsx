@@ -10,10 +10,10 @@ export default function Footer() {
       <div className={styles.columns}>
         <div>
           <Image
-            src="/images/logo2.png"
+            src="/images/logoFooter.svg"
             alt="Logo CorsicaFacile"
-            width={150}
-            height={150}
+            width={160}
+            height={160}
             className={styles.logo}
            />
         </div>
