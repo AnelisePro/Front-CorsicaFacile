@@ -42,23 +42,25 @@ $blur-bg: rgba(255, 255, 255, 0.35);
   flex-wrap: wrap;
   gap: 1rem;
   width: 100%;
-  max-width: 1000px;
+  max-width: 1200px; // ✅ Augmenté de 1000px à 1200px
   align-items: stretch;
   justify-content: center;
 }
 
 .autocomplete {
   position: relative;
-  flex: 1 1 300px;
+  flex: 1 1 400px; // ✅ Augmenté de 300px à 400px (largeur minimum)
+  min-width: 350px; // ✅ Ajout d'une largeur minimum
   display: flex;
   flex-direction: column;
 }
 
 .autocomplete input {
   width: 100%;
-  padding: 1.1rem 1.4rem;
-  padding-left: 2.5rem;
+  padding: 1.2rem 1.5rem; // ✅ Augmenté le padding vertical et horizontal
+  padding-left: 2.8rem; // ✅ Ajusté pour l'icône
   font-size: 1rem;
+  min-height: 3.2rem; // ✅ Hauteur minimum pour les inputs
   border-radius: 1rem;
   border: 1px solid transparent;
   background: $input-bg;
@@ -82,7 +84,6 @@ $blur-bg: rgba(255, 255, 255, 0.35);
   outline: none;
 }
 
-// ✅ CORRECTION DU Z-INDEX ET OVERFLOW
 .suggestions {
   position: absolute;
   top: calc(100% + 6px);
@@ -91,7 +92,7 @@ $blur-bg: rgba(255, 255, 255, 0.35);
   background: #f0f4f8;
   border-radius: 1rem;
   box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12);
-  z-index: 9999; // ✅ Z-INDEX TRÈS ÉLEVÉ
+  z-index: 9999;
   animation: fadeIn 0.3s ease-in-out;
   max-height: 280px;
   overflow-y: auto;
@@ -119,7 +120,8 @@ $blur-bg: rgba(255, 255, 255, 0.35);
 }
 
 .row button {
-  padding: 0.8rem 1.3rem;
+  padding: 1rem 1.5rem; // ✅ Augmenté le padding
+  min-width: 140px; // ✅ Largeur minimum pour le bouton
   font-size: 1rem;
   font-weight: 600;
   background: linear-gradient(to right, #0F78B1, #3BA9D4);
@@ -129,9 +131,11 @@ $blur-bg: rgba(255, 255, 255, 0.35);
   cursor: pointer;
   display: flex;
   align-items: center;
+  justify-content: center; // ✅ Centrer le contenu
   gap: 0.6rem;
   transition: transform 0.15s ease, box-shadow 0.2s ease;
   box-shadow: 0 6px 14px rgba(0, 0, 0, 0.12);
+  height: 3.2rem; // ✅ Même hauteur que les inputs
 }
 
 .row button:hover {
@@ -150,15 +154,24 @@ $blur-bg: rgba(255, 255, 255, 0.35);
   }
 }
 
-@media (max-width: 640px) {
+// ✅ Responsive amélioré
+@media (max-width: 768px) {
   .row {
     flex-direction: column;
     align-items: stretch;
     gap: 0.75rem;
+    max-width: 100%;
   }
 
   .autocomplete {
     flex: 1 1 auto;
+    min-width: unset;
+  }
+
+  .autocomplete input {
+    min-height: 3rem;
+    padding: 1rem 1.2rem;
+    padding-left: 2.5rem;
   }
 
   .row button {
@@ -167,11 +180,24 @@ $blur-bg: rgba(255, 255, 255, 0.35);
     padding: 1rem 1.3rem;
     font-size: 1rem;
     border-radius: 0.9rem;
+    height: 3rem;
   }
 
   .icon {
     left: 0.9rem;
     font-size: 1rem;
+  }
+}
+
+// ✅ Responsive pour tablettes
+@media (max-width: 1024px) and (min-width: 769px) {
+  .autocomplete {
+    flex: 1 1 350px;
+    min-width: 300px;
+  }
+  
+  .row {
+    max-width: 900px;
   }
 }
 
@@ -185,6 +211,7 @@ $blur-bg: rgba(255, 255, 255, 0.35);
     background-color: transparent;
   }
 }
+
 
 
 

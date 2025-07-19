@@ -6,6 +6,7 @@ import Footer from '../app/components/Footer'
 import { AuthProvider } from './auth/AuthContext'
 import ToastProvider from './ToastProvider'
 import 'react-toastify/dist/ReactToastify.css'
+import GeminiChatbot from '../app/components/GeminiChatbot'
 
 export const metadata = {
   title: 'CorsicaFacile',
@@ -20,6 +21,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           <AuthProvider>
             <Navbar />
             <main>{children}</main>
+            <GeminiChatbot />
             <Footer />
             <ToastProvider />
           </AuthProvider>
