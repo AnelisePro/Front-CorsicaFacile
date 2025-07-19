@@ -57,7 +57,7 @@ export default function ArtisanInscription() {
 
       const data = await response.json()
 
-      if (!response.ok || !data.url) throw new Error('Erreur lors de la récupération de l’URL signée.')
+      if (!response.ok || !data.url) throw new Error('Erreur lors de la récupération de l\'URL signée.')
 
       const uploadResponse = await fetch(data.url, {
         method: 'PUT',
@@ -65,7 +65,7 @@ export default function ArtisanInscription() {
         headers: { 'Content-Type': file.type }
       })
 
-      if (!uploadResponse.ok) throw new Error('Erreur lors de l’upload vers S3.')
+      if (!uploadResponse.ok) throw new Error('Erreur lors de l\'upload vers S3.')
 
       const bucketUrl = process.env.NEXT_PUBLIC_S3_BUCKET_URL || 'https://corsica-facile-prod.s3.eu-north-1.amazonaws.com'
       const fileUrl = `${bucketUrl}/${data.key}`
@@ -162,7 +162,7 @@ export default function ArtisanInscription() {
     const uploadedInsuranceUrl = await uploadFileToS3(insuranceFile)
 
     if (!uploadedKbisUrl || !uploadedInsuranceUrl) {
-      setError('Erreur lors de l’upload des fichiers.')
+      setError('Erreur lors de l\'upload des fichiers.')
       return
     }
 
@@ -215,6 +215,26 @@ export default function ArtisanInscription() {
     }
   }
 
+  // Handlers pour drag & drop avec types corrects
+  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault()
+    e.currentTarget.classList.add(styles.dragOver)
+  }
+
+  const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault()
+    e.currentTarget.classList.remove(styles.dragOver)
+  }
+
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>, setter: (file: File | null) => void) => {
+    e.preventDefault()
+    e.currentTarget.classList.remove(styles.dragOver)
+    const files = e.dataTransfer.files
+    if (files.length > 0) {
+      setter(files[0])
+    }
+  }
+
   const handlePayment = async () => {
     if (!stripePublishableKey || !sessionId) {
       toast.error('Données Stripe manquantes.')
@@ -234,250 +254,158 @@ export default function ArtisanInscription() {
   const progressPercent = ((step - 1) / 5) * 100
 
   return (
-    <div className={styles.splitContainer}>
-      <div className={styles.leftSide}>
-        <Image
-          src="/images/Sartene.JPG"
-          alt="Inscription Artisan"
-          className={styles.image}
-          fill
-          priority
-        />
-      </div>
-
-      <div className={styles.rightSide}>
+    <>
+      <div className={styles.container}>
         <div className={styles.card}>
-          <h1 className={styles.title}>Inscription</h1>
-
-          {/* Barre de progression */}
-          <div className={styles.progressWrapper}>
-            {/* Cercles d'étapes */}
-            <div className={styles.steps}>
-              {[1, 2, 3, 4, 5].map((n) => (
-                <div
-                  key={n}
-                  className={`${styles.stepCircle} ${step >= n ? styles.active : ''}`}
-                >
-                  {n}
-                </div>
-              ))}
-            </div>
+          <div className={styles.imageSection}>
+            <img src="/images/img5.jpeg" alt="Image de fond" />
+          </div>
+          <div className={styles.contentSection}>
+            <h1 className={styles.title}>Inscription Artisan</h1>
 
             {/* Barre de progression */}
-            <div className={styles.progressBarContainer}>
-              <div className={styles.progressBar} style={{ width: `${progressPercent}%` }} />
-            </div>
-          </div>
-
-          {error && <p className={styles.error}>{error}</p>}
-
-          {/* Étape 1 */}
-          {step === 1 && (
-            <div className={styles.formStep}>
-              <div className={styles.inputGroup}>
-                <label htmlFor="expertise">Domaine d'expertise</label>
-                <select
-                  id="expertise"
-                  value={expertise}
-                  onChange={(e) => setExpertise(e.target.value)}
-                  required
-                >
-                  <option value="">Sélectionnez</option>
-                  {expertiseList.map((item) => (
-                    <option key={item} value={item}>{item}</option>
-                  ))}
-                  <option value="Autre">Autre</option>
-                </select>
-                {expertise === 'Autre' && (
-                  <input
-                    type="text"
-                    placeholder="Entrez votre domaine d'expertise"
-                    value={customExpertise}
-                    onChange={(e) => setCustomExpertise(e.target.value)}
-                    required
-                    style={{ marginTop: '8px' }}
-                  />
-                )}
-              </div>
-
-              <div className={styles.inputGroup}>
-                <label htmlFor="companyName">Nom de l'entreprise</label>
-                <input
-                  type="text"
-                  id="companyName"
-                  value={companyName}
-                  onChange={(e) => setCompanyName(e.target.value)}
-                  required
-                />
-              </div>
-
-              <div className={styles.inputGroup}>
-                <label htmlFor="siren">Numéro SIREN</label>
-                <input
-                  type="text"
-                  id="siren"
-                  value={siren}
-                  onChange={(e) => setSiren(e.target.value)}
-                  required
-                />
-              </div>
-
-              <div className={styles.buttonsRow}>
-                <button
-                  type="button"
-                  onClick={handleNext}
-                  disabled={!canGoNextStep}
-                  className={`${styles.nextButton} ${!canGoNextStep ? styles.disabledButton : ''}`}
-                >
-                  Suivant
-                </button>
-              </div>
-            </div>
-          )}
-
-          {/* Étape 2 */}
-          {step === 2 && (
-            <div className={styles.formStep}>
-              <div className={styles.inputGroup}>
-                <label htmlFor="streetNumber">Numéro de rue</label>
-                <input
-                  type="text"
-                  id="streetNumber"
-                  value={streetNumber}
-                  onChange={(e) => setStreetNumber(e.target.value)}
-                  required
-                />
-              </div>
-
-              <div className={styles.inputGroup}>
-                <label htmlFor="streetName">Nom de rue</label>
-                <input
-                  type="text"
-                  id="streetName"
-                  value={streetName}
-                  onChange={(e) => setStreetName(e.target.value)}
-                  required
-                />
-              </div>
-
-              <div className={styles.inputGroup}>
-                <label htmlFor="postalCode">Code postal</label>
-                <input
-                  type="text"
-                  id="postalCode"
-                  value={postalCode}
-                  onChange={(e) => setPostalCode(e.target.value)}
-                  required
-                />
-              </div>
-
-              <div className={styles.inputGroup}>
-                <label htmlFor="city">Ville</label>
-                <input
-                  type="text"
-                  id="city"
-                  value={city}
-                  onChange={(e) => setCity(e.target.value)}
-                  required
-                />
-              </div>
-
-              <div className={styles.buttonsRow}>
-                <button
-                  type="button"
-                  onClick={handlePrevious}
-                  className={styles.prevButton}
-                >
-                  Précédent
-                </button>
-
-                <button
-                  type="button"
-                  onClick={handleNext}
-                  disabled={!canGoNextStep}
-                  className={`${styles.nextButton} ${!canGoNextStep ? styles.disabledButton : ''}`}
-                >
-                  Suivant
-                </button>
-              </div>
-            </div>
-          )}
-
-          {/* Étape 3 */}
-          {step === 3 && (
-            <div className={styles.formStep}>
-              <div className={styles.inputGroup}>
-                <label htmlFor="kbisFile">Extrait Kbis (PDF)</label>
-                <input
-                  type="file"
-                  className={styles.fileInput}
-                  id="kbisFile"
-                  accept=".pdf"
-                  onChange={(e) => setKbisFile(e.target.files ? e.target.files[0] : null)}
-                  required
-                />
-              </div>
-
-              <div className={styles.inputGroup}>
-                <label htmlFor="insuranceFile">Attestation d'assurance (PDF)</label>
-                <input
-                  type="file"
-                  id="insuranceFile"
-                  className={styles.fileInput}
-                  accept=".pdf"
-                  onChange={(e) => setInsuranceFile(e.target.files ? e.target.files[0] : null)}
-                  required
-                />
-              </div>
-
-              <div className={styles.buttonsRow}>
-                <button
-                  type="button"
-                  onClick={handlePrevious}
-                  className={styles.prevButton}
-                >
-                  Précédent
-                </button>
-
-                <button
-                  type="button"
-                  onClick={handleNext}
-                  disabled={!canGoNextStep}
-                  className={`${styles.nextButton} ${!canGoNextStep ? styles.disabledButton : ''}`}
-                >
-                  Suivant
-                </button>
-              </div>
-            </div>
-          )}
-
-          {/* Étape 4 */}
-            {step === 4 && (
-              <div className={styles.formStep}>
-                <label>Choisissez votre abonnement</label>
-
-                <div className={styles.radioGroup}>
-                {['Standard', 'Pro', 'Premium'].map((plan) => (
-                  <label
-                    key={plan}
-                    className={`${styles.selectButton} ${membershipPlan === plan ? styles.selected : ''}`}
+            <div className={styles.progressWrapper}>
+              <div className={styles.steps}>
+                {[1, 2, 3, 4, 5].map((n) => (
+                  <div
+                    key={n}
+                    className={`${styles.stepCircle} ${step >= n ? styles.active : ''}`}
                   >
-                    <input
-                      type="radio"
-                      name="membershipPlan"
-                      value={plan}
-                      checked={membershipPlan === plan}
-                      onChange={(e) => setMembershipPlan(e.target.value)}
-                      className={styles.hiddenInput}
-                    />
-                    {plan}
-                  </label>
+                    {n}
+                  </div>
                 ))}
               </div>
+              <div className={styles.progressBarContainer}>
+                <div className={styles.progressBar} style={{ width: `${progressPercent}%` }} />
+              </div>
+            </div>
 
-                <button type="button" className={styles.detailsButton} onClick={() => setIsModalOpen(true)}>
-                  Voir détails des formules
-                </button>
+            {error && <p className={styles.error}>{error}</p>}
+
+            {/* Étape 1 */}
+            {step === 1 && (
+              <div className={styles.formStep}>
+                <div className={styles.stepTitle}>Informations d&apos;entreprise</div>
+                
+                <div className={styles.inputGroup}>
+                  <label htmlFor="expertise">Domaine d&apos;expertise</label>
+                  <select
+                    id="expertise"
+                    value={expertise}
+                    onChange={(e) => setExpertise(e.target.value)}
+                    required
+                  >
+                    <option value="">Sélectionnez</option>
+                    {expertiseList.map((item) => (
+                      <option key={item} value={item}>{item}</option>
+                    ))}
+                    <option value="Autre">Autre</option>
+                  </select>
+                  {expertise === 'Autre' && (
+                    <input
+                      type="text"
+                      placeholder="Entrez votre domaine d'expertise"
+                      value={customExpertise}
+                      onChange={(e) => setCustomExpertise(e.target.value)}
+                      required
+                      className={styles.customInput}
+                    />
+                  )}
+                </div>
+
+                <div className={styles.inputGroup}>
+                  <label htmlFor="companyName">Nom de l&apos;entreprise</label>
+                  <input
+                    type="text"
+                    id="companyName"
+                    value={companyName}
+                    onChange={(e) => setCompanyName(e.target.value)}
+                    required
+                    placeholder="Votre nom d'entreprise"
+                  />
+                </div>
+
+                <div className={styles.inputGroup}>
+                  <label htmlFor="siren">Numéro SIREN</label>
+                  <input
+                    type="text"
+                    id="siren"
+                    value={siren}
+                    onChange={(e) => setSiren(e.target.value)}
+                    required
+                    placeholder="123 456 789"
+                  />
+                </div>
+
+                <div className={styles.buttonsRow}>
+                  <button
+                    type="button"
+                    onClick={handleNext}
+                    disabled={!canGoNextStep}
+                    className={`${styles.nextButton} ${!canGoNextStep ? styles.disabledButton : ''}`}
+                  >
+                    Suivant →
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Étape 2 */}
+            {step === 2 && (
+              <div className={styles.formStep}>
+                <div className={styles.stepTitle}>Adresse de l&apos;entreprise</div>
+                
+                <div className={styles.formRow}>
+                  <div className={styles.inputGroup}>
+                    <label htmlFor="streetNumber">N° rue</label>
+                    <input
+                      type="text"
+                      id="streetNumber"
+                      value={streetNumber}
+                      onChange={(e) => setStreetNumber(e.target.value)}
+                      required
+                      placeholder="123"
+                    />
+                  </div>
+
+                  <div className={styles.inputGroup}>
+                    <label htmlFor="streetName">Nom de rue</label>
+                    <input
+                      type="text"
+                      id="streetName"
+                      value={streetName}
+                      onChange={(e) => setStreetName(e.target.value)}
+                      required
+                      placeholder="Rue de la République"
+                    />
+                  </div>
+                </div>
+
+                <div className={styles.formRow}>
+                  <div className={styles.inputGroup}>
+                    <label htmlFor="postalCode">Code postal</label>
+                    <input
+                      type="text"
+                      id="postalCode"
+                      value={postalCode}
+                      onChange={(e) => setPostalCode(e.target.value)}
+                      required
+                      placeholder="20000"
+                    />
+                  </div>
+
+                  <div className={styles.inputGroup}>
+                    <label htmlFor="city">Ville</label>
+                    <input
+                      type="text"
+                      id="city"
+                      value={city}
+                      onChange={(e) => setCity(e.target.value)}
+                      required
+                      placeholder="Ajaccio"
+                    />
+                  </div>
+                </div>
 
                 <div className={styles.buttonsRow}>
                   <button
@@ -485,7 +413,7 @@ export default function ArtisanInscription() {
                     onClick={handlePrevious}
                     className={styles.prevButton}
                   >
-                    Précédent
+                    ← Précédent
                   </button>
 
                   <button
@@ -494,113 +422,282 @@ export default function ArtisanInscription() {
                     disabled={!canGoNextStep}
                     className={`${styles.nextButton} ${!canGoNextStep ? styles.disabledButton : ''}`}
                   >
-                    Suivant
+                    Suivant →
                   </button>
                 </div>
               </div>
             )}
 
-            {/* 🎯 Modal en composant séparé - S'ouvre au centre de la page ! */}
+            {/* Étape 3 */}
+            {step === 3 && (
+              <div className={styles.formStep}>
+                <div className={styles.stepTitle}>Documents officiels</div>
+                <div className={styles.inputGroup}>
+                  <label htmlFor="kbisFile">Extrait Kbis</label>
+                  <div 
+                    className={`${styles.fileInputWrapper} ${kbisFile ? styles.hasFile : ''}`}
+                    onDragOver={handleDragOver} 
+                    onDragLeave={handleDragLeave} 
+                    onDrop={(e) => handleDrop(e, setKbisFile)}
+                  >
+                    <input
+                      type="file"
+                      id="kbisFile"
+                      accept=".pdf"
+                      onChange={(e) => setKbisFile(e.target.files ? e.target.files[0] : null)}
+                      required
+                      className={styles.hiddenFileInput}
+                    />
+                    <label htmlFor="kbisFile" className={styles.fileInputLabel}>
+                      <div className={styles.fileInputIcon}>
+                        {kbisFile ? '✅' : '📄'}
+                      </div>
+                      <div className={styles.fileInputText}>
+                        {kbisFile ? (
+                          <>
+                            <span className={styles.fileName}>{kbisFile.name}</span>
+                            <span className={styles.fileSize}>
+                              ({Math.round(kbisFile.size / 1024)} KB)
+                            </span>
+                          </>
+                        ) : (
+                          <>
+                            <span className={styles.mainText}>Cliquez pour sélectionner</span>
+                            <span className={styles.helperText}>ou glissez-déposez votre fichier</span>
+                          </>
+                        )}
+                      </div>
+                    </label>
+                  </div>
+                  <div className={styles.fileHelper}>📄 Format PDF uniquement - Max 5MB</div>
+                </div>
+
+                <div className={styles.inputGroup}>
+                  <label htmlFor="insuranceFile">Attestation d&apos;assurance professionnelle</label>
+                  <div 
+                    className={`${styles.fileInputWrapper} ${insuranceFile ? styles.hasFile : ''}`}
+                    onDragOver={handleDragOver} 
+                    onDragLeave={handleDragLeave} 
+                    onDrop={(e) => handleDrop(e, setInsuranceFile)}
+                  >
+                    <input
+                      type="file"
+                      id="insuranceFile"
+                      accept=".pdf"
+                      onChange={(e) => setInsuranceFile(e.target.files ? e.target.files[0] : null)}
+                      required
+                      className={styles.hiddenFileInput}
+                    />
+                    <label htmlFor="insuranceFile" className={styles.fileInputLabel}>
+                      <div className={styles.fileInputIcon}>
+                        {insuranceFile ? '✅' : '🛡️'}
+                      </div>
+                      <div className={styles.fileInputText}>
+                        {insuranceFile ? (
+                          <>
+                            <span className={styles.fileName}>{insuranceFile.name}</span>
+                            <span className={styles.fileSize}>
+                              ({Math.round(insuranceFile.size / 1024)} KB)
+                            </span>
+                          </>
+                        ) : (
+                          <>
+                            <span className={styles.mainText}>Cliquez pour sélectionner</span>
+                            <span className={styles.helperText}>ou glissez-déposez votre fichier</span>
+                          </>
+                        )}
+                      </div>
+                    </label>
+                  </div>
+                  <div className={styles.fileHelper}>🛡️ Format PDF uniquement - Max 5MB</div>
+                </div>
+
+                <div className={styles.buttonsRow}>
+                  <button
+                    type="button"
+                    onClick={handlePrevious}
+                    className={styles.prevButton}
+                  >
+                    ← Précédent
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={handleNext}
+                    disabled={!canGoNextStep}
+                    className={`${styles.nextButton} ${!canGoNextStep ? styles.disabledButton : ''}`}
+                  >
+                    Suivant →
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Étape 4 */}
+            {step === 4 && (
+              <div className={styles.formStep}>
+                <div className={styles.stepTitle}>Choisissez votre abonnement</div>
+                
+                <div className={styles.radioGroup}>
+                  {['Standard', 'Pro', 'Premium'].map((plan) => (
+                    <label
+                      key={plan}
+                      className={`${styles.selectButton} ${membershipPlan === plan ? styles.selected : ''}`}
+                    >
+                      <input
+                        type="radio"
+                        name="membershipPlan"
+                        value={plan}
+                        checked={membershipPlan === plan}
+                        onChange={(e) => setMembershipPlan(e.target.value)}
+                        className={styles.hiddenInput}
+                      />
+                      📦 {plan}
+                    </label>
+                  ))}
+                </div>
+
+                <button 
+                  type="button" 
+                  className={styles.detailsButton} 
+                  onClick={() => setIsModalOpen(true)}
+                >
+                  💡 Voir détails des formules
+                </button>
+
+                <div className={styles.buttonsRow}>
+                  <button
+                    type="button"
+                    onClick={handlePrevious}
+                    className={styles.prevButton}
+                  >
+                    ← Précédent
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={handleNext}
+                    disabled={!canGoNextStep}
+                    className={`${styles.nextButton} ${!canGoNextStep ? styles.disabledButton : ''}`}
+                  >
+                    Suivant →
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Étape 5 */}
+            {step === 5 && (
+              <div className={styles.formStep}>
+                <div className={styles.stepTitle}>Informations de connexion</div>
+                
+                <div className={styles.inputGroup}>
+                  <label htmlFor="email">Email</label>
+                  <input
+                    type="email"
+                    id="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                    placeholder="votre@email.com"
+                  />
+                </div>
+
+                <div className={styles.inputGroup}>
+                  <label htmlFor="phone">Téléphone</label>
+                  <input
+                    type="tel"
+                    id="phone"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    required
+                    placeholder="06 12 34 56 78"
+                  />
+                </div>
+
+                <div className={styles.inputGroup}>
+                  <label htmlFor="password">Mot de passe</label>
+                  <input
+                    type="password"
+                    id="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    placeholder="Mot de passe sécurisé (min. 6 caractères)"
+                  />
+                </div>
+
+                <div className={styles.inputGroup}>
+                  <label htmlFor="confirmPassword">Confirmer mot de passe</label>
+                  <input
+                    type="password"
+                    id="confirmPassword"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    required
+                    placeholder="Confirmez votre mot de passe"
+                  />
+                </div>
+
+                <div className={styles.buttonsRow}>
+                  <button
+                    type="button"
+                    onClick={handlePrevious}
+                    className={styles.prevButton}
+                  >
+                    ← Précédent
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={handleNext}
+                    disabled={!canGoNextStep}
+                    className={`${styles.nextButton} ${!canGoNextStep ? styles.disabledButton : ''}`}
+                  >
+                    🚀 S&apos;inscrire
+                  </button>
+                </div>
+              </div>
+            )}
+
             <PricingModal 
               isOpen={isModalOpen} 
               onClose={() => setIsModalOpen(false)} 
             />
 
-            {/* Étape 5 */}
-          {step === 5 && (
-            <form onSubmit={handleFormSubmit} className={styles.formStep}>
-              <div className={styles.inputGroup}>
-                <label htmlFor="email">Email</label>
-                <input
-                  type="email"
-                  id="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                />
-              </div>
-
-              <div className={styles.inputGroup}>
-                <label htmlFor="phone">Téléphone</label>
-                <input
-                  type="tel"
-                  id="phone"
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                  required
-                />
-              </div>
-
-              <div className={styles.inputGroup}>
-                <label htmlFor="password">Mot de passe</label>
-                <input
-                  type="password"
-                  id="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                />
-              </div>
-
-              <div className={styles.inputGroup}>
-                <label htmlFor="confirmPassword">Confirmer mot de passe</label>
-                <input
-                  type="password"
-                  id="confirmPassword"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  required
-                />
-              </div>
-
-              <div className={styles.buttonsRow}>
-                <button
-                  type="button"
-                  onClick={handlePrevious}
-                  className={styles.prevButton}
-                >
-                  Précédent
-                </button>
-
-                <button
-                  type="submit"
-                  disabled={!canGoNextStep}
-                  className={`${styles.nextButton} ${!canGoNextStep ? styles.disabledButton : ''}`}
-                >
-                  S’inscrire
-                </button>
-              </div>
-            </form>
-          )}
-
-          {/* Étape 6 - Paiement Stripe */}
+            {/* Étape 6 - Paiement Stripe */}
             {step === 6 && sessionId && (
               <div className={styles.paymentStep}>
-                <h2 className={styles.paymentTitle}>Paiement</h2>
-                <p className={styles.paymentText}>
-                  Votre inscription est presque terminée, veuillez procéder au paiement.
-                </p>
+                <div className={styles.stepTitle}>Finaliser l&apos;inscription</div>
+                <div className={styles.paymentDescription}>
+                  <p>Votre inscription est presque terminée !</p>
+                  <p>Procédez au paiement pour activer votre compte artisan.</p>
+                </div>
                 <div className={styles.buttonsRow}>
-                  <button onClick={handlePayment} className={styles.payButton}>
-                    Payer
-                  </button>
                   <button onClick={() => setStep(5)} className={styles.prevButton}>
-                    Retour
+                    ← Retour
+                  </button>
+                  <button onClick={handlePayment} className={styles.payButton}>
+                    Procéder au paiement
                   </button>
                 </div>
               </div>
             )}
 
-          <Link href="/auth/login_artisan" className={styles.backButton}>
-            Retour vers la connexion
-          </Link>
-
-          <ToastContainer position="top-center" autoClose={4000} />
+            <Link href="/auth/login_artisan" className={styles.backButton}>
+              ← Retour vers la connexion
+            </Link>
+          </div>
         </div>
       </div>
-    </div>
+
+      <ToastContainer position="top-center" autoClose={4000} theme="light" />
+    </>
   )
 }
+
+
+
 
 
 

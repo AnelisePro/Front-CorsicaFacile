@@ -58,12 +58,11 @@ export default function ClientConnexion() {
         localStorage.setItem('user', JSON.stringify(user))
         setUser(user)
 
-        // Toast avec callback onClose pour redirection
         toast.success('Connexion réussie', {
           onClose: () => {
             router.push('/dashboard/client')
           },
-          autoClose: 3000, // durée affichage du toast (3 secondes)
+          autoClose: 3000,
         })
       } else {
         setError(data.message || "Une erreur s'est produite.")
@@ -76,79 +75,80 @@ export default function ClientConnexion() {
     }
   }
 
-return (
-  <>
-    <div className={styles.splitContainer}>
-      <div className={styles.leftSide}>
-        <Image
-          src="/images/landscape1.jpg"
-          alt="Illustration de connexion"
-          fill
-          className={styles.image}
-        />
-      </div>
-
-      <div className={styles.rightSide}>
+  return (
+    <>
+      <div className={styles.container}>
         <div className={styles.card}>
-          <h1 className={styles.title}>Connexion</h1>
+          <div className={styles.imageSection}>
+            <img src="/images/img5.jpeg" alt="Image de fond" />
+          </div>
+          <div className={styles.contentSection}>
+            <h1 className={styles.title}>Connexion Client</h1>
 
-          {error && <p className={styles.error}>{error}</p>}
+            {error && <p className={styles.error}>{error}</p>}
 
-          <form onSubmit={handleSubmit} className={styles.form}>
-            <div className={styles.inputGroup}>
-              <label htmlFor="email">Email</label>
-              <input
-                type="email"
-                id="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                placeholder="Votre email"
-              />
-            </div>
+            <form onSubmit={handleSubmit} className={styles.form}>
+              <div className={styles.inputGroup}>
+                <label htmlFor="email">Email</label>
+                <input
+                  type="email"
+                  id="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
+                  placeholder="Votre email"
+                />
+              </div>
 
-            <div className={styles.inputGroup}>
-              <label htmlFor="password">Mot de passe</label>
-              <input
-                type="password"
-                id="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                placeholder="Votre mot de passe"
-              />
-            </div>
+              <div className={styles.inputGroup}>
+                <label htmlFor="password">Mot de passe</label>
+                <input
+                  type="password"
+                  id="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  placeholder="Votre mot de passe"
+                />
+              </div>
 
-            <button type="submit" className={styles.submitButton}>Se connecter</button>
+              <button type="submit" className={styles.submitButton}>
+                Se connecter
+              </button>
 
-            <div className={styles.links}>
-              <Link href="/auth/passwords/client" className={styles.link}>Mot de passe oublié ?</Link>
-              <Link href="/auth/register_client" className={styles.link}>Pas encore inscrit ? Inscrivez-vous</Link>
-            </div>
-          </form>
+              <div className={styles.links}>
+                <Link href="/auth/passwords/client" className={styles.link}>
+                  Mot de passe oublié ?
+                </Link>
+                <Link href="/auth/register_client" className={styles.link}>
+                  Pas encore inscrit ? Inscrivez-vous
+                </Link>
+              </div>
+            </form>
 
-          <Link href="/mon-espace" className={styles.backButton}>
-            Retour à l'écran de choix
-          </Link>
+            <Link href="/mon-espace" className={styles.backButton}>
+              ← Retour à l'écran de choix
+            </Link>
+          </div>
         </div>
       </div>
-    </div>
 
-    <ToastContainer
-      position="top-right"
-      autoClose={3000}
-      hideProgressBar={false}
-      newestOnTop={false}
-      closeOnClick
-      rtl={false}
-      pauseOnFocusLoss
-      draggable
-      pauseOnHover
-      theme="light"
-    />
-  </>
-)
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+      />
+    </>
+  )
 }
+
 
 
 

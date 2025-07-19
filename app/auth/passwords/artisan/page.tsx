@@ -36,23 +36,17 @@ export default function ForgottenPasswordArtisan() {
 
   return (
     <>
-      <div className={styles.splitContainer}>
-        <div className={styles.leftSide}>
-          <Image
-            src="/images/landscape1.jpg"
-            alt="Illustration mot de passe oublié artisan"
-            fill
-            className={styles.image}
-          />
-        </div>
-
-        <div className={styles.rightSide}>
-          <div className={styles.card}>
+      <div className={styles.container}>
+        <div className={styles.card}>
+          <div className={styles.imageSection}>
+            <img src="/images/img5.jpeg" alt="Image de fond" />
+          </div>
+          <div className={styles.contentSection}>
             <h1 className={styles.title}>Mot de passe oublié</h1>
 
-            <p style={{ marginBottom: '1rem', textAlign: 'center' }}>
-              Entrez votre adresse email et nous vous enverrons un lien pour récupérer votre compte.
-            </p>
+            <div className={styles.description}>
+              <p>Entrez votre adresse email et nous vous enverrons un lien pour récupérer votre compte.</p>
+            </div>
 
             {error && <p className={styles.error}>{error}</p>}
 
@@ -73,11 +67,11 @@ export default function ForgottenPasswordArtisan() {
               <button type="submit" className={styles.submitButton} disabled={loading}>
                 {loading ? 'Envoi en cours...' : 'Réinitialiser'}
               </button>
-
-              <Link href="/auth/login_artisan" className={styles.backButton}>
-                Retour à la connexion
-              </Link>
             </form>
+
+            <Link href="/auth/login_artisan" className={styles.backButton}>
+              ← Retour à la connexion
+            </Link>
           </div>
         </div>
       </div>
@@ -86,3 +80,4 @@ export default function ForgottenPasswordArtisan() {
     </>
   )
 }
+

@@ -138,7 +138,7 @@ $secondary-color: #81A04A;
   font-family: 'Nunito', sans-serif;
   line-height: 1.5;
   opacity: 0.9;
-  max-width: 600px; // 🎯 Limite la largeur du texte
+  max-width: 600px;
   flex-shrink: 0;
   
   @media (max-width: 768px) {
@@ -157,7 +157,7 @@ $secondary-color: #81A04A;
 // =========================================
 
 .cards {
-  display: flex; // 🎯 FLEX AU LIEU DE GRID
+  display: flex; 
   justify-content: center; // 🎯 CENTRE LES CARTES
   align-items: stretch; // 🎯 Toutes les cartes même hauteur
   gap: 1.5rem;

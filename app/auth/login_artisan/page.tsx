@@ -61,7 +61,6 @@ export default function ArtisanConnexion() {
         localStorage.setItem('user', JSON.stringify(user))
         setUser(user)
 
-        // Toast avec callback onClose pour redirection
         toast.success('Connexion réussie', {
           onClose: () => {
             router.push('/dashboard/artisan')
@@ -81,19 +80,13 @@ export default function ArtisanConnexion() {
 
   return (
     <>
-      <div className={styles.splitContainer}>
-        <div className={styles.leftSide}>
-          <Image
-            src="/images/landscape1.jpg"
-            alt="Illustration de connexion"
-            fill
-            className={styles.image}
-          />
-        </div>
-
-        <div className={styles.rightSide}>
-          <div className={styles.card}>
-            <h1 className={styles.title}>Connexion</h1>
+      <div className={styles.container}>
+        <div className={styles.card}>
+          <div className={styles.imageSection}>
+            <img src="/images/img5.jpeg" alt="Image de fond" />
+          </div>
+          <div className={styles.contentSection}>
+            <h1 className={styles.title}>Connexion Artisan</h1>
 
             {error && <p className={styles.error}>{error}</p>}
 
@@ -149,7 +142,7 @@ export default function ArtisanConnexion() {
             </form>
 
             <Link href="/mon-espace" className={styles.backButton}>
-              Retour à l'écran de choix
+              ← Retour à l'écran de choix
             </Link>
           </div>
         </div>
@@ -170,6 +163,7 @@ export default function ArtisanConnexion() {
     </>
   )
 }
+
 
 
 

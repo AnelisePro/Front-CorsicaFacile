@@ -1,84 +1,216 @@
-@use 'sass:color';
-@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&family=Nunito:wght@400;500;600&display=swap');
 
 .container {
-  display: flex;
   min-height: 100vh;
-}
-
-.imageContainer {
-  flex: 1;
-  position: relative;
-  height: 100vh;
-}
-
-.image {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.content {
-  flex: 1;
+  background-image: url('/images/img5.jpeg');
+  background-size: cover;
+  background-position: center;
+  font-family: 'Nunito', sans-serif;
   display: flex;
-  flex-direction: column;
-  justify-content: center;
   align-items: center;
-  padding: 3rem 2rem;
-  text-align: center;
-  background-color: #FEFBF4;
-  height: 100vh;
-}
+  justify-content: center;
+  padding: 1rem;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
 
 
-.title {
-  font-size: 2.5rem;
-  font-family: 'Quicksand', sans-serif;
-  font-weight: 700;
-  margin-bottom: 2rem;
-  color: #81A04A;
-}
-
-.options {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
+  // Background flouté
+  &::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: url('/images/img5.jpeg');
+    background-size: cover;
+    background-position: center;
+    filter: blur(6px);
+  }
 }
 
 .card {
-  display: block;
-  padding: 1.25rem 2rem;
-  background-color: #0F78B1;
-  color: #FEFBF4;
-  border-radius: 0.75rem;
-  font-size: 1.2rem;
-  font-weight: 700;
-  text-decoration: none;
-  text-align: center;
-  transition: background-color 0.3s ease;
+  display: flex;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(15px);
+  border-radius: 20px;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+  max-width: 850px;
+  width: 90%;
+  min-height: 400px;
+  overflow: hidden;
+  z-index: 1;
+  margin-top: 4rem;
 }
 
-.card:hover {
-  background-color: color.scale(#0F78B1, $lightness: -10%);
-}
+.imageSection {
+  width: 50%;
 
-/* Responsive */
-@media (max-width: 768px) {
-  .container {
-    flex-direction: column;
-  }
-  .imageContainer {
-    height: 200px;
-    width: 100%;
-  }
-  .image {
+  img {
     width: 100%;
     height: 100%;
-  }
-  .content {
-    height: auto;
-    padding: 2rem 1rem;
+    object-fit: cover;
   }
 }
+
+.contentSection {
+  width: 50%;
+  padding: 3rem; // Augmenté de 2rem à 3rem pour plus d'espace
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  position: relative;
+  
+  // Effet glass morphism
+  background: rgba(255, 255, 255, 0.049);
+  backdrop-filter: blur(20px);
+
+  // Gradient subtil pour l'effet glass
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.2) 0%,
+      rgba(255, 255, 255, 0.05) 50%,
+      rgba(255, 255, 255, 0.1) 100%
+    );
+    pointer-events: none;
+    z-index: 0;
+  }
+  
+  // Contenu au-dessus du gradient
+  > * {
+    position: relative;
+    z-index: 1;
+  }
+}
+
+.title {
+  font-family: 'Quicksand', sans-serif;
+  font-size: 2.2rem; // Augmenté de 2rem à 2.2rem
+  font-weight: 700;
+  color: #81A04A;
+  margin-bottom: 2.5rem; // Augmenté de 2rem à 2.5rem
+  text-align: center;
+}
+
+.buttonsGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem; // Augmenté de 1rem à 1.5rem
+}
+
+.modernButton {
+  display: flex;
+  align-items: center;
+  padding: 1.2rem 2rem; // Augmenté le padding
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(15px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 20px;
+  text-decoration: none;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  color: #fff;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+    background: rgba(255, 255, 255, 0.25);
+  }
+}
+
+.clientButton {
+  color: #81A04A;
+
+  &:hover {
+    background: linear-gradient(135deg, rgba(129, 160, 74, 0.8) 0%, rgba(155, 184, 90, 0.8) 100%);
+    border-color: rgba(129, 160, 74, 0.6);
+    color: white;
+    backdrop-filter: blur(15px);
+  }
+}
+
+.artisanButton {
+  color: #3498db;
+  &:hover {
+    background: linear-gradient(135deg, rgba(52, 152, 219, 0.8) 0%, rgba(93, 173, 226, 0.8) 100%);
+    border-color: rgba(52, 152, 219, 0.6);
+    color: white;
+    backdrop-filter: blur(15px);
+  }
+}
+
+.buttonText {
+  font-family: 'Quicksand', sans-serif;
+  font-size: 1.1rem; // Augmenté de 1rem à 1.1rem
+  font-weight: 600;
+  flex: 1;
+}
+
+.buttonArrow {
+  font-size: 1.4rem;
+  margin-left: 0.5rem;
+}
+
+// Responsive design
+@media (max-width: 768px) {
+  .card {
+    flex-direction: column;
+    max-width: 90%; // Ajusté pour mobile
+    width: 90%;
+  }
+  
+  .imageSection, .contentSection {
+    width: 100%;
+  }
+  
+  .imageSection {
+    height: 250px; // Augmenté de 200px à 250px
+  }
+  
+  .contentSection {
+    border-left: none;
+    border-top: 1px solid rgba(255, 255, 255, 0.3);
+    padding: 2rem; // Padding réduit pour mobile
+  }
+  
+  .title {
+    font-size: 1.8rem; // Taille ajustée pour mobile
+    margin-bottom: 2rem;
+  }
+  
+  .buttonsGroup {
+    gap: 1rem; // Gap réduit pour mobile
+  }
+  
+  .modernButton {
+    padding: 1rem 1.5rem; // Padding réduit pour mobile
+  }
+  
+  .buttonText {
+    font-size: 1rem; // Taille réduite pour mobile
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
 
 

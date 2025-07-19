@@ -1,477 +1,570 @@
-@use "sass:color";
-@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&family=Nunito:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&display=swap');
 
-$primary-color: #5E3E23;
-$secondary-color: #81A04A;
+// Variables
+$primary-color: #81A04A;
+$secondary-color: #3498db;
+$background-color: #FEFBF4;
+$text-color: #333;
+$error-color: #dc2626;
 
-// =========================================
-// Styles existants
-// =========================================
-
-.splitContainer {
-  display: flex;
+.container {
   min-height: 100vh;
-  flex-direction: row;
-}
-
-@media (max-width: 768px) {
-  .splitContainer {
-    flex-direction: column;
-  }
-}
-
-.leftSide {
-  width: 50%;
-  background-color: #f3f4f6;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  position: relative;
-}
-
-@media (max-width: 768px) {
-  .leftSide {
-    width: 100%;
-    height: 200px;
-  }
-}
-
-.image {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.rightSide {
-  width: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 2rem;
-  flex-direction: column;
-}
-
-@media (max-width: 768px) {
-  .rightSide {
-    width: 100%;
-    padding: 1rem;
-  }
-}
-
-.card {
-  background-color: white;
-  border-radius: 10px;
-  box-shadow: 0 4px 6px rgb(0 0 0 / 0.1);
-  max-width: 400px;
-  width: 100%;
-  padding: 2rem;
-}
-
-.title {
-  margin-bottom: 1rem;
-  font-weight: 700;
-  font-size: 1.8rem;
-  color: #81A04A;
-  text-align: center;
-  font-family: 'Quicksand', sans-serif;
-}
-
-.error {
-  color: red;
-  margin-bottom: 1rem;
-  text-align: center;
-}
-
-.form {
-  display: flex;
-  flex-direction: column;
-}
-
-.inputGroup {
-  margin-bottom: 1rem;
-  display: flex;
-  flex-direction: column;
-
-  label {
-    font-weight: 400;
-    margin-bottom: 0.25rem;
-    font-size: 0.9rem;
-    color: $primary-color;
-    font-family: 'Nunito', sans-serif;
-  }
-
-  input,
-  select {
-    padding: 0.5rem;
-    border-radius: 6px;
-    border: 1px solid #81A04A;
-    font-size: 1rem;
-    outline: none;
-    color: $primary-color;
-
-    &:focus {
-      border-color: #81A04A;
-      box-shadow: 0 0 0 2px #80a04ab7;
-    }
-  }
-}
-
-.fileInput {
-  padding: 0.5rem;
-  border: 2px dashed $secondary-color;
-  border-radius: 8px;
-  background-color: #f9f9f9;
-  font-size: 0.95rem;
-  cursor: pointer;
-  transition: border-color 0.3s ease;
-
-  &:hover {
-    border-color: $primary-color;
-  }
-
-  &::-webkit-file-upload-button {
-    background: $primary-color;
-    color: #fff;
-    padding: 0.5rem 1rem;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-family: 'Nunito', sans-serif;
-  }
-
-  &::file-selector-button {
-    background: $primary-color;
-    color: #fff;
-    padding: 0.5rem 1rem;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    font-family: 'Nunito', sans-serif;
-  }
-}
-
-
-.submitButton {
-  background-color: #0F78B1;
-  color: white;
-  font-weight: 600;
-  border: none;
-  border-radius: 6px;
-  padding: 0.75rem;
-  font-size: 1.1rem;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-
-  &:hover {
-    background-color: #0b5e8a;
-  }
-}
-
-.paymentSection {
-  text-align: center;
-}
-
-.paymentButton {
-  background-color: #81A04A;
-  margin-top: 4%;
-  color: #FEFBF4;
-  font-weight: 600;
-  border: none;
-  border-radius: 6px;
-  padding: 0.75rem 1.5rem;
-  font-size: 1.1rem;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-
-  &:hover {
-    background-color: #67803b;
-  }
-}
-
-.backButton {
-  text-align: center;
-  color: #0F78B1;
-  font-size: 0.9rem;
-  text-decoration: underline;
-  margin-top: 8%;
-}
-
-// =========================================
-// Titre animé
-// =========================================
-
-.h1 {
-  font-size: 2.5rem;
-  font-weight: 800;
-  color: $secondary-color;
-  margin-bottom: 2rem;
-  position: relative;
-  display: inline-block;
-  font-family: 'Quicksand', sans-serif;
-
-  &::after {
-    content: '';
-    display: block;
-    width: 50%;
-    height: 4px;
-    background-color: $primary-color;
-    margin-top: 0.5rem;
-    border-radius: 2px;
-    animation: expand 1s ease-out;
-  }
-
-  @media (max-width: 480px) {
-    font-size: 1.8rem;
-    margin-bottom: 1.2rem;
-  }
-}
-
-@keyframes expand {
-  from {
-    width: 0;
-  }
-  to {
-    width: 50%;
-  }
-}
-
-// =========================================
-// Cartes
-// =========================================
-
-.cards {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 2rem;
-}
-
-.card {
-  background-color: #fff;
-  border: 2px solid $secondary-color;
-  border-radius: 1rem;
-  padding: 1.5rem;
-  text-align: center;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
-  transition: transform 0.3s ease;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  min-height: 400px;
-  position: relative;
-
-  &:hover {
-    transform: translateY(-5px);
-  }
-}
-
-.cardContent {
-  flex: 1;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  color: color.scale($primary-color, $lightness: -15%);
-}
-
-.recommended {
-  border-color: $primary-color;
-  background-color: #fdf7f1;
-
-  .tag {
-    position: absolute;
-    top: -15px;
-    left: 50%;
-    transform: translateX(-50%);
-    background-color: $primary-color;
-    color: #fff;
-    padding: 0.3rem 1rem;
-    border-radius: 999px;
-    font-size: 0.9rem;
-    font-weight: bold;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-  }
-}
-
-.cardTitle {
-  font-size: 1.5rem;
-  margin-bottom: 1rem;
-  color: $primary-color;
-  font-family: 'Quicksand', sans-serif;
-}
-
-.cardList {
-  list-style: none;
-  padding: 0;
-  margin: 0;
+  background-image: url('/images/img5.jpeg');
+  background-size: cover;
+  background-position: center;
   font-family: 'Nunito', sans-serif;
-
-  li {
-    margin-bottom: 0.5rem;
-    font-size: 1rem;
-    text-align: start;
-    display: flex;
-    align-items: flex-start;
-    justify-content: flex-start;
-
-    span {
-      color: $secondary-color;
-      font-weight: bold;
-      margin-right: 0.5rem;
-      font-size: 1.1rem;
-    }
-  }
-}
-
-.bullet {
-  color: $secondary-color;
-}
-
-.cardPrice {
-  font-size: 1.4rem;
-  font-weight: bold;
-  color: #0F78B1;
-}
-
-.intro {
-  font-size: 1.2rem;
-  margin-bottom: 3rem;
-  text-align: center;
-  font-family: Raleway, sans-serif;
-  color: color.scale($primary-color, $lightness: -15%);
-}
-
-// =========================================
-// Étapes formulaire et barre de progression
-// =========================================
-
-.progressWrapper {
-  position: relative;
-  height: 40px;
-  margin-bottom: 2rem;
-}
-
-
-.progressBarContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
   position: absolute;
-  top: 50%;
+  top: 0;
   left: 0;
   width: 100%;
-  height: 6px;
-  background-color: #a4a7ab45;
-  border-radius: 3px;
-  transform: translateY(-50%);
-  z-index: 1;
+
+  // Background flouté
+  &::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: url('/images/img5.jpeg');
+    background-size: cover;
+    background-position: center;
+    filter: blur(6px);
+  }
 }
 
-.progressBar {
-  height: 100%;
-  background-color: #0F78B1;
-  border-radius: 3px;
-  transition: width 0.3s ease;
-  z-index: 2;
+.card {
+  display: flex;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(15px);
+  border-radius: 20px;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+  max-width: 1200px;
+  width: 95%;
+  height: 620px;
+  overflow: hidden;
+  z-index: 1;
+  margin-top: 5rem;
+}
+
+.imageSection {
+  position: relative;
+  width: 40%;
+  
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+.contentSection {
+  width: 60%;
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow-y: auto;
+  
+  // Effet glass morphism
+  background: rgba(255, 255, 255, 0.049);
+  backdrop-filter: blur(20px);
+
+  // Gradient subtil pour l'effet glass
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    pointer-events: none;
+    z-index: 0;
+  }
+  
+  // Contenu au-dessus du gradient
+  > * {
+    position: relative;
+    z-index: 1;
+  }
+}
+
+
+.title {
+  font-family: 'Quicksand', sans-serif;
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #81A04A;
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+// Barre de progression
+.progressWrapper {
+  position: relative;
+  margin-bottom: 2rem;
+  
+  @media (max-width: 768px) {
+    margin-bottom: 1.5rem;
+  }
 }
 
 .steps {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  position: absolute;
-  top: 50%;
-  width: 100%;
-  transform: translateY(-50%);
+  position: relative;
   z-index: 3;
-  pointer-events: none;
+  margin-bottom: 0.5rem;
+}
+
+.progressBarContainer {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  right: 16px;
+  height: 2px;
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 2px;
+  z-index: 1;
+}
+
+.progressBar {
+  height: 100%;
+  background: #80a04adc;
+  border-radius: 2px;
+  transition: width 0.3s ease;
+  z-index: 2;
 }
 
 .stepCircle {
-  width: 28px;
-  height: 28px;
-  background-color: #fff;
-  border: 2px solid #d1e6f0;
+  width: 32px;
+  height: 32px;
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(10px);
+  border: 2px solid #3498db;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 0.9rem;
-  font-weight: bold;
-  color: #0F78B1;
+  font-weight: 600;
+  color: $secondary-color;
   z-index: 4;
+  font-family: 'Quicksand', sans-serif;
+  position: relative;
+
+  &.active {
+    background: linear-gradient(135deg, rgba(33, 146, 207, 0.9) 0%, rgb(52, 135, 180) 100%);
+    color: white;
+    border-color: #3498db;
+  }
 }
 
-.stepCircle.active {
-  background-color: #0F78B1;
-  color: #fff;
-  border-color: #0F78B1;
-}
-
+// Formulaire
 .formStep {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
+  flex: 1;
 }
 
+.stepTitle {
+  font-family: 'Nunito', sans-serif;
+  font-size: 1.3rem;
+  font-weight: 600;
+  color: #5E3E23;
+  text-align: center;
+  margin-bottom: 0.5rem;
+
+  @media (max-width: 768px) {
+    font-size: 1.1rem;
+  }
+}
+
+.formRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+    gap: 0.8rem;
+  }
+}
+
+.inputGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+
+  label {
+    font-family: 'Nunito', sans-serif;
+    font-weight: 600;
+    color: #5E3E23;
+    font-size: 0.9rem;
+  }
+
+  input, select {
+    padding: 0.8rem 1rem;
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(15px);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 12px;
+    font-size: 0.95rem;
+    color: #5E3E23;
+    transition: all 0.3s ease;
+    
+    &::placeholder {
+      color: #5e3e23b5;
+      font-family: Nunito;
+      font-size: 0.9rem;
+      font-style: italic;
+    }
+    
+    &:focus {
+      outline: none;
+      border-color: #81A04A;
+      background: rgba(255, 255, 255, 0.3);
+      box-shadow: 0 0 0 3px rgba(129, 160, 74, 0.1);
+    }
+
+    &:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+    }
+
+    @media (max-width: 768px) {
+      padding: 0.7rem 0.8rem;
+      font-size: 0.9rem;
+    }
+  }
+}
+
+// File Upload Styling
+.hiddenFileInput {
+  display: none !important;
+}
+
+.fileInputWrapper {
+  position: relative;
+  margin-top: 0.5rem;
+  transition: all 0.3s ease;
+
+  &.hasFile {
+    .fileInputLabel {
+      border-color: rgba(129, 160, 74, 0.8);
+      background: rgba(129, 160, 74, 0.1);
+      
+      &:hover {
+        border-color: #81A04A;
+        background: rgba(129, 160, 74, 0.15);
+      }
+    }
+  }
+}
+
+.fileInputLabel {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.2rem 1.5rem;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(20px);
+  border: 2px dashed rgba(94, 62, 35, 0.4);
+  border-radius: 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-height: 80px;
+  position: relative;
+  overflow: hidden;
+
+  &:hover {
+    border-color: rgba(94, 62, 35, 0.7);
+    background: rgba(255, 255, 255, 0.25);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  }
+
+  &:active {
+    transform: translateY(0);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  }
+
+  // Effet de brillance au survol
+  &::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(
+      45deg,
+      transparent,
+      rgba(255, 255, 255, 0.1),
+      transparent
+    );
+    transform: rotate(45deg);
+    transition: all 0.5s ease;
+    opacity: 0;
+  }
+
+  &:hover::before {
+    animation: shine 0.8s ease-in-out;
+  }
+
+  @media (max-width: 768px) {
+    padding: 1rem;
+    min-height: 70px;
+    flex-direction: column;
+    text-align: center;
+    gap: 0.5rem;
+  }
+}
+
+@keyframes shine {
+  0% {
+    transform: translateX(-100%) translateY(-100%) rotate(45deg);
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(100%) translateY(100%) rotate(45deg);
+    opacity: 0;
+  }
+}
+
+.fileInputIcon {
+  font-size: 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 60px;
+  height: 60px;
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+
+  .fileInputLabel:hover & {
+    transform: scale(1.1) rotate(10deg);
+    background: rgba(255, 255, 255, 0.3);
+  }
+
+  @media (max-width: 768px) {
+    width: 50px;
+    height: 50px;
+    font-size: 1.5rem;
+  }
+}
+
+.fileInputText {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+
+  @media (max-width: 768px) {
+    align-items: center;
+  }
+}
+
+.mainText {
+  font-family: 'Nunito', sans-serif;
+  font-weight: 600;
+  font-size: 1.1rem;
+  color: #5E3E23;
+  line-height: 1.2;
+
+  @media (max-width: 768px) {
+    font-size: 1rem;
+  }
+}
+
+.helperText {
+  font-family: 'Nunito', sans-serif;
+  font-weight: 400;
+  font-size: 0.9rem;
+  color: rgba(94, 62, 35, 0.7);
+  font-style: italic;
+
+  @media (max-width: 768px) {
+    font-size: 0.8rem;
+  }
+}
+
+.fileName {
+  font-family: 'Nunito', sans-serif;
+  font-weight: 600;
+  font-size: 1rem;
+  color: #81A04A;
+  word-break: break-word;
+  line-height: 1.2;
+
+  @media (max-width: 768px) {
+    font-size: 0.9rem;
+  }
+}
+
+.fileSize {
+  font-family: 'Nunito', sans-serif;
+  font-weight: 400;
+  font-size: 0.85rem;
+  color: rgba(129, 160, 74, 0.8);
+  font-style: italic;
+
+  @media (max-width: 768px) {
+    font-size: 0.75rem;
+  }
+}
+
+.fileHelper {
+  font-size: 0.8rem;
+  color: rgba(94, 62, 35, 0.7);
+  font-style: italic;
+  margin-top: 0.5rem;
+  text-align: center;
+  font-family: 'Nunito', sans-serif;
+  padding: 0.5rem;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border-radius: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+
+  @media (max-width: 768px) {
+    font-size: 0.75rem;
+    padding: 0.4rem;
+  }
+}
+
+// Animation de drag & drop
+.fileInputWrapper {
+  &.dragOver {
+    .fileInputLabel {
+      border-color: #81A04A;
+      background: rgba(129, 160, 74, 0.2);
+      transform: scale(1.02);
+    }
+  }
+}
+
+
+// Boutons
 .buttonsRow {
   display: flex;
   justify-content: space-between;
   gap: 1rem;
   margin-top: 1.5rem;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    gap: 0.8rem;
+  }
 }
 
 .nextButton,
 .prevButton,
-.detailsButton {
-  padding: 0.6rem 1.5rem;
-  font-family: 'Quicksand', sans-serif;
+.detailsButton,
+.payButton {
+  padding: 0.8rem 1.5rem;
+  font-family: 'Nunito', sans-serif;
   font-weight: 600;
   font-size: 1rem;
-  border-radius: 6px;
+  border-radius: 12px;
   cursor: pointer;
   border: none;
-  transition: background-color 0.3s ease;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+
+  @media (max-width: 768px) {
+    padding: 0.9rem 1.5rem;
+    font-size: 1rem;
+  }
 }
 
 .nextButton {
-  background-color: $secondary-color;
+  background: linear-gradient(135deg, $secondary-color 0%, rgba(15, 120, 177, 0.8) 100%);
   color: white;
+  box-shadow: 0 4px 8px rgba(15, 120, 177, 0.3);
 
-  &:hover:not(:disabled) {
-    background-color: color.scale($secondary-color, $lightness: -15%);
+
+  &:hover:not(.disabledButton) {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(15, 120, 177, 0.4);
+  }
+
+  &:active:not(.disabledButton) {
+    transform: translateY(0);
   }
 }
 
 .prevButton {
-  background-color: transparent;
-  color: $primary-color;
-  border: 2px solid $primary-color;
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(15px);
+  color: $secondary-color;
+  border: 2px solid rgba(15, 120, 177, 0.3);
 
   &:hover {
-    background-color: $primary-color;
-    color: white;
+    background: rgba(15, 120, 177, 0.1);
+    border-color: $secondary-color;
+    transform: translateY(-1px);
   }
 }
 
 .detailsButton {
-  background-color: transparent;
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(15px);
   color: $secondary-color;
-  border: 1px solid $secondary-color;
+  border: 1px solid rgba(15, 120, 177, 0.3);
   align-self: center;
+  margin-top: 1rem;
 
   &:hover {
-    background-color: $secondary-color;
-    color: white;
+    background: rgba(15, 120, 177, 0.1);
+    border-color: $secondary-color;
+  }
+}
+
+.payButton {
+  background: linear-gradient(135deg, $primary-color 0%, rgba(129, 160, 74, 0.8) 100%);
+  color: white;
+  box-shadow: 0 4px 8px rgba(129, 160, 74, 0.3);
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 16px rgba(129, 160, 74, 0.4);
   }
 }
 
 .disabledButton {
-  opacity: 0.6;
-  cursor: not-allowed;
-  pointer-events: none;
+  opacity: 0.6 !important;
+  cursor: not-allowed !important;
+  pointer-events: none !important;
+  transform: none !important;
+  box-shadow: none !important;
 }
 
+// Boutons radio stylisés
 .radioGroup {
   display: flex;
   gap: 1rem;
   margin-top: 1rem;
   flex-wrap: wrap;
+  justify-content: center;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    gap: 0.8rem;
+  }
 }
 
 .hiddenInput {
@@ -479,63 +572,146 @@ $secondary-color: #81A04A;
 }
 
 .selectButton {
-  padding: 0.6rem 1.5rem;
-  border: 2px solid $secondary-color;
-  border-radius: 6px;
-  background-color: transparent;
+  padding: 1rem 1.5rem;
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(15px);
+  border: 2px solid rgba(15, 120, 177, 0.5);
+  border-radius: 12px;
   color: $secondary-color;
-  font-weight: 400;
+  font-weight: 600;
   font-family: 'Quicksand', sans-serif;
   cursor: pointer;
   transition: all 0.3s ease;
+  text-align: center;
+  min-width: 120px;
 
   &:hover {
-    background-color: color.scale($secondary-color, $lightness: -15%);
+    background: rgba(15, 120, 177, 0.1);
+    border-color: $secondary-color;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(15, 120, 177, 0.2);
+  }
+
+  &.selected {
+    background: linear-gradient(135deg, $secondary-color 0%, rgba(15, 120, 177, 0.8) 100%);
     color: white;
+    border-color: $secondary-color;
+    box-shadow: 0 4px 8px rgba(15, 120, 177, 0.3);
+  }
+
+  @media (max-width: 768px) {
+    padding: 0.8rem 1rem;
+    min-width: 100%;
   }
 }
 
-.selected {
-  background-color: $secondary-color;
-  color: white;
-  border-color: $secondary-color;
-}
-
-
+// Étape de paiement
 .paymentStep {
   text-align: center;
   padding: 2rem;
-}
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 1.5rem;
 
-.paymentTitle {
-  color: $primary-color;
-  font-family: 'Nunito', sans-serif;
-  font-size: 2rem;
-  margin-bottom: 1rem;
-}
-
-.paymentText {
-  color: $primary-color;
-  font-family: 'Nunito', sans-serif;
-  font-size: 1.1rem;
-  margin-bottom: 2rem;
-}
-
-.payButton {
-  background-color: #0F78B1;
-  color: white;
-  font-weight: 600;
-  font-family: 'Quicksand', sans-serif;
-  font-size: 1rem;
-  border: none;
-  border-radius: 6px;
-  padding: 0.75rem 1.5rem;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-
-  &:hover {
-    background-color: darken(#0F78B1, 10%);
+  @media (max-width: 768px) {
+    padding: 1.5rem;
   }
 }
+
+.paymentDescription {
+  color: $text-color;
+  font-family: 'Quicksand', sans-serif;
+  
+  p {
+    font-size: 1.1rem;
+    margin-bottom: 1rem;
+    line-height: 1.5;
+
+    &:first-child {
+      font-weight: 600;
+      color: $secondary-color;
+    }
+
+    @media (max-width: 768px) {
+      font-size: 1rem;
+    }
+  }
+}
+
+// Erreurs
+.error {
+  color: $error-color;
+  text-align: center;
+  font-weight: 600;
+  background: rgba(220, 38, 38, 0.1);
+  padding: 0.8rem;
+  border-radius: 8px;
+  border: 1px solid rgba(220, 38, 38, 0.3);
+  font-family: 'Quicksand', sans-serif;
+}
+
+// Lien retour
+.backButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.7rem 1.2rem;
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(15px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 12px;
+  color: #0F78B1;
+  font-family: 'Quicksand', sans-serif;
+  font-weight: 600;
+  text-decoration: none;
+  font-size: 0.9rem;
+  text-align: center;
+  transition: all 0.3s ease;
+  margin-top: 1.5rem;
+
+  &:hover {
+    background: rgba(15, 120, 177, 0.1);
+    transform: translateY(-1px);
+  }
+}
+
+// Responsive pour petits écrans
+@media (max-width: 480px) {
+  .container {
+    padding: 0.5rem;
+  }
+  
+  .card {
+    border-radius: 16px;
+  }
+  
+  .contentSection {
+    padding: 1rem;
+  }
+  
+  .title {
+    font-size: 1.4rem;
+  }
+  
+  .stepTitle {
+    font-size: 1rem;
+  }
+  
+  .stepCircle {
+    width: 28px;
+    height: 28px;
+    font-size: 0.8rem;
+  }
+  
+  .inputGroup {
+    input, select {
+      padding: 0.6rem 0.8rem;
+      font-size: 0.85rem;
+    }
+  }
+}
+
 
 
