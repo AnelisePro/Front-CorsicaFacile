@@ -1,6 +1,6 @@
-@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@700&family=Raleway:wght@400;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&family=Nunito:wght@300;400;500;600;700&display=swap');
 
-$color-primary: #0F78B1;
+$color-primary: #3498db;
 $color-secondary: #81A04A;
 $color-dark: #5E3E23;
 $color-light: #FEFBF4;
@@ -8,7 +8,7 @@ $color-light: #FEFBF4;
 .container {
   margin: 3rem auto;
   padding: 1.5rem 2rem;
-  font-family: 'Raleway', sans-serif;
+  font-family: 'Nunito', sans-serif;
   text-align: center;
 }
 
@@ -24,7 +24,7 @@ $color-light: #FEFBF4;
 .labelTime {
   display: flex;
   align-items: center;
-  font-family: 'Raleway', sans-serif;
+  font-family: 'Nunito', sans-serif;
   font-weight: 600;
   color: $color-dark;
   font-size: 1rem;
@@ -54,7 +54,7 @@ $color-light: #FEFBF4;
   border: 2px solid $color-secondary;
   color: $color-dark;
   background-color: $color-light;
-  font-family: 'Raleway', sans-serif;
+  font-family: 'Nunito', sans-serif;
   transition: border-color 0.3s ease, box-shadow 0.3s ease;
   cursor: pointer;
   min-width: 110px;

@@ -1,7 +1,7 @@
-@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@700&family=Raleway:wght@400;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&family=Nunito:wght@300;400;500;600;700&display=swap');
 
 .container {
-  font-family: 'Raleway', sans-serif;
+  font-family: 'Nunito', sans-serif;
   max-width: 28rem;
   margin: 2rem auto;
   padding: 1rem;
@@ -17,7 +17,7 @@
   font-weight: 700;
   font-size: 2rem;
   margin-bottom: 1.5rem;
-  color: #0F78B1;
+  color: #3498db;
   text-align: center;
 }
 
@@ -26,7 +26,7 @@
   width: 100%;
   padding: 1rem;
   font-size: 1rem;
-  font-family: 'Raleway', sans-serif;
+  font-family: 'Nunito', sans-serif;
   border: 2px solid #81A04A;
   border-radius: 10px;
   background-color: #FEFBF4;
@@ -41,9 +41,9 @@
   }
 
   &:focus {
-    border-color: #0F78B1;
+    border-color: #3498db;
     box-shadow:
-      0 0 8px #0F78B1,
+      0 0 8px #3498db,
       inset 0 0 10px rgba(15, 120, 177, 0.15);
     outline: none;
     background-color: #FEFBF4;
@@ -53,9 +53,9 @@
 /* Message d'erreur */
 .errorMessage {
   margin-top: 0.5rem;
-  color: #B00020; /* rouge bien visible */
+  color: #B00020;
   font-size: 0.875rem;
   font-weight: 600;
-  font-family: 'Raleway', sans-serif;
+  font-family: 'Nunito', sans-serif;
   text-align: end;
 }

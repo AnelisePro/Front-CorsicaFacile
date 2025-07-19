@@ -1,5 +1,4 @@
-/* Import des polices */
-@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@700;800&family=Raleway:wght@400;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&family=Nunito:wght@300;400;500;600;700&display=swap');
 
 /* Container principal */
 .container {
@@ -11,7 +10,7 @@
 
 /* Section d’introduction */
 .intro {
-  font-family: 'Raleway', sans-serif;
+  font-family: 'Nunito', sans-serif;
   color: #5E3E23;
   text-align: center;
   padding: 2.5rem 1rem;
@@ -40,7 +39,7 @@
 
 /* Couleurs spécifiques */
 .textBlue {
-  color: #0F78B1;
+  color: #3498db;
 }
 
 .textGreen {
@@ -218,7 +217,7 @@
 
 .buttonNext {
   padding: 0.5rem 1rem;
-  background-color: #0F78B1;
+  background-color: #3498db;
   color: white;
   border-radius: 0.25rem;
   border: none;

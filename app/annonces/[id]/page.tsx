@@ -73,7 +73,13 @@ export default function AnnonceDetailPage() {
     }
   }
 
-  if (loading) return <p className={styles.loading}>Chargement...</p>
+  if (loading) return (
+    <div className={styles.loadingContainer}>
+      <div className={styles.spinner}></div>
+      <p className={styles.loadingText}>Chargement de l'annonce...</p>
+    </div>
+  )
+  
   if (error) return <p className={styles.error}>{error}</p>
   if (!besoin) return <p className={styles.error}>Aucune annonce trouvée.</p>
 

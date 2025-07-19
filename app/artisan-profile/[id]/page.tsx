@@ -39,6 +39,8 @@ export default function ArtisanProfilePage() {
   const { user } = useAuth()
 
   const [artisan, setArtisan] = useState<ArtisanDetails | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const [availabilitySlots, setAvailabilitySlots] = useState<AvailabilitySlotType[]>([])
   const [selectedImage, setSelectedImage] = useState<string | null>(null)
   const [messageContent, setMessageContent] = useState('')
@@ -63,6 +65,10 @@ export default function ArtisanProfilePage() {
       })
       .catch(err => {
         console.error('Erreur de chargement du profil:', err)
+        setError('Impossible de charger le profil de l\'artisan.')
+      })
+      .finally(() => {
+        setLoading(false)
       })
   }, [params?.id])
 
@@ -145,7 +151,44 @@ export default function ArtisanProfilePage() {
     }
   }
 
-  if (!artisan) return <p>Chargement du profil…</p>
+  // 🎯 Spinner intégré
+  if (loading) return (
+    <div className={styles.loadingContainer}>
+      <div className={styles.spinner}></div>
+      <p className={styles.loadingText}>Chargement du profil artisan...</p>
+    </div>
+  )
+
+  // Gestion d'erreur améliorée
+  if (error) return (
+    <div className={styles.errorContainer}>
+      <div className={styles.errorContent}>
+        <h2>📋 Oups ! Une erreur est survenue</h2>
+        <p>{error}</p>
+        <button 
+          onClick={() => router.push('/search-bar')} 
+          className={styles.backToSearchButton}
+        >
+          Retour à la recherche
+        </button>
+      </div>
+    </div>
+  )
+
+  if (!artisan) return (
+    <div className={styles.errorContainer}>
+      <div className={styles.errorContent}>
+        <h2>🔍 Artisan non trouvé</h2>
+        <p>Le profil que vous cherchez n'existe pas ou n'est plus disponible.</p>
+        <button 
+          onClick={() => router.push('/search-bar')} 
+          className={styles.backToSearchButton}
+        >
+          Retour à la recherche
+        </button>
+      </div>
+    </div>
+  )
 
   return (
     <div className={styles.container}>
@@ -303,6 +346,7 @@ export default function ArtisanProfilePage() {
     </div>
   )
 }
+
 
 
 

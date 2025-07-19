@@ -491,9 +491,12 @@ const formatCreneauFromObject = (schedule: Schedule | any, besoinId?: number) =>
     }
   }
 
-  if (loading) {
-    return <p>Chargement en cours...</p>
-  }
+  if (loading) return (
+    <div className={styles.loadingContainer}>
+      <div className={styles.spinner}></div>
+      <p className={styles.loadingText}>Chargement de votre dashboard...</p>
+    </div>
+  )
 
   if (!isClient || !client) {
     return <p>Vous devez être connecté en tant que client pour accéder à ce tableau de bord.</p>

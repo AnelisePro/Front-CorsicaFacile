@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Quicksand&family=Raleway&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&family=Nunito:wght@300;400;500;600;700&display=swap');
 
 $primary-color: #5E3E23;
 $secondary-color: #81A04A;
@@ -53,7 +53,7 @@ $shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
       color: $text-color;
       font-size: 1.1rem;
       line-height: 1.7;
-      font-family: 'Raleway', sans-serif;
+      font-family: 'Nunito', sans-serif;
       display: flex;
       flex-direction: column;
       justify-content: center;

@@ -68,7 +68,7 @@
   }
   
   &.active {
-    background: linear-gradient(135deg, #0F78B1, #0a5d8a);
+    background: linear-gradient(135deg, #3498db, #0a5d8a);
     color: #FEFBF4;
     box-shadow: 0 6px 20px rgba(15, 120, 177, 0.3);
     
@@ -316,7 +316,7 @@
     
     &:focus {
       outline: none;
-      border-color: #0F78B1;
+      border-color: #3498db;
       box-shadow: 0 0 0 3px rgba(15, 120, 177, 0.15), inset 0 2px 8px rgba(94, 62, 35, 0.05);
     }
     
@@ -391,7 +391,7 @@
     width: 20px;
     height: 20px;
     border: 2px solid rgba(94, 62, 35, 0.2);
-    border-top: 2px solid #0F78B1;
+    border-top: 2px solid #3498db;
     border-radius: 50%;
     animation: spin 1s linear infinite;
     margin-left: 0.5rem;

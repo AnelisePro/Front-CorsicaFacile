@@ -22,7 +22,7 @@
 
   .subtitle {
     font-size: 1.1rem;
-    color: #212121;
+    color: #5E3E23;
   }
 }
 
@@ -49,6 +49,7 @@
     font-size: 1rem;
     transition: all 0.3s ease;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    color: #5E3E23;
 
     &:focus {
       outline: none;
@@ -83,6 +84,7 @@
     transition: all 0.3s ease;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
     min-width: 200px;
+    color: #5E3E23;
 
     &:hover {
       border-color: #80a04ad5;
@@ -175,14 +177,14 @@
     font-family: 'Quicksand', sans-serif;
     font-size: 1.2rem;
     font-weight: 600;
-    color: #2c3e50;
+    color: #5E3E23;
     margin: 0;
     flex: 1;
   }
 
   .cardDescription {
     padding: 1rem;
-    color: #555;
+    color: #5E3E23;
     font-size: 0.95rem;
     flex: 1;
   }
@@ -233,12 +235,12 @@
   text-align: center;
 
   .emptyIcon {
-    color: #bdc3c7;
+    fill: #3498db;
     margin-bottom: 1rem;
   }
 
   .emptyText {
-    color: #7f8c8d;
+    color: #5E3E23;
     font-size: 1.1rem;
   }
 }

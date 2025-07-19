@@ -1,8 +1,15 @@
 @use 'sass:color';
+@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&family=Nunito:wght@300;400;500;600;700&display=swap');
 
 $primary: #0F78B1;
-$input-bg: rgba(255, 255, 255, 0.6);
+$primary-light: #3BA9D4;
+$primary-dark: #0A5F8C;
+$input-bg: rgba(255, 255, 255, 0.85);
+$input-focus-bg: rgba(255, 255, 255, 0.95);
 $blur-bg: rgba(255, 255, 255, 0.35);
+$border-radius: 16px;
+$shadow-light: 0 8px 32px rgba(15, 120, 177, 0.12);
+$shadow-hover: 0 12px 40px rgba(15, 120, 177, 0.2);
 
 .searchForm {
   padding: 2rem 1rem;
@@ -10,186 +17,382 @@ $blur-bg: rgba(255, 255, 255, 0.35);
   justify-content: center;
 }
 
-.icon {
-  position: absolute;
-  top: 50%;
-  left: 1rem;
-  transform: translateY(-50%);
-  color: #6B7280;
-  font-size: 1.1rem;
-  pointer-events: none;
-  z-index: 3;
-}
-
-/* Loader style */
-.loader {
-  width: 1.2rem;
-  height: 1.2rem;
-  border: 2px solid rgba(255, 255, 255, 0.4);
-  border-top: 2px solid white;
-  border-radius: 50%;
-  animation: spin 0.6s linear infinite;
-}
-
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
 .row {
   display: flex;
   flex-wrap: wrap;
-  gap: 1rem;
+  gap: 1.2rem;
   width: 100%;
-  max-width: 1200px; // ✅ Augmenté de 1000px à 1200px
+  max-width: 1200px;
   align-items: stretch;
   justify-content: center;
+  padding: 1.5rem;
+  background: rgba(255, 255, 255, 0);
+  backdrop-filter: blur(6px);
+  border-radius: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+  
+  @media (max-width: 768px) {
+    padding: 1rem;
+    border-radius: 20px;
+    gap: 1rem;
+  }
 }
 
 .autocomplete {
   position: relative;
-  flex: 1 1 400px; // ✅ Augmenté de 300px à 400px (largeur minimum)
-  min-width: 350px; // ✅ Ajout d'une largeur minimum
+  flex: 1 1 400px;
+  min-width: 350px;
   display: flex;
   flex-direction: column;
+
+  @media (max-width: 768px) {
+    min-width: unset;
+    flex: 1 1 auto;
+  }
+}
+
+.icon {
+  position: absolute;
+  top: 50%;
+  left: 1.2rem;
+  transform: translateY(-50%);
+  color: #3498db;
+  font-size: 1.2rem;
+  pointer-events: none;
+  z-index: 3;
+  transition: all 0.3s ease;
+  filter: drop-shadow(0 0 8px rgba(15, 120, 177, 0.3));
+
+  @media (max-width: 768px) {
+    left: 1rem;
+    font-size: 1.1rem;
+  }
 }
 
 .autocomplete input {
   width: 100%;
-  padding: 1.2rem 1.5rem; // ✅ Augmenté le padding vertical et horizontal
-  padding-left: 2.8rem; // ✅ Ajusté pour l'icône
-  font-size: 1rem;
-  min-height: 3.2rem; // ✅ Hauteur minimum pour les inputs
-  border-radius: 1rem;
-  border: 1px solid transparent;
+  padding: 1.4rem 1.6rem;
+  padding-left: 3.2rem;
+  font-size: 1.05rem;
+  min-height: 3.5rem;
+  border-radius: $border-radius;
+  border: 2px solid rgba(15, 120, 177, 0.2);
   background: $input-bg;
   color: #1F2937;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-  backdrop-filter: blur(10px);
+  transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  box-shadow: 
+    0 8px 25px rgba(0, 0, 0, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(12px);
   font-weight: 500;
-}
+  font-family: 'Nunito', sans-serif;
+  position: relative;
 
-.autocomplete input::placeholder {
-  color: #6B7280;
-  font-weight: 400;
-}
+  // Effet de brillance subtile
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+      90deg, 
+      transparent, 
+      rgba(255, 255, 255, 0.3), 
+      transparent
+    );
+    transition: left 0.6s ease;
+    border-radius: $border-radius;
+  }
 
-.autocomplete input:hover,
-.autocomplete input:focus {
-  border: 1px solid $primary;
-  background-color: #fff;
-  box-shadow: 0 0 0 3px rgba(15, 120, 177, 0.2);
-  outline: none;
+  &::placeholder {
+    color: #5e3e23b1 ;
+    font-weight: 400;
+    font-size: 0.95rem;
+    font-style: italic;
+  }
+
+  &:hover {
+    border-color: $primary;
+    background: $input-focus-bg;
+    box-shadow: 
+      0 12px 35px rgba(15, 120, 177, 0.15),
+      inset 0 1px 0 rgba(255, 255, 255, 0.8);
+    transform: translateY(-2px);
+
+    + .icon {
+      color: $primary-dark;
+      transform: translateY(-50%) scale(1.1);
+    }
+
+    &::before {
+      left: 100%;
+    }
+  }
+
+  &:focus {
+    border-color: $primary;
+    background: #ffffff;
+    box-shadow: 
+      0 0 0 4px rgba(15, 120, 177, 0.15),
+      0 15px 40px rgba(15, 120, 177, 0.2),
+      inset 0 1px 0 rgba(255, 255, 255, 0.9);
+    outline: none;
+    transform: translateY(-2px);
+
+    + .icon {
+      color: $primary-dark;
+      transform: translateY(-50%) scale(1.15);
+    }
+  }
+
+  // Animation de frappe
+  &:not(:placeholder-shown) {
+    background: #ffffff;
+    border-color: $primary-light;
+
+    + .icon {
+      color: $primary;
+    }
+  }
+
+  @media (max-width: 768px) {
+    padding: 1.2rem 1.3rem;
+    padding-left: 2.8rem;
+    min-height: 3.2rem;
+    font-size: 1rem;
+    border-radius: 14px;
+  }
 }
 
 .suggestions {
   position: absolute;
-  top: calc(100% + 6px);
+  top: calc(100% + 8px);
   left: 0;
   right: 0;
-  background: #f0f4f8;
-  border-radius: 1rem;
-  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12);
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  border-radius: 16px;
+  border: 1px solid rgba(15, 120, 177, 0.1);
+  box-shadow: 
+    0 20px 50px rgba(0, 0, 0, 0.15),
+    0 0 0 1px rgba(255, 255, 255, 0.5);
   z-index: 9999;
-  animation: fadeIn 0.3s ease-in-out;
-  max-height: 280px;
+  animation: slideInUp 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  max-height: 300px;
   overflow-y: auto;
   overflow-x: hidden;
-  padding: 0.5rem;
-}
+  padding: 0.8rem;
+  font-family: Nunito;
 
-.suggestions li {
-  padding: 0.85rem 1.2rem;
-  color: #0F78B1;
-  font-weight: 800;
-  margin-bottom: 0.5rem;
-  border-radius: 0.75rem;
-  cursor: pointer;
-  font-size: 0.95rem;
-  transition: background 0.2s ease, color 0.2s ease;
-  background: #ffffff; 
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
-  flex-shrink: 0;
-}
+  // Scrollbar stylisée
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
 
-.suggestions li:hover {
-  background-color: $primary;
-  color: #ffffff;
+  &::-webkit-scrollbar-track {
+    background: rgba(15, 120, 177, 0.05);
+    border-radius: 3px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: rgba(15, 120, 177, 0.3);
+    border-radius: 3px;
+    
+    &:hover {
+      background: rgba(15, 120, 177, 0.5);
+    }
+  }
+
+  li {
+    padding: 1rem 1.3rem;
+    color: $primary-dark;
+    font-weight: 600;
+    margin-bottom: 0.4rem;
+    border-radius: 12px;
+    cursor: pointer;
+    font-size: 0.95rem;
+    transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    background: #ffffff;
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08);
+    border: 1px solid rgba(15, 120, 177, 0.08);
+    position: relative;
+    overflow: hidden;
+
+    // Effet de hover animé
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(15, 120, 177, 0.1),
+        transparent
+      );
+      transition: left 0.5s ease;
+    }
+
+    &:hover {
+      background: linear-gradient(135deg, $primary, $primary-light);
+      color: #ffffff;
+      transform: translateX(4px) scale(1.02);
+      box-shadow: 0 8px 25px rgba(15, 120, 177, 0.3);
+      border-color: $primary;
+
+      &::before {
+        left: 100%;
+      }
+    }
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+
+  .noResults {
+    background: rgba(15, 120, 177, 0.05);
+    color: #6B7280;
+    font-style: italic;
+    cursor: default;
+    font-weight: 400;
+    border-color: transparent;
+
+    &:hover {
+      background: rgba(15, 120, 177, 0.05);
+      color: #6B7280;
+      transform: none;
+      box-shadow: 0 3px 12px rgba(0, 0, 0, 0.08);
+    }
+  }
 }
 
 .row button {
-  padding: 1rem 1.5rem; // ✅ Augmenté le padding
-  min-width: 140px; // ✅ Largeur minimum pour le bouton
-  font-size: 1rem;
-  font-weight: 600;
-  background: linear-gradient(to right, #0F78B1, #3BA9D4);
+  padding: 1.2rem 2rem;
+  min-width: 160px;
+  font-size: 1.05rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, $primary 0%, $primary-light 50%, $primary 100%);
+  background-size: 200% 200%;
   color: #FEFBF4;
-  border: none;
-  border-radius: 1rem;
+  border: 2px solid transparent;
+  border-radius: $border-radius;
   cursor: pointer;
   display: flex;
   align-items: center;
-  justify-content: center; // ✅ Centrer le contenu
-  gap: 0.6rem;
-  transition: transform 0.15s ease, box-shadow 0.2s ease;
-  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.12);
-  height: 3.2rem; // ✅ Même hauteur que les inputs
+  justify-content: center;
+  gap: 0.8rem;
+  transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  box-shadow: 
+    0 10px 30px rgba(15, 120, 177, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  height: 3.5rem;
+  font-family: 'Quicksand', sans-serif;
+  position: relative;
+  overflow: hidden;
+
+  // Effet de brillance
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, 0.3),
+      transparent
+    );
+    transition: left 0.6s ease;
+  }
+
+  &:hover {
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: 
+      0 15px 40px rgba(15, 120, 177, 0.4),
+      inset 0 1px 0 rgba(255, 255, 255, 0.4);
+    background-position: 100% 100%;
+
+    &::before {
+      left: 100%;
+    }
+  }
+
+  &:active {
+    transform: translateY(-1px) scale(0.98);
+    box-shadow: 
+      0 8px 20px rgba(15, 120, 177, 0.3),
+      inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  }
+
+  &:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+    transform: none;
+    animation: pulse 2s infinite;
+
+    &:hover {
+      transform: none;
+      box-shadow: 0 10px 30px rgba(15, 120, 177, 0.3);
+    }
+  }
+
+  @media (max-width: 768px) {
+    width: 100%;
+    padding: 1.1rem 1.5rem;
+    height: 3.2rem;
+    font-size: 1rem;
+    border-radius: 14px;
+    min-width: unset;
+  }
 }
 
-.row button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.18);
+// Loader amélioré
+.loader {
+  width: 1.3rem;
+  height: 1.3rem;
+  border: 2.5px solid rgba(255, 255, 255, 0.3);
+  border-top: 2.5px solid white;
+  border-radius: 50%;
+  animation: 
+    spin 0.8s linear infinite,
+    glow 2s ease-in-out infinite alternate;
 }
 
-@keyframes fadeIn {
+// Animations
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes glow {
+  from { box-shadow: 0 0 5px rgba(255, 255, 255, 0.5); }
+  to { box-shadow: 0 0 20px rgba(255, 255, 255, 0.8); }
+}
+
+@keyframes slideInUp {
   from {
     opacity: 0;
-    transform: translateY(8px);
+    transform: translateY(10px) scale(0.95);
   }
   to {
     opacity: 1;
-    transform: translateY(0);
+    transform: translateY(0) scale(1);
   }
 }
 
-// ✅ Responsive amélioré
-@media (max-width: 768px) {
-  .row {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 0.75rem;
-    max-width: 100%;
-  }
-
-  .autocomplete {
-    flex: 1 1 auto;
-    min-width: unset;
-  }
-
-  .autocomplete input {
-    min-height: 3rem;
-    padding: 1rem 1.2rem;
-    padding-left: 2.5rem;
-  }
-
-  .row button {
-    width: 100%;
-    justify-content: center;
-    padding: 1rem 1.3rem;
-    font-size: 1rem;
-    border-radius: 0.9rem;
-    height: 3rem;
-  }
-
-  .icon {
-    left: 0.9rem;
-    font-size: 1rem;
-  }
+@keyframes pulse {
+  0%, 100% { opacity: 0.7; }
+  50% { opacity: 0.9; }
 }
 
-// ✅ Responsive pour tablettes
+// Responsive pour tablettes
 @media (max-width: 1024px) and (min-width: 769px) {
   .autocomplete {
     flex: 1 1 350px;
@@ -201,16 +404,29 @@ $blur-bg: rgba(255, 255, 255, 0.35);
   }
 }
 
-.noResults {
-  padding: 8px 12px;
-  color: #666;
-  font-style: italic;
-  cursor: default;
-  
-  &:hover {
-    background-color: transparent;
+// Améliorations pour l'accessibilité
+@media (prefers-reduced-motion: reduce) {
+  .autocomplete input,
+  .suggestions,
+  .row button,
+  .loader {
+    animation: none;
+    transition: none;
+  }
+
+  .autocomplete input:hover,
+  .row button:hover {
+    transform: none;
   }
 }
+
+// Focus visible pour l'accessibilité
+.autocomplete input:focus-visible,
+.row button:focus-visible {
+  outline: 3px solid rgba(15, 120, 177, 0.5);
+  outline-offset: 2px;
+}
+
 
 
 

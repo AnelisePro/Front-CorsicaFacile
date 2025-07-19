@@ -1,8 +1,8 @@
-@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@700&family=Raleway:wght@400;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&family=Nunito:wght@300;400;500;600;700&display=swap');
 
 .container {
   position: relative;
-  font-family: 'Raleway', sans-serif;
+  font-family: 'Nunito', sans-serif;
   color: #5E3E23;
   max-width: 28rem;
   margin: 2rem auto;
@@ -30,7 +30,7 @@
   }
 
   &:focus {
-    outline: 3px solid #0F78B1;
+    outline: 3px solid #3498db;
     outline-offset: 2px;
   }
 }
@@ -49,7 +49,7 @@
   font-weight: 700;
   font-size: 2rem;
   margin-bottom: 1.5rem;
-  color: #0F78B1;
+  color: #3498db;
   text-align: center;
 }
 
@@ -69,12 +69,12 @@
   color: #5E3E23;
   appearance: none;
   cursor: pointer;
-  font-family: 'Raleway', sans-serif;
+  font-family: 'Nunito', sans-serif;
   transition: border-color 0.3s ease, box-shadow 0.3s ease;
 
   &:focus {
-    border-color: #0F78B1;
-    box-shadow: 0 0 8px #0F78B1;
+    border-color: #3498db;
+    box-shadow: 0 0 8px #3498db;
     outline: none;
   }
 }
@@ -99,12 +99,12 @@
   border-radius: 8px;
   background-color: #FEFBF4;
   color: #5E3E23;
-  font-family: 'Raleway', sans-serif;
+  font-family: 'Nunito', sans-serif;
   transition: border-color 0.3s ease, box-shadow 0.3s ease;
 
   &:focus {
-    border-color: #0F78B1;
-    box-shadow: 0 0 8px #0F78B1;
+    border-color: #3498db;
+    box-shadow: 0 0 8px #3498db;
     outline: none;
   }
 }

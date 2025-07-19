@@ -59,6 +59,8 @@ export default function ArtisanDashboard() {
   const [activeTab, setActiveTab] = useState<'notifications' | 'creneaux' | 'realisations' | 'messagerie'>('creneaux')
   const [token, setToken] = useState<string | null>(null)
   const [artisan, setArtisan] = useState<Artisan | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const [planInfo, setPlanInfo] = useState<PlanInfo | null>(null)
   const [isEditing, setIsEditing] = useState<boolean>(false)
   const [expertises, setExpertises] = useState<string[]>([])
@@ -66,7 +68,7 @@ export default function ArtisanDashboard() {
   const [insuranceFile, setInsuranceFile] = useState<File | null>(null)
   const [avatarFile, setAvatarFile] = useState<File | null>(null)
   const [activeMissions, setActiveMissions] = useState<Mission[]>([])
-  const [unreadCount, setUnreadCount] = useState<number>(0);
+  const [unreadCount, setUnreadCount] = useState<number>(0)
   const [isImageModalOpen, setIsImageModalOpen] = useState(false)
   const [selectedImage, setSelectedImage] = useState<ProjectImage | null>(null)
   const [allImages, setAllImages] = useState<ProjectImage[]>([])
@@ -78,17 +80,30 @@ export default function ArtisanDashboard() {
   }, [])
 
   useEffect(() => {
-    async function fetchArtisan() {
-      if (!token) return
-      try {
-        const res = await axios.get(`${apiUrl}/artisans/me`, {
-          headers: { Authorization: `Bearer ${token}` },
-          withCredentials: true,
-        })
-        setArtisan(res.data.artisan)
+    async function fetchInitialData() {
+      if (!token) {
+        setLoading(false)
+        return
+      }
 
-        if (res.data.plan_info) {
-          const apiPlanInfo = res.data.plan_info
+      try {
+        // Récupérer les données de l'artisan et les expertises en parallèle
+        const [artisanRes, expertisesRes] = await Promise.all([
+          axios.get(`${apiUrl}/artisans/me`, {
+            headers: { Authorization: `Bearer ${token}` },
+            withCredentials: true,
+          }),
+          axios.get(`${apiUrl}/api/expertises`, {
+            withCredentials: true,
+          })
+        ])
+
+        // Traiter les données artisan
+        setArtisan(artisanRes.data.artisan)
+        setExpertises(expertisesRes.data)
+
+        if (artisanRes.data.plan_info) {
+          const apiPlanInfo = artisanRes.data.plan_info
           setPlanInfo({
             amount: apiPlanInfo.amount,
             currency: apiPlanInfo.currency,
@@ -97,28 +112,17 @@ export default function ArtisanDashboard() {
         } else {
           setPlanInfo(null)
         }
+
       } catch (error) {
-        toast.error("Impossible de récupérer les infos de l'artisan.")
+        console.error('Erreur lors du chargement:', error)
+        setError("Impossible de récupérer les informations du dashboard.")
+      } finally {
+        setLoading(false)
       }
     }
 
-    fetchArtisan()
+    fetchInitialData()
   }, [token])
-
-  useEffect(() => {
-    async function fetchExpertises() {
-      try {
-        const res = await axios.get(`${apiUrl}/api/expertises`, {
-          withCredentials: true,
-        })
-        setExpertises(res.data)
-      } catch (error) {
-        toast.error("Impossible de récupérer les expertises.")
-      }
-    }
-
-    fetchExpertises()
-  }, [])
 
   // Fonctions pour gérer le modal d'images
   const openImageModal = (image: ProjectImage, images: ProjectImage[]) => {
@@ -161,7 +165,7 @@ export default function ArtisanDashboard() {
     setInsuranceFile(null)
     setAvatarFile(null)
 
-    async function fetchArtisan() {
+    async function refetchArtisan() {
       if (!token) return
       try {
         const res = await axios.get(`${apiUrl}/artisans/me`, {
@@ -185,7 +189,7 @@ export default function ArtisanDashboard() {
       }
     }
 
-    fetchArtisan()
+    refetchArtisan()
   }
 
   function handleChange(
@@ -205,33 +209,27 @@ export default function ArtisanDashboard() {
     }
   }
 
-  // Ajoutez cet effet pour récupérer le nombre de notifications :
-  // Dans le useEffect pour les notifications
+  // Récupération du nombre de notifications non lues
   useEffect(() => {
-    if (!token || activeTab === 'notifications') return;
+    if (!token || activeTab === 'notifications') return
 
     const fetchUnreadCount = async () => {
       try {
         const response = await axios.get(`${apiUrl}/artisans/notifications`, {
           headers: { Authorization: `Bearer ${token}` },
           withCredentials: true,
-        });
-        // Vérifiez la structure de la réponse
-        console.log('Notifications response:', response.data);
-
-        // Si l'API retourne un objet avec notifications et unread_count
-        const count = response.data.unread_count || 0;
-        setUnreadCount(count);
+        })
+        const count = response.data.unread_count || 0
+        setUnreadCount(count)
       } catch (error) {
-        console.error("Erreur lors de la récupération des notifications", error);
+        console.error("Erreur lors de la récupération des notifications", error)
       }
-    };
+    }
 
-    fetchUnreadCount();
-    const interval = setInterval(fetchUnreadCount, 30000);
-    return () => clearInterval(interval);
-  }, [token, activeTab]);
-
+    fetchUnreadCount()
+    const interval = setInterval(fetchUnreadCount, 30000)
+    return () => clearInterval(interval)
+  }, [token, activeTab])
 
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     if (!e.target.files || e.target.files.length === 0) return
@@ -340,15 +338,35 @@ export default function ArtisanDashboard() {
     }
   }
 
-  if (!user) return <p>Chargement...</p>
-  if (!artisan) {
-    return (
-      <div className={styles.dashboard}>
-        <p>Chargement...</p>
+  // 🎯 Gestion des états de chargement avec spinner
+  if (loading) return (
+    <div className={styles.loadingContainer}>
+      <div className={styles.spinner}></div>
+      <p className={styles.loadingText}>Chargement de votre dashboard...</p>
+    </div>
+  )
+
+  if (error) return (
+    <div className={styles.errorContainer}>
+      <div className={styles.errorContent}>
+        <h2>⚠️ Erreur de chargement</h2>
+        <p>{error}</p>
+        <button 
+          onClick={() => window.location.reload()} 
+          className={styles.retryButton}
+        >
+          Réessayer
+        </button>
       </div>
-    )
-  }
-  if (!token) return <p>Chargement du token...</p>
+    </div>
+  )
+
+  if (!user || !artisan || !token) return (
+    <div className={styles.loadingContainer}>
+      <div className={styles.spinner}></div>
+      <p className={styles.loadingText}>Initialisation...</p>
+    </div>
+  )
 
   return (
     <div className={styles.artisanDashboard}>
@@ -401,8 +419,8 @@ export default function ArtisanDashboard() {
         <button
           className={`${styles.tab} ${activeTab === 'notifications' ? styles.active : ''}`}
           onClick={() => {
-            setActiveTab('notifications');
-            setUnreadCount(0);
+            setActiveTab('notifications')
+            setUnreadCount(0)
           }}
           style={{ position: 'relative' }}
         >
@@ -454,7 +472,7 @@ export default function ArtisanDashboard() {
         )}
       </section>
 
-      {/* Modal d'images - rendu au niveau du dashboard */}
+      {/* Modal d'images */}
       {isImageModalOpen && selectedImage && (
         <ImageModal
           isOpen={isImageModalOpen}
@@ -469,6 +487,7 @@ export default function ArtisanDashboard() {
     </div>
   )
 }
+
 
 
 

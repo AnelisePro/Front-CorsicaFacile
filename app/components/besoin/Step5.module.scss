@@ -1,6 +1,6 @@
-@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@700&family=Raleway:wght@400;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&family=Nunito:wght@300;400;500;600;700&display=swap');
 
-$color-primary: #0F78B1;
+$color-primary: #3498db;
 $color-secondary: #81A04A;
 $color-dark: #5E3E23;
 $color-light: #FEFBF4;
@@ -8,7 +8,7 @@ $color-light: #FEFBF4;
 .container {
   margin: 3rem auto;
   padding: 1.5rem 2rem;
-  font-family: 'Raleway', sans-serif;
+  font-family: 'Nunito', sans-serif;
   user-select: none;
 }
 
@@ -33,7 +33,7 @@ $color-light: #FEFBF4;
   border-radius: 10px;
   font-size: 1.1rem;
   color: $color-dark;
-  font-family: 'Raleway', sans-serif;
+  font-family: 'Nunito', sans-serif;
   transition: border-color 0.3s ease, box-shadow 0.3s ease;
   cursor: text;
 
@@ -55,7 +55,7 @@ $color-light: #FEFBF4;
   right: 15px;
   font-size: 0.85rem;
   color: $color-primary;
-  font-family: 'Raleway', sans-serif;
+  font-family: 'Nunito', sans-serif;
 }
 
 .suggestionsList {
@@ -71,7 +71,7 @@ $color-light: #FEFBF4;
   border-radius: 0 0 10px 10px;
   box-shadow: 0 8px 15px rgba($color-primary, 0.15);
   z-index: 10;
-  font-family: 'Raleway', sans-serif;
+  font-family: 'Nunito', sans-serif;
 }
 
 .suggestion {

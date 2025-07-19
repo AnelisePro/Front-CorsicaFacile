@@ -19,21 +19,22 @@ export default function Home() {
 
   return (
     <div className={styles.page}>
-      {/* HERO - Conservé tel quel */}
-      <section className={styles.hero}>
-        <Image
-          src="/images/Sartene.JPG"
-          alt="Paysage de Sartène"
-          fill
-          style={{ objectFit: 'cover' }}
-          priority
-        />
-        <div className={styles.heroContent}>
-          <h1>Corsica Facile</h1>
-          <p>Le réflexe local, à portée de clic.</p>
-          <SearchForm />
-        </div>
-      </section>
+      {/* HERO */}
+<section className={styles.hero}>
+  <Image
+    src="/images/Sartene.JPG"
+    alt="Paysage de Sartène"
+    fill
+    style={{ objectFit: 'cover' }}
+    priority
+  />
+  <div className={styles.heroOverlay}></div>
+  <div className={styles.heroContent}>
+    <h1>Corsica Facile</h1>
+    <p>Le réflexe local à portée de clic.</p>
+    <SearchForm />
+  </div>
+</section>
 
       {/* Section Services */}
       <section className={styles.servicesSection}>
