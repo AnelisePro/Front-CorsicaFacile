@@ -342,7 +342,7 @@ export default function ArtisanDashboard() {
   if (loading) return (
     <div className={styles.loadingContainer}>
       <div className={styles.spinner}></div>
-      <p className={styles.loadingText}>Chargement de votre dashboard...</p>
+      <p className={styles.loadingText}>Initialisation...</p>
     </div>
   )
 

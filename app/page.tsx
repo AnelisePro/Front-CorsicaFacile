@@ -249,22 +249,22 @@ export default function Home() {
                 <div className={styles.stepCard}>
                   <div className={styles.stepNumber}>1</div>
                   <h3>Inscrivez-vous</h3>
-                  <p>Créez votre profil professionnel gratuitement</p>
+                  <p>Créez votre profil professionnel en choisissant une de nos formules</p>
                 </div>
                 <div className={styles.stepCard}>
                   <div className={styles.stepNumber}>2</div>
                   <h3>Complétez votre profil</h3>
-                  <p>Ajoutez vos spécialités, photos et informations</p>
+                  <p>Ajoutez vos photos et informations</p>
                 </div>
                 <div className={styles.stepCard}>
                   <div className={styles.stepNumber}>3</div>
                   <h3>Recevez des demandes</h3>
-                  <p>Les clients vous contactent pour leurs projets</p>
+                  <p>Vous pouvez contacter les clients ou ce sont eux qui vous contactent pour leurs projets</p>
                 </div>
                 <div className={styles.stepCard}>
                   <div className={styles.stepNumber}>4</div>
                   <h3>Développez votre activité</h3>
-                  <p>Gagnez de nouveaux clients et développez votre notoriété</p>
+                  <p>Gagnez de nouveaux clients et développez votre réseau</p>
                 </div>
               </div>
             )}

@@ -5,7 +5,7 @@
   margin: 0 auto;
   padding: 20px;
   font-family: 'Nunito', sans-serif;
-  color: #212121;
+  color: #5E3E23;
   background-color: #FEFBF4;
   min-height: 100vh;
   
@@ -16,7 +16,7 @@
   // Styles pour les titres principaux dans le dashboard
   h1, h2, h3, h4, h5, h6 {
     font-family: 'Quicksand', sans-serif;
-    color: #212121;
+    color: #5E3E23;
     font-weight: 600;
   }
   
@@ -54,7 +54,7 @@
   border: 2px solid rgba(255, 255, 255, 0.4);
   
   // Couleur du texte adaptée
-  color: #212121;
+  color: #5E3E23;
   
   border-radius: 20px;
   padding: 40px;
@@ -126,6 +126,7 @@
     margin: 12px 0;
     font-size: 16px;
     opacity: 0.95;
+    color: #5E3E23;
     
     @media (max-width: 768px) {
       font-size: 15px;
@@ -211,6 +212,7 @@
   gap: 25px;
   max-width: 800px;
   margin: 0 auto;
+  color: #5E3E23;
   
   @media (max-width: 768px) {
     grid-template-columns: 1fr;
@@ -222,11 +224,12 @@
   display: flex;
   flex-direction: column;
   margin-bottom: 20px;
+  color: #5E3E23;
   
   label {
     font-weight: 600;
     margin-bottom: 8px;
-    color: #212121;
+    color: #5E3E23;
     font-size: 14px;
     font-family: 'Quicksand', sans-serif;
   }
@@ -238,7 +241,7 @@
     font-size: 15px;
     font-family: 'Nunito', sans-serif;
     background-color: rgba(254, 251, 244, 0.9);
-    color: #212121;
+    color: #5E3E23;
     transition: all 0.3s ease;
     
     &:focus {
@@ -289,6 +292,48 @@
     }
   }
 }
+
+// Dropdown expertises
+.formSelect {
+  padding: 15px 18px;
+  border: 2px solid rgba(129, 160, 74, 0.3);
+  border-radius: 10px;
+  font-size: 15px;
+  font-family: 'Nunito', sans-serif;
+  background-color: #FEFBF4;
+  color: #5E3E23;
+  transition: all 0.3s ease;
+  width: 100%;
+  appearance: none;
+  background-image:
+    linear-gradient(45deg, transparent 50%, #81A04A 50%),
+    linear-gradient(135deg, #81A04A 50%, transparent 50%);
+  background-position:
+    calc(100% - 20px) calc(1em + 2px),
+    calc(100% - 15px) calc(1em + 2px);
+  background-size: 5px 5px, 5px 5px;
+  background-repeat: no-repeat;
+
+  &:focus {
+    outline: none;
+    border-color: #3498db;
+    box-shadow: 0 0 0 4px rgba(15, 120, 177, 0.1);
+    transform: translateY(-1px);
+  }
+
+  option {
+    background-color: #FEFBF4;
+    color: #5E3E23;
+    padding: 10px;
+    font-family: 'Nunito', sans-serif;
+  }
+
+  // Pour le style de la flèche personnalisée
+  select::-ms-expand {
+    display: none;
+  }
+}
+
 
 .fileHint {
   text-align: center;
@@ -416,6 +461,7 @@
   max-width: 900px;
   margin: 0 auto;
   min-height: 300px;
+  color: #5E3E23;
   
   @media (max-width: 768px) {
     padding: 0 10px;
@@ -488,6 +534,7 @@
     border-radius: 12px;
     border: 2px solid rgba(129, 160, 74, 0.15);
     backdrop-filter: blur(5px);
+    color: #5E3E23;
     
     @media (max-width: 768px) {
       padding: 20px;
@@ -500,7 +547,7 @@
       flex-direction: column;
       gap: 8px;
       font-weight: 600;
-      color: #212121;
+      color: #5E3E23;
       font-family: 'Quicksand', sans-serif;
       font-size: 14px;
       text-transform: uppercase;
@@ -515,7 +562,7 @@
       font-size: 15px;
       font-family: 'Nunito', sans-serif;
       background-color: #FEFBF4;
-      color: #212121;
+      color: #5E3E23;
       transition: all 0.3s ease;
       
       &:focus {
@@ -782,7 +829,7 @@
   p {
     margin: 8px 0;
     font-size: 15px;
-    color: #212121;
+    color: #5E3E23;
     line-height: 1.5;
     font-family: 'Nunito', sans-serif;
   }
@@ -810,7 +857,7 @@
 .imagesPreview {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
+  gap: 15px;
   margin-top: 10px;
   
   img {
@@ -818,6 +865,55 @@
     object-fit: cover;
     border: 2px solid rgba(129, 160, 74, 0.2);
   }
+}
+
+.removeImageButton {
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  color: white;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 18px;
+  font-weight: bold;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  transition: all 0.2s ease;
+  z-index: 10;
+  line-height: 1;
+
+  // Style pour le "×" (croix)
+  &::before {
+    content: "×";
+    display: block;
+    transform: translateY(-1px);
+  }
+}
+
+// Ajoutez aussi ce style pour le conteneur d'image
+.imageContainer {
+  position: relative;
+  display: inline-block;
+  margin: 5px;
+  transition: transform 0.2s ease;
+
+  &:hover {
+    .previewImage {
+      opacity: 0.9;
+      border-color: #ff4444;
+    }
+  }
+}
+
+.previewImage {
+  border-radius: 8px;
+  object-fit: cover;
+  border: 2px solid rgba(129, 160, 74, 0.2);
+  transition: all 0.2s ease;
+  transform: translateY(0);
 }
 
 .notificationBadge {

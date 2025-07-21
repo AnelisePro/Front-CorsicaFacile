@@ -36,7 +36,7 @@ type ScheduleType = Schedule | [any, string, string, string] | any
 
 interface Besoin {
   id: number
-  type_prestation: string
+  type_prestation: string | number
   description: string
   address: string
   schedule: Schedule
@@ -56,6 +56,10 @@ interface Notification {
   annonce_title: string
 }
 
+interface Expertise {
+  name: string
+}
+
 export default function ClientDashboard() {
   const [client, setClient] = useState<Client | null>(null)
   const [loading, setLoading] = useState(true)
@@ -68,9 +72,11 @@ export default function ClientDashboard() {
   const [notifications, setNotifications] = useState<Notification[]>([])
   const [activeTab, setActiveTab] = useState<'annonces' | 'notifications' | 'points' | 'messagerie'>('annonces')
   const [unreadCount, setUnreadCount] = useState<number>(0)
+  const [expertises, setExpertises] = useState<Expertise[]>([])
+  const [loadingExpertises, setLoadingExpertises] = useState(true)
 
   const [editForm, setEditForm] = useState<{
-    type_prestation: string,
+    type_prestation: string | number,
     description: string,
     address: string,
     schedule: Schedule | string,
@@ -86,6 +92,33 @@ export default function ClientDashboard() {
     },
     images: [],
   })
+
+  // Récupération des expertises
+  useEffect(() => {
+    const fetchExpertises = async () => {
+      try {
+        const token = localStorage.getItem('clientToken');
+        if (!token) return;
+
+        const response = await axios.get(`${apiUrl}/expertises/index`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        // Transformer les strings en objets si nécessaire
+        const expertisesData = Array.isArray(response.data)
+          ? response.data.map(name => ({ name }))
+          : response.data;
+
+        setExpertises(expertisesData);
+      } catch (error) {
+        console.error("Erreur lors de la récupération des expertises:", error);
+      } finally {
+        setLoadingExpertises(false);
+      }
+    };
+
+    fetchExpertises();
+  }, []);
 
   useEffect(() => {
     setIsClient(true)
@@ -355,68 +388,67 @@ export default function ClientDashboard() {
   }
 
   // Ajoutez cette fonction de debug temporaire
-const debugSchedule = (schedule: any, besoinId: number) => {
-  console.log(`=== DEBUG SCHEDULE pour besoin ${besoinId} ===`)
-  console.log('Type:', typeof schedule)
-  console.log('Valeur:', schedule)
-  console.log('Est un array:', Array.isArray(schedule))
-  console.log('Est un objet:', schedule && typeof schedule === 'object')
-  if (schedule && typeof schedule === 'object') {
-    console.log('Clés:', Object.keys(schedule))
-    console.log('schedule.date:', schedule.date)
-    console.log('schedule.start:', schedule.start)
-    console.log('schedule.end:', schedule.end)
-  }
-  console.log('=== FIN DEBUG ===')
-}
-
-const formatCreneauFromObject = (schedule: Schedule | any, besoinId?: number) => {
-  // Debug temporaire
-  if (besoinId) {
-    debugSchedule(schedule, besoinId)
+  const debugSchedule = (schedule: any, besoinId: number) => {
+    console.log(`=== DEBUG SCHEDULE pour besoin ${besoinId} ===`)
+    console.log('Type:', typeof schedule)
+    console.log('Valeur:', schedule)
+    console.log('Est un array:', Array.isArray(schedule))
+    console.log('Est un objet:', schedule && typeof schedule === 'object')
+    if (schedule && typeof schedule === 'object') {
+      console.log('Clés:', Object.keys(schedule))
+      console.log('schedule.date:', schedule.date)
+      console.log('schedule.start:', schedule.start)
+      console.log('schedule.end:', schedule.end)
+    }
+    console.log('=== FIN DEBUG ===')
   }
 
-  if (!schedule) {
-    console.log('Schedule est null/undefined')
+  const formatCreneauFromObject = (schedule: Schedule | any, besoinId?: number) => {
+    // Debug temporaire
+    if (besoinId) {
+      debugSchedule(schedule, besoinId)
+    }
+
+    if (!schedule) {
+      console.log('Schedule est null/undefined')
+      return 'Créneau non défini'
+    }
+
+    // Si c'est un array (format base de données)
+    if (Array.isArray(schedule)) {
+      console.log('Schedule est un array:', schedule)
+      if (schedule.length >= 4) {
+        const [, date, start, end] = schedule
+        console.log('Array values:', { date, start, end })
+        if (!date) return 'Créneau non défini'
+        
+        const formattedDate = new Date(date).toLocaleDateString('fr-FR', {
+          day: 'numeric',
+          month: 'long',
+          year: 'numeric',
+        })
+        return `Le ${formattedDate}, de ${start} à ${end}`
+      }
+      return 'Créneau non défini (array trop court)'
+    }
+
+    // Si c'est un objet
+    if (schedule && typeof schedule === 'object') {
+      console.log('Schedule est un objet:', schedule)
+      if (schedule.date && schedule.start && schedule.end) {
+        const formattedDate = new Date(schedule.date).toLocaleDateString('fr-FR', {
+          day: 'numeric',
+          month: 'long',
+          year: 'numeric',
+        })
+        return `Le ${formattedDate}, de ${schedule.start} à ${schedule.end}`
+      }
+      return 'Créneau non défini (propriétés manquantes)'
+    }
+
+    console.log('Schedule format non reconnu')
     return 'Créneau non défini'
   }
-
-  // Si c'est un array (format base de données)
-  if (Array.isArray(schedule)) {
-    console.log('Schedule est un array:', schedule)
-    if (schedule.length >= 4) {
-      const [, date, start, end] = schedule
-      console.log('Array values:', { date, start, end })
-      if (!date) return 'Créneau non défini'
-      
-      const formattedDate = new Date(date).toLocaleDateString('fr-FR', {
-        day: 'numeric',
-        month: 'long',
-        year: 'numeric',
-      })
-      return `Le ${formattedDate}, de ${start} à ${end}`
-    }
-    return 'Créneau non défini (array trop court)'
-  }
-
-  // Si c'est un objet
-  if (schedule && typeof schedule === 'object') {
-    console.log('Schedule est un objet:', schedule)
-    if (schedule.date && schedule.start && schedule.end) {
-      const formattedDate = new Date(schedule.date).toLocaleDateString('fr-FR', {
-        day: 'numeric',
-        month: 'long',
-        year: 'numeric',
-      })
-      return `Le ${formattedDate}, de ${schedule.start} à ${schedule.end}`
-    }
-    return 'Créneau non défini (propriétés manquantes)'
-  }
-
-  console.log('Schedule format non reconnu')
-  return 'Créneau non défini'
-}
-
 
   const handleImagesChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return
@@ -447,6 +479,11 @@ const formatCreneauFromObject = (schedule: Schedule | any, besoinId?: number) =>
       const scheduleData = typeof editForm.schedule === 'string' 
         ? { date: '', start: '', end: '' }
         : editForm.schedule
+
+      // Déterminer si type_prestation est un ID ou un nom
+      const typePrestationValue = typeof editForm.type_prestation === 'string'
+        ? editForm.type_prestation
+        : expertises.find(exp => exp.name === editForm.type_prestation)?.name || editForm.type_prestation
 
       await axios.put(`${apiUrl}/clients/besoins/${id}`, {
         besoin: {
@@ -491,10 +528,20 @@ const formatCreneauFromObject = (schedule: Schedule | any, besoinId?: number) =>
     }
   }
 
+  const handleRemoveImage = (index: number) => {
+    if (window.confirm('Êtes-vous sûr de vouloir supprimer cette image ?')) {
+      setEditForm(prev => ({
+        ...prev,
+        images: prev.images.filter((_, i) => i !== index)
+      }));
+      toast.info('Image supprimée. N\'oubliez pas d\'enregistrer vos modifications.');
+    }
+  };
+
   if (loading) return (
     <div className={styles.loadingContainer}>
       <div className={styles.spinner}></div>
-      <p className={styles.loadingText}>Chargement de votre dashboard...</p>
+      <p className={styles.loadingText}>Initialisation...</p>
     </div>
   )
 
@@ -685,15 +732,33 @@ const formatCreneauFromObject = (schedule: Schedule | any, besoinId?: number) =>
                 <div key={besoin.id} className={styles.besoinCard}>
                   {editingBesoinId === besoin.id ? (
                     <form onSubmit={(e) => { e.preventDefault(); handleUpdateBesoin(besoin.id) }}>
-                      <label>
-                        Type de prestation
-                        <input
-                          type="text"
-                          value={editForm.type_prestation || ''}
-                          onChange={(e) => setEditForm({ ...editForm, type_prestation: e.target.value })}
-                          required
-                        />
-                      </label>
+                      <label htmlFor="type_prestation">Type de prestation</label>
+                      <select
+                        id="type_prestation"
+                        value={editForm.type_prestation}
+                        onChange={(e) => setEditForm({
+                          ...editForm,
+                          type_prestation: e.target.value
+                        })}
+                        required
+                        className={styles.formSelect}
+                      >
+                        <option value="">Sélectionnez un type de prestation</option>
+                        {expertises.map((expertise, index) => {
+                          const expertiseName = typeof expertise === 'string' ? expertise : expertise.name;
+                          const key = `expertise-${index}-${expertiseName}`;
+
+                          return (
+                            <option
+                              key={key}
+                              value={expertiseName}
+                            >
+                              {expertiseName}
+                            </option>
+                          );
+                        })}
+                      </select>
+      
                       <label>
                         Description
                         <textarea
@@ -728,7 +793,7 @@ const formatCreneauFromObject = (schedule: Schedule | any, besoinId?: number) =>
                       </label>
 
                       <label>
-                        Heure début
+                        Heure de début
                         <input
                           type="time"
                           value={typeof editForm.schedule === 'string' ? '' : editForm.schedule.start}
@@ -744,7 +809,7 @@ const formatCreneauFromObject = (schedule: Schedule | any, besoinId?: number) =>
                       </label>
 
                       <label>
-                        Heure fin
+                        Heure de fin
                         <input
                           type="time"
                           value={typeof editForm.schedule === 'string' ? '' : editForm.schedule.end}
@@ -769,7 +834,17 @@ const formatCreneauFromObject = (schedule: Schedule | any, besoinId?: number) =>
                       </label>
                       <div className={styles.imagesPreview}>
                         {editForm.images.map((imgUrl, idx) => (
-                          <Image key={idx} src={imgUrl} alt={`Image ${idx + 1}`} width={100} height={100} />
+                          <div key={idx} className={styles.imageContainer}>
+                            <Image key={idx} src={imgUrl} alt={`Image ${idx + 1}`} width={100} height={100}className={styles.previewImage}/>
+                            <button
+                              type="button"
+                              onClick={() => handleRemoveImage(idx)}
+                              className={styles.removeImageButton}
+                              aria-label={`Supprimer l'image ${idx + 1}`}
+                              title="Supprimer cette image"
+                            >
+                            </button>
+                          </div>
                         ))}
                       </div>
                       <button type="submit">Enregistrer</button>
