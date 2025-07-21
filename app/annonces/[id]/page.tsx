@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import axios from 'axios'
 import { useParams, useRouter } from 'next/navigation'
-import { FiMapPin, FiUser, FiMail, FiPhone, FiClock, FiArrowLeft, FiImage } from 'react-icons/fi'
+import { FiMapPin, FiUser, FiMail, FiPhone, FiClock, FiArrowLeft} from 'react-icons/fi'
 import { FaCheckCircle, FaStar } from 'react-icons/fa'
 import styles from './page.module.scss'
 import NotificationButton from '../../components/NotificationButton'

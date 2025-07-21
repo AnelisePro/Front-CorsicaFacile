@@ -1,0 +1,96 @@
+$primary-blue: #3b82f6;
+$primary-blue-hover: #2563eb;
+$primary-blue-dark: #1e40af;
+$primary-blue-darker: #1d4ed8;
+
+// Wrapper principal pour encapsuler tous les styles
+.mapContainer {
+  height: 100%;
+  width: 100%;
+  margin-left: 1rem;
+
+  // Styles globaux Leaflet dans le wrapper
+  :global(.leaflet-tooltip.custom-tooltip) {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+
+    &::before {
+      display: none !important;
+    }
+  }
+
+  // Animation keyframes dans le contexte global
+  :global {
+    @keyframes mapPulse {
+      0% {
+        box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4);
+      }
+      70% {
+        box-shadow: 0 0 0 10px rgba(59, 130, 246, 0);
+      }
+      100% {
+        box-shadow: 0 0 0 0 rgba(59, 130, 246, 0);
+      }
+    }
+  }
+}
+
+// Styles pour les markers personnalisés
+.customMarker {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  position: relative;
+
+  &.normal {
+    width: 25px;
+    height: 25px;
+    background: $primary-blue;
+    border: 3px solid $primary-blue-darker;
+    box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+    transform: scale(1);
+  }
+
+  &.hovered {
+    width: 35px;
+    height: 35px;
+    background: $primary-blue-hover;
+    border: 3px solid $primary-blue-dark;
+    box-shadow: 0 8px 25px rgba(37, 99, 235, 0.4);
+    transform: scale(1.1);
+  }
+}
+
+.markerDot {
+  width: 8px;
+  height: 8px;
+  background: white;
+  border-radius: 50%;
+}
+
+// Styles pour le tooltip
+.tooltipContent {
+  background: #3498db;
+  color: #FEFBF4;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  border: none;
+  white-space: nowrap;
+}
+
+// Styles pour le popup
+.popupContent {
+  text-align: center;
+  padding: 4px 8px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #5E3E23;
+}

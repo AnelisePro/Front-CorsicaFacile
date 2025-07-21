@@ -26,6 +26,13 @@ function isArtisan(a: Artisan | null): a is Artisan {
   return a !== null
 }
 
+const LoadingSpinner = () => (
+  <div className={styles.loadingContainer}>
+    <div className={styles.spinner}></div>
+    <p className={styles.loadingText}>Chargement des résultats...</p>
+  </div>
+)
+
 export default function RecherchePage() {
   const params = useSearchParams()
   const expertise = params.get('expertise') ?? ''
@@ -64,6 +71,14 @@ export default function RecherchePage() {
       setMapZoom(10)
       return
     }
+
+    // 🎯 IMPORTANT: Sauvegarder les paramètres dès qu'on fait une recherche
+    sessionStorage.setItem('searchParams', JSON.stringify({
+      expertise: expertise,
+      location: location
+    }))
+
+    console.log('Paramètres sauvegardés:', { expertise, location }) // Pour debug
 
     setLoading(true)
     setError(null)
@@ -140,13 +155,14 @@ export default function RecherchePage() {
             label: a.company_name,
           }))}
           onMarkerClick={id => setHoveredArtisanId(id)}
+          hoveredArtisanId={hoveredArtisanId} // 🎯 Nouveau prop
         />
       </div>
 
       <div className={styles.resultsSection}>
         <SearchForm defaultExpertise={expertise} defaultLocation={location} />
 
-        {loading && <p>Chargement…</p>}
+        {loading && <LoadingSpinner />}
         {error && <p style={{ color: 'red' }}>{error}</p>}
 
         {!loading && !error && (
@@ -164,51 +180,60 @@ export default function RecherchePage() {
                     artisanRefs.current[artisan.id] = el
                   }}
                   onClick={() => setHoveredArtisanId(artisan.id)}
-                  style={{ cursor: 'pointer' }}
                 >
-                  <div className={styles.avatar}>
-                    <Image
-                      src={
-                        artisan.avatar_url
-                          ? artisan.avatar_url.startsWith('http')
-                            ? artisan.avatar_url
-                            : `${process.env.NEXT_PUBLIC_S3_BUCKET_URL}/${artisan.avatar_url}`
-                          : `https://ui-avatars.com/api/?name=${encodeURIComponent(
-                              artisan.company_name
-                            )}&background=007bff&color=fff&rounded=true`
-                      }
-                      alt={`${artisan.company_name} avatar`}
-                      width={64}
-                      height={64}
-                      style={{ borderRadius: '50%' }}
-                      onError={e => {
-                        ;(e.currentTarget as HTMLImageElement).src = '/images/avatar.svg'
-                      }}
-                    />
+                  <div className={styles.cardHeader}>
+                    <div className={styles.avatarContainer}>
+                      <Image
+                        src={
+                          artisan.avatar_url
+                            ? artisan.avatar_url.startsWith('http')
+                              ? artisan.avatar_url
+                              : `${process.env.NEXT_PUBLIC_S3_BUCKET_URL}/${artisan.avatar_url}`
+                            : `https://ui-avatars.com/api/?name=${encodeURIComponent(
+                                artisan.company_name
+                              )}&background=81A04A&color=fff&rounded=true`
+                        }
+                        alt={`${artisan.company_name} avatar`}
+                        width={60}
+                        height={60}
+                        className={styles.avatar}
+                        onError={e => {
+                          ;(e.currentTarget as HTMLImageElement).src = '/images/avatar.svg'
+                        }}
+                      />
+                    </div>
+                    <div className={styles.companyInfo}>
+                      <h3 className={styles.companyName}>{artisan.company_name}</h3>
+                      {artisan.expertise_names && artisan.expertise_names.length > 0 && (
+                        <div className={styles.expertiseTags}>
+                          {artisan.expertise_names.map((expertise, index) => (
+                            <span key={index} className={styles.expertiseTag}>
+                              {expertise}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                    </div>
                   </div>
 
-                  <div className={styles.info}>
-                    <h3>{artisan.company_name}</h3>
-
-                    <p className={styles.address}>
-                      <FaMapMarkerAlt aria-hidden="true" />
-                      <span>{artisan.address}</span>
-                    </p>
-
-                    <div className={styles.actions}>
-                      {artisan.expertise_names && artisan.expertise_names.length > 0 && (
-                        <span className={styles.expertiseTag}>{artisan.expertise_names.join(', ')}</span>
-                      )}
-                      <button
-                        onClick={e => {
-                          e.stopPropagation()
-                          window.open(`/artisan-profile/${artisan.id}`, '_blank')
-                        }}
-                        aria-label={`Contacter ${artisan.company_name}`}
-                      >
-                        Voir le profil
-                      </button>
+                  <div className={styles.cardBody}>
+                    <div className={styles.addressContainer}>
+                      <FaMapMarkerAlt className={styles.locationIcon} />
+                      <p className={styles.address}>{artisan.address}</p>
                     </div>
+                  </div>
+
+                  <div className={styles.cardFooter}>
+                    <button
+                      className={styles.profileButton}
+                      onClick={e => {
+                        e.stopPropagation()
+                        window.open(`/artisan-profile/${artisan.id}?expertise=${encodeURIComponent(expertise)}&location=${encodeURIComponent(location)}`, '_blank')
+                      }}
+                      aria-label={`Voir le profil de ${artisan.company_name}`}
+                    >
+                      <span>Voir le profil</span>
+                    </button>
                   </div>
                 </li>
               ))}
@@ -219,6 +244,8 @@ export default function RecherchePage() {
     </div>
   )
 }
+
+
 
 
 

@@ -1,9 +1,10 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useParams, useRouter } from 'next/navigation'
+import { useParams, useRouter, useSearchParams } from 'next/navigation'
 import axios from 'axios'
-import { FaMapMarkerAlt } from 'react-icons/fa'
+import { FaMapMarkerAlt, FaArrowLeft} from 'react-icons/fa'
+import { FiMail, FiPhone } from 'react-icons/fi'
 import Image from 'next/image'
 import styles from './page.module.scss'
 import { useAuth } from '../../auth/AuthContext'
@@ -36,6 +37,7 @@ type AvailabilitySlotType = {
 export default function ArtisanProfilePage() {
   const params = useParams()
   const router = useRouter()
+  const searchParams = useSearchParams()
   const { user } = useAuth()
 
   const [artisan, setArtisan] = useState<ArtisanDetails | null>(null)
@@ -44,6 +46,19 @@ export default function ArtisanProfilePage() {
   const [availabilitySlots, setAvailabilitySlots] = useState<AvailabilitySlotType[]>([])
   const [selectedImage, setSelectedImage] = useState<string | null>(null)
   const [messageContent, setMessageContent] = useState('')
+  const expertise = searchParams.get('expertise')
+  const location = searchParams.get('location')
+
+  // 🎯 Fonction pour récupérer les paramètres de recherche précédents
+  const handleGoBack = () => {
+    if (expertise && location) {
+      console.log('Redirection avec paramètres URL:', { expertise, location })
+      router.push(`/search-bar?expertise=${encodeURIComponent(expertise)}&location=${encodeURIComponent(location)}`)
+    } else {
+      console.log('Aucun paramètre dans l\'URL, retour simple')
+      router.push('/search-bar')
+    }
+  }
 
   useEffect(() => {
     if (!params?.id) return
@@ -155,7 +170,7 @@ export default function ArtisanProfilePage() {
   if (loading) return (
     <div className={styles.loadingContainer}>
       <div className={styles.spinner}></div>
-      <p className={styles.loadingText}>Chargement du profil artisan...</p>
+      <p className={styles.loadingText}>Chargement du profil...</p>
     </div>
   )
 
@@ -163,10 +178,10 @@ export default function ArtisanProfilePage() {
   if (error) return (
     <div className={styles.errorContainer}>
       <div className={styles.errorContent}>
-        <h2>📋 Oups ! Une erreur est survenue</h2>
+        <h2>Oups ! Une erreur est survenue</h2>
         <p>{error}</p>
         <button 
-          onClick={() => router.push('/search-bar')} 
+          onClick={handleGoBack} // 🎯 Utilise la nouvelle fonction
           className={styles.backToSearchButton}
         >
           Retour à la recherche
@@ -178,10 +193,10 @@ export default function ArtisanProfilePage() {
   if (!artisan) return (
     <div className={styles.errorContainer}>
       <div className={styles.errorContent}>
-        <h2>🔍 Artisan non trouvé</h2>
+        <h2>Artisan non trouvé</h2>
         <p>Le profil que vous cherchez n'existe pas ou n'est plus disponible.</p>
         <button 
-          onClick={() => router.push('/search-bar')} 
+          onClick={handleGoBack} // 🎯 Utilise la nouvelle fonction
           className={styles.backToSearchButton}
         >
           Retour à la recherche
@@ -191,161 +206,244 @@ export default function ArtisanProfilePage() {
   )
 
   return (
-    <div className={styles.container}>
-      <button
-        onClick={() => router.push('/search-bar')}
-        className={styles.backButton}
-        aria-label="Retour aux résultats de recherche"
-      >
-        ← Retour
-      </button>
+    <div className={styles.pageWrapper}>
+      <div className={styles.container}>
+        <button
+          onClick={handleGoBack} // 🎯 Utilise la nouvelle fonction au lieu de router.push('/search-bar')
+          className={styles.backButton}
+          aria-label="Retour aux résultats de recherche"
+        >
+          <FaArrowLeft />
+          <span>Retour</span>
+        </button>
 
-      <div className={styles.grid}>
-        <div className={styles.leftColumn}>
-          <div className={styles.card}>
-            <div className={styles.profileHeader}>
-              <Image
-                src={
-                  artisan.avatar_url
-                    ? `${artisan.avatar_url}?t=${Date.now()}`
-                    : `https://ui-avatars.com/api/?name=${encodeURIComponent(artisan.company_name)}`
-                }
-                alt="avatar"
-                width={80}
-                height={80}
-                className={styles.avatar}
-              />
-              <div>
-                <h1>{artisan.company_name}</h1>
-                <p>
-                  <FaMapMarkerAlt className={styles.blueIcon}/> {artisan.address}
-                </p>
-                <span className={styles.expertise}>{artisan.expertise_names?.join(', ')}</span>
-              </div>
-            </div>
-          </div>
-
-          <div className={styles.card}>
-            <h2>À propos de l'entreprise</h2>
-            <p>{artisan.description || "Cet artisan n'a pas encore ajouté de description."}</p>
-          </div>
-
-          {/* Section des réalisations */}
-          {artisan.project_images && artisan.project_images.length > 0 && (
-            <div className={styles.card}>
-              <h2>Nos réalisations</h2>
-              <div className={styles.gallery}>
-                {artisan.project_images.map((image) => (
-                  <div
-                    key={image.id}
-                    className={styles.galleryItem}
-                    onClick={() => setSelectedImage(image.image_url)}
-                  >
-                    <Image
-                      src={image.image_url}
-                      alt={`Réalisation ${image.id}`}
-                      width={200}
-                      height={150}
-                      className={styles.projectImage}
-                    />
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Modal pour afficher l'image en grand */}
-          {selectedImage && (
-            <div className={styles.modal} onClick={() => setSelectedImage(null)}>
-              <div className={styles.modalContent}>
+        {/* Hero Section - Profil principal */}
+        <div className={styles.heroCard}>
+          <div className={styles.heroContent}>
+            <div className={styles.avatarSection}>
+              <div className={styles.avatarContainer}>
                 <Image
-                  src={selectedImage}
-                  alt="Réalisation en détail"
-                  width={800}
-                  height={600}
-                  className={styles.fullSizeImage}
+                  src={
+                    artisan.avatar_url
+                      ? `${artisan.avatar_url}?t=${Date.now()}`
+                      : `https://ui-avatars.com/api/?name=${encodeURIComponent(artisan.company_name)}&background=81A04A&color=fff&rounded=true`
+                  }
+                  alt="avatar"
+                  width={120}
+                  height={120}
+                  className={styles.avatar}
                 />
               </div>
             </div>
-          )}
-        </div>
-
-        <div className={styles.rightColumn}>
-          {availabilitySlots.length > 0 && (
-            <div className={styles.card}>
-              <h2>Créneaux disponibles</h2>
-              <div>
-                {availabilitySlots
-                  .slice()
-                  .sort((a, b) => {
-                    const dayA = new Date(a.start_time).getDay()
-                    const dayB = new Date(b.start_time).getDay()
-
-                    const adjustedA = dayIndexMondayFirst(dayA)
-                    const adjustedB = dayIndexMondayFirst(dayB)
-
-                    if (adjustedA !== adjustedB) return adjustedA - adjustedB
-
-                    return new Date(a.start_time).getTime() - new Date(b.start_time).getTime()
-                  })
-                  .map(slot => {
-                    const { dayName, slotText } = formatSlot(slot.start_time, slot.end_time)
-                    return (
-                      <div key={slot.id} className={styles.availabilityRow}>
-                        <span className={styles.day}>{dayName}</span>
-                        <span className={styles.slot}>{slotText}</span>
-                      </div>
-                    )
-                  })}
+            
+            <div className={styles.profileInfo}>
+              <h1 className={styles.companyName}>{artisan.company_name}</h1>
+              
+              <div className={styles.locationContainer}>
+                <FaMapMarkerAlt className={styles.locationIcon} />
+                <span className={styles.address}>{artisan.address}</span>
+              </div>
+              
+              <div className={styles.expertiseContainer}>
+                {artisan.expertise_names?.map((expertise, index) => (
+                  <span key={index} className={styles.expertiseTag}>
+                    {expertise}
+                  </span>
+                ))}
               </div>
             </div>
-          )}
+          </div>
+        </div>
 
-          <div className={styles.card}>
-            <h2>Contacter l'artisan</h2>
-            {user && user.role === 'client' ? (
-              <div>
-                <div className={styles.contactInfo}>
-                  <p>Email : <a href={`mailto:${artisan.email}`}>{artisan.email}</a></p>
-                  <p>Téléphone : <a href={`tel:${artisan.phone}`}>{artisan.phone}</a></p>
+        <div className={styles.contentGrid}>
+          {/* Colonne gauche */}
+          <div className={styles.leftColumn}>
+            {/* Section À propos */}
+            <div className={styles.card}>
+              <div className={styles.cardHeader}>
+                <h2>À propos de l'entreprise</h2>
+              </div>
+              <div className={styles.cardContent}>
+                <p className={styles.description}>
+                  {artisan.description || "Cet artisan n'a pas encore ajouté de description."}
+                </p>
+              </div>
+            </div>
+
+            {/* Section des réalisations */}
+            {artisan.project_images && artisan.project_images.length > 0 && (
+              <div className={styles.card}>
+                <div className={styles.cardHeader}>
+                  <h2>Nos réalisations</h2>
+                  <span className={styles.badge}>{artisan.project_images.length}</span>
                 </div>
-                
-                <div className={styles.messageForm}>
-                  <h3>Envoyer un message via notre messagerie</h3>
-                  <form onSubmit={async (e) => {
-                    e.preventDefault()
-                    if (messageContent.trim()) {
-                      await sendMessage(messageContent)
-                    }
-                  }}>
-                    <textarea
-                      value={messageContent}
-                      onChange={(e) => setMessageContent(e.target.value)}
-                      placeholder="Écrivez votre message ici..."
-                      required
-                      rows={4}
-                      className={styles.messageTextarea}
-                    />
-                    <button type="submit" className={styles.sendButton}>
-                      Envoyer le message
-                    </button>
-                  </form>
+                <div className={styles.cardContent}>
+                  <div className={styles.gallery}>
+                    {artisan.project_images.map((image) => (
+                      <div
+                        key={image.id}
+                        className={styles.galleryItem}
+                        onClick={() => setSelectedImage(image.image_url)}
+                      >
+                        <Image
+                          src={image.image_url}
+                          alt={`Réalisation ${image.id}`}
+                          width={200}
+                          height={150}
+                          className={styles.projectImage}
+                        />
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
-            ) : (
-              <button
-                className={styles.loginButton}
-                onClick={() => router.push('/auth/login_client')}
-              >
-                Connectez-vous pour contacter l'artisan
-              </button>
+            )}
+
+            {/* 🎯 Section contact déplacée ici */}
+            <div className={styles.card}>
+              <div className={styles.cardHeader}>
+                <h2>
+                  Contacter l'artisan
+                </h2>
+              </div>
+              <div className={styles.cardContent}>
+                {user && user.role === 'client' ? (
+                  <div className={styles.contactSection}>
+                    <div className={styles.contactMethods}>
+                      <div className={styles.contactItem}>
+                        <FiMail className={styles.contactIcon} />
+                        <div className={styles.contactDetails}>
+                          <span className={styles.contactLabel}>Email</span>
+                          <a href={`mailto:${artisan.email}`} className={styles.contactLink}>
+                            {artisan.email}
+                          </a>
+                        </div>
+                      </div>
+                      
+                      <div className={styles.contactItem}>
+                        <FiPhone className={styles.contactIcon} />
+                        <div className={styles.contactDetails}>
+                          <span className={styles.contactLabel}>Téléphone</span>
+                          <a href={`tel:${artisan.phone}`} className={styles.contactLink}>
+                            {artisan.phone}
+                          </a>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className={styles.messageSection}>
+                      <h3 className={styles.messageTitle}>
+                        Envoyer un message via notre messagerie
+                      </h3>
+                      <form 
+                        className={styles.messageForm}
+                        onSubmit={async (e) => {
+                          e.preventDefault()
+                          if (messageContent.trim()) {
+                            await sendMessage(messageContent)
+                          }
+                        }}
+                      >
+                        <div className={styles.textareaContainer}>
+                          <textarea
+                            value={messageContent}
+                            onChange={(e) => setMessageContent(e.target.value)}
+                            placeholder="Décrivez votre projet, vos besoins ou posez vos questions..."
+                            required
+                            rows={4}
+                            className={styles.messageTextarea}
+                          />
+                        </div>
+                        <button type="submit" className={styles.sendButton}>
+                          <span>Envoyer le message</span>
+                        </button>
+                      </form>
+                    </div>
+                  </div>
+                ) : (
+                  <div className={styles.loginPrompt}>
+                    <h3>Connexion requise</h3>
+                    <p>Connectez-vous pour accéder aux informations de contact et envoyer un message à cet artisan.</p>
+                    <button
+                      className={styles.loginButton}
+                      onClick={() => router.push('/auth/login_client')}
+                    >
+                      Se connecter
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Colonne droite - Maintenant uniquement les disponibilités */}
+          <div className={styles.rightColumn}>
+            {/* Section disponibilités */}
+            {availabilitySlots.length > 0 && (
+              <div className={styles.card}>
+                <div className={styles.cardHeader}>
+                  <h2>
+                    Créneaux disponibles
+                  </h2>
+                </div>
+                <div className={styles.cardContent}>
+                  <div className={styles.availabilityList}>
+                    {availabilitySlots
+                      .slice()
+                      .sort((a, b) => {
+                        const dayA = new Date(a.start_time).getDay()
+                        const dayB = new Date(b.start_time).getDay()
+                        const adjustedA = dayIndexMondayFirst(dayA)
+                        const adjustedB = dayIndexMondayFirst(dayB)
+                        if (adjustedA !== adjustedB) return adjustedA - adjustedB
+                        return new Date(a.start_time).getTime() - new Date(b.start_time).getTime()
+                      })
+                      .map(slot => {
+                        const { dayName, slotText } = formatSlot(slot.start_time, slot.end_time)
+                        return (
+                          <div key={slot.id} className={styles.availabilityItem}>
+                            <div className={styles.dayInfo}>
+                              <span className={styles.dayName}>{dayName}</span>
+                            </div>
+                            <div className={styles.timeInfo}>
+                              <span className={styles.timeSlot}>{slotText}</span>
+                            </div>
+                          </div>
+                        )
+                      })}
+                  </div>
+                </div>
+              </div>
             )}
           </div>
         </div>
+
+        {/* Modal pour les images en grand */}
+        {selectedImage && (
+          <div className={styles.modal} onClick={() => setSelectedImage(null)}>
+            <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
+              <button
+                className={styles.modalClose}
+                onClick={() => setSelectedImage(null)}
+                aria-label="Fermer l'image"
+              >
+                ×
+              </button>
+              <Image
+                src={selectedImage}
+                alt="Réalisation en grand format"
+                width={800}
+                height={600}
+                className={styles.fullSizeImage}
+              />
+            </div>
+          </div>
+        )}
       </div>
     </div>
   )
 }
+
 
 
 

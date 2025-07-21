@@ -27,7 +27,7 @@
 .resultsSection {
   flex: 1;
   width: 50%;
-  padding: 1rem;
+  padding: 1rem 2rem;
   overflow-y: auto;
   background-color: #FEFBF4;
 
@@ -35,103 +35,244 @@
     width: 100%;
     height: auto;
     max-height: none;
+    padding: 1rem; // 🎯 Padding normal sur mobile
+  }
+
+  @media (min-width: 1200px) {
+    padding: 1rem 3rem;
   }
 }
 
 .artisanList {
   list-style: none;
   padding: 0;
-  margin: 0;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  max-width: 640px;
+
+  @media (max-width: 768px) {
+    max-width: none; // 🎯 Pas de limite sur mobile
+  }
 }
 
+// Design des cartes
 .artisanCard {
-  display: flex;
-  gap: 1rem;
-  background-color: #fff;
-  padding: 0.8rem;
-  margin-bottom: 0.8rem;
-  border-radius: 8px;
-  box-shadow: 0 1px 4px rgb(0 0 0 / 0.1);
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  border: 2px solid transparent;
   cursor: pointer;
-  transition: background-color 0.3s ease, border-color 0.3s ease, transform 0.2s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+  box-sizing: border-box;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    transform: scaleX(0);
+    transition: transform 0.3s ease;
+  }
 
   &:hover {
-    background-color: #a4a7ab22;
+    transform: translateY(-4px);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+    border-color: rgba(129, 160, 74, 0.2);
+
+    &::before {
+      transform: scaleX(1);
+    }
   }
 
   &.hovered {
-    border: 1px solid #81A04A;
-    transform: scale(1.02); 
+    transform: translateY(-6px) scale(1.02);
+    box-shadow: 0 12px 40px rgba(129, 160, 74, 0.2);
+
+    &::before {
+      transform: scaleX(1);
+    }
   }
+}
+
+.cardHeader {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.avatarContainer {
+  position: relative;
+  flex-shrink: 0;
 }
 
 .avatar {
-  flex-shrink: 0;
-  width: 64px;
-  height: 64px;
+  width: 60px;
+  height: 60px;
   border-radius: 50%;
-  border: 1px solid #81A04A;
-  overflow: hidden;
-
-  img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
+  object-fit: cover;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
-.info {
+.companyInfo {
   flex-grow: 1;
+  min-width: 0;
+}
 
-  h3 {
-    margin: 0 0 0.3rem 0;
-    color: #81A04A;
-    font-family: 'Quicksand', sans-serif;
+.companyName {
+  margin: 0 0 0.5rem 0;
+  font-family: 'Quicksand', sans-serif;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #5E3E23;
+  line-height: 1.2;
+}
+
+.expertiseTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.expertiseTag {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.75rem;
+  background: rgba(129, 160, 74, 0.05);
+  color: #81A04A;
+  border: 0.5px solid #81A04A;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  font-family: 'Nunito', sans-serif;
+  text-transform: capitalize;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+}
+
+.cardBody {
+  margin-bottom: 1.25rem;
+}
+
+.addressContainer {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  background-color: rgba(129, 160, 74, 0.05);
+  border-radius: 12px;
+  border-left: 4px solid #81A04A;
+}
+
+.locationIcon {
+  color: #81A04A;
+  font-size: 1.1rem;
+  margin-top: 0.1rem;
+  flex-shrink: 0;
+}
+
+.address {
+  margin: 0;
+  color: #5E3E23;
+  font-family: 'Nunito', sans-serif;
+  font-size: 0.95rem;
+  line-height: 1.4;
+  font-weight: 500;
+}
+
+.cardFooter {
+  display: flex;
+  justify-content: flex-end;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(129, 160, 74, 0.1);
+}
+
+.profileButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  background: linear-gradient(135deg, #3498db, #2980b9);
+  color: #ffffff;
+  border: none;
+  border-radius: 12px;
+  font-family: 'Nunito', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(52, 152, 219, 0.2);
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(52, 152, 219, 0.3);
+    background: linear-gradient(135deg, #2980b9, #1f5582);
   }
 
-  .address {
-    display: flex;
-    align-items: center;
-    gap: 0.3rem;
-    color: #212121;
-    font-size: 0.9rem;
-
-    svg {
-      color: #3498db;
-    }
-  }
-
-  .actions {
-    margin-top: 0.6rem;
-    display: flex;
-    gap: 0.5rem;
-    align-items: center;
-
-    .expertiseTag {
-      background-color: #A4A7AB;
-      font-weight: 700;
-      color: #FEFBF4;
-      border-radius: 12px;
-      padding: 0.3rem 0.6rem;
-      font-size: 0.75rem;
-    }
-
-    button {
-      border: none;
-      font-weight: 700;
-      background-color: #3498db;
-      color: #FEFBF4;
-      padding: 0.4rem 0.8rem;
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 0.85rem;
-
-      &:hover {
-        background-color: #3498db;
-      }
-    }
+  &:active {
+    transform: translateY(0);
   }
 }
+
+// Styles du loading
+.loadingContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem;
+  text-align: center;
+
+  .spinner {
+    width: 50px;
+    height: 50px;
+    border: 4px solid rgba(52, 152, 219, 0.2);
+    border-radius: 50%;
+    border-top-color: #3498db;
+    animation: spin 1s ease-in-out infinite;
+    margin-bottom: 1rem;
+  }
+
+  .loadingText {
+    color: #7f8c8d;
+    font-size: 1.1rem;
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+// Responsive
+@media (max-width: 768px) {
+  .artisanCard {
+    padding: 1rem;
+  }
+
+  .cardHeader {
+    gap: 0.75rem;
+  }
+
+  .companyName {
+    font-size: 1.1rem;
+  }
+
+  .profileButton {
+    padding: 0.6rem 1.2rem;
+    font-size: 0.85rem;
+  }
+}
+
+
 
 
 
