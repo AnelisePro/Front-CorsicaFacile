@@ -7,6 +7,7 @@ import dynamic from 'next/dynamic'
 import SearchForm from '../components/SearchForm'
 import styles from './page.module.scss'
 import { FaMapMarkerAlt } from 'react-icons/fa'
+import PremiumBadge from '../components/PremiumBadge'
 
 const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
 
@@ -20,6 +21,7 @@ type Artisan = {
   latitude?: number
   longitude?: number
   avatar_url?: string | null
+  membership_plan?: string | null
 }
 
 function isArtisan(a: Artisan | null): a is Artisan {
@@ -77,8 +79,6 @@ export default function RecherchePage() {
       expertise: expertise,
       location: location
     }))
-
-    console.log('Paramètres sauvegardés:', { expertise, location }) // Pour debug
 
     setLoading(true)
     setError(null)
@@ -155,7 +155,7 @@ export default function RecherchePage() {
             label: a.company_name,
           }))}
           onMarkerClick={id => setHoveredArtisanId(id)}
-          hoveredArtisanId={hoveredArtisanId} // 🎯 Nouveau prop
+          hoveredArtisanId={hoveredArtisanId}
         />
       </div>
 
@@ -198,12 +198,20 @@ export default function RecherchePage() {
                         height={60}
                         className={styles.avatar}
                         onError={e => {
-                          ;(e.currentTarget as HTMLImageElement).src = '/images/avatar.svg'
+                          (e.currentTarget as HTMLImageElement).src = '/images/avatar.svg'
                         }}
                       />
                     </div>
                     <div className={styles.companyInfo}>
-                      <h3 className={styles.companyName}>{artisan.company_name}</h3>
+                      <div className={styles.nameBadgeContainer}>
+                        <h3 className={styles.companyName}>{artisan.company_name}</h3>
+                        {artisan.membership_plan === 'Premium' && (
+                          <PremiumBadge
+                            membershipPlan={artisan.membership_plan}
+                            className={styles.premiumBadge}
+                          />
+                        )}
+                      </div>
                       {artisan.expertise_names && artisan.expertise_names.length > 0 && (
                         <div className={styles.expertiseTags}>
                           {artisan.expertise_names.map((expertise, index) => (

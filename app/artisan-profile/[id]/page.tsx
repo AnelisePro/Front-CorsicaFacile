@@ -9,6 +9,7 @@ import Image from 'next/image'
 import styles from './page.module.scss'
 import { useAuth } from '../../auth/AuthContext'
 import { toast } from 'react-toastify'
+import PremiumBadge from '../../components/PremiumBadge'
 
 type ProjectImageType = {
   id: number
@@ -26,6 +27,7 @@ type ArtisanDetails = {
   description?: string
   availability_slots: AvailabilitySlotType[]
   project_images: ProjectImageType[]
+  membership_plan?: string | null;
 }
 
 type AvailabilitySlotType = {
@@ -181,7 +183,7 @@ export default function ArtisanProfilePage() {
         <h2>Oups ! Une erreur est survenue</h2>
         <p>{error}</p>
         <button 
-          onClick={handleGoBack} // 🎯 Utilise la nouvelle fonction
+          onClick={handleGoBack}
           className={styles.backToSearchButton}
         >
           Retour à la recherche
@@ -196,7 +198,7 @@ export default function ArtisanProfilePage() {
         <h2>Artisan non trouvé</h2>
         <p>Le profil que vous cherchez n'existe pas ou n'est plus disponible.</p>
         <button 
-          onClick={handleGoBack} // 🎯 Utilise la nouvelle fonction
+          onClick={handleGoBack}
           className={styles.backToSearchButton}
         >
           Retour à la recherche
@@ -209,7 +211,7 @@ export default function ArtisanProfilePage() {
     <div className={styles.pageWrapper}>
       <div className={styles.container}>
         <button
-          onClick={handleGoBack} // 🎯 Utilise la nouvelle fonction au lieu de router.push('/search-bar')
+          onClick={handleGoBack}
           className={styles.backButton}
           aria-label="Retour aux résultats de recherche"
         >
@@ -237,7 +239,15 @@ export default function ArtisanProfilePage() {
             </div>
             
             <div className={styles.profileInfo}>
-              <h1 className={styles.companyName}>{artisan.company_name}</h1>
+              <div className={styles.nameContainer}>
+                <h1 className={styles.companyName}>
+                  {artisan.company_name}
+                </h1>
+                <PremiumBadge
+                  membershipPlan={artisan.membership_plan}
+                  className={styles.premiumBadge}
+                />
+              </div>
               
               <div className={styles.locationContainer}>
                 <FaMapMarkerAlt className={styles.locationIcon} />

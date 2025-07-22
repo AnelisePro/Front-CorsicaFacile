@@ -3,6 +3,7 @@
 import React from 'react'
 import styles from './ArtisanView.module.scss'
 import Image from 'next/image'
+import PremiumBadge from './PremiumBadge'
 
 type PlanInfo = {
   amount: number
@@ -29,7 +30,7 @@ type ArtisanViewProps = {
   planInfo: PlanInfo | null
   onEdit: () => void
   onDelete: () => void
-  intervalTranslations?: Record<string, string> // Ajoutez cette prop optionnelle
+  intervalTranslations?: Record<string, string>
 }
 
 function capitalizeFirstOnly(text: string) {
@@ -37,17 +38,13 @@ function capitalizeFirstOnly(text: string) {
   return text.charAt(0).toUpperCase() + text.slice(1).toLowerCase()
 }
 
-
 export default function ArtisanView({
   artisan,
   planInfo,
   onEdit,
   onDelete,
-  intervalTranslations = { day: 'jour', week: 'semaine', month: 'mois', year: 'an' } // Valeur par défaut
+  intervalTranslations = { day: 'jour', week: 'semaine', month: 'mois', year: 'an' }
 }: ArtisanViewProps) {
-  console.log('Artisan data:', artisan)
-  console.log('KBIS URL:', artisan.kbis_url)
-  console.log('Insurance URL:', artisan.insurance_url)
   return (
     <div className={styles.profileContent}>
       {/* Avatar à gauche */}
@@ -73,7 +70,14 @@ export default function ArtisanView({
         <div className={styles.infoColumns}>
           {/* Colonne 1 */}
           <div className={styles.infoColumn}>
-            <p><strong>Nom :</strong> {artisan.company_name}</p>
+            <div className={styles.nameContainer}>
+              <strong>Nom :</strong>
+              <p> {artisan.company_name} </p>
+              <PremiumBadge
+                membershipPlan={artisan.membership_plan}
+                className={styles.companyNameBadge}
+              />
+            </div>
             <p><strong>Adresse :</strong> {artisan.address}</p>
             <p><strong>Expertise :</strong> {artisan.expertise_names.join(', ')}</p>
             <p><strong>Email :</strong> {artisan.email}</p>
@@ -97,26 +101,26 @@ export default function ArtisanView({
 
         {/* Section Documents */}
         <div className={styles.documents}>
-  <a
-    href={artisan.kbis_url || '#'}
-    target={artisan.kbis_url ? '_blank' : undefined}
-    rel="noopener noreferrer"
-    className={`${styles.button} ${!artisan.kbis_url ? styles.disabled : ''}`}
-    onClick={(e) => !artisan.kbis_url && e.preventDefault()}
-  >
-    📄 {artisan.kbis_url ? 'Voir le KBIS' : 'KBIS non disponible'}
-  </a>
+          <a
+            href={artisan.kbis_url || '#'}
+            target={artisan.kbis_url ? '_blank' : undefined}
+            rel="noopener noreferrer"
+            className={`${styles.button} ${!artisan.kbis_url ? styles.disabled : ''}`}
+            onClick={(e) => !artisan.kbis_url && e.preventDefault()}
+          >
+            📄 {artisan.kbis_url ? 'Voir le KBIS' : 'KBIS non disponible'}
+          </a>
 
-  <a
-    href={artisan.insurance_url || '#'}
-    target={artisan.insurance_url ? '_blank' : undefined}
-    rel="noopener noreferrer"
-    className={`${styles.button} ${!artisan.insurance_url ? styles.disabled : ''}`}
-    onClick={(e) => !artisan.insurance_url && e.preventDefault()}
-  >
-    🛡️ {artisan.insurance_url ? 'Voir l\'Assurance Pro' : 'Assurance non disponible'}
-  </a>
-</div>
+          <a
+            href={artisan.insurance_url || '#'}
+            target={artisan.insurance_url ? '_blank' : undefined}
+            rel="noopener noreferrer"
+            className={`${styles.button} ${!artisan.insurance_url ? styles.disabled : ''}`}
+            onClick={(e) => !artisan.insurance_url && e.preventDefault()}
+          >
+            🛡️ {artisan.insurance_url ? 'Voir l\'Assurance Pro' : 'Assurance non disponible'}
+          </a>
+        </div>
 
         {/* Boutons d'action */}
         <div className={styles.profileButtons}>
@@ -131,6 +135,7 @@ export default function ArtisanView({
     </div>
   )
 }
+
 
 
 

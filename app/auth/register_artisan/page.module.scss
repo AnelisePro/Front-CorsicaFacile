@@ -1019,5 +1019,24 @@ $error-color: #dc2626;
   }
 }
 
+// Dans votre fichier page.module.scss
+.premiumPreview {
+  margin: 1rem 0;
+  padding: 0.75rem;
+  background-color: #fefbf495;
+  border-radius: 8px;
+  text-align: center;
+
+  p {
+    margin-bottom: 0.5rem;
+    color: #5E3E23;
+  }
+}
+
+.previewBadge {
+  justify-content: center;
+  margin-top: 0.5rem;
+}
+
 
 

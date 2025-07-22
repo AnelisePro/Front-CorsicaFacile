@@ -9,6 +9,7 @@ import 'react-toastify/dist/ReactToastify.css'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import PricingModal from '../../components/PricingModal'
+import PremiumBadge from '../../components/PremiumBadge'
 
 export default function ArtisanInscription() {
   const router = useRouter()
@@ -583,6 +584,16 @@ export default function ArtisanInscription() {
                     Suivant →
                   </button>
                 </div>
+              </div>
+            )}
+
+            {step === 4 && membershipPlan === 'Premium' && (
+              <div className={styles.premiumPreview}>
+                <p>Avec l'abonnement Premium, vous bénéficierez d'un badge exclusif :</p>
+                <PremiumBadge
+                  membershipPlan="Premium"
+                  className={styles.previewBadge}
+                />
               </div>
             )}
 

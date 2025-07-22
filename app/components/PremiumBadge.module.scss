@@ -1,0 +1,54 @@
+@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&family=Nunito:wght@400;500;600;700&display=swap');
+
+.badgeContainer {
+  display: inline-flex;
+  align-items: center;
+}
+
+.premiumBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: linear-gradient(135deg, #3498db, #2e64fe);
+  color: white;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  font-family: 'Nunito', sans-serif;
+  box-shadow:
+    0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  position: relative;
+  overflow: hidden;
+  transform: translateZ(0);
+}
+
+.starIcon {
+  font-size: 0.9rem;
+  margin-right: 2px;
+}
+
+.badgeText {
+  position: relative;
+  z-index: 1;
+}
+
+// Animation au survol
+.premiumBadge:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 6px 8px -1px rgba(0, 0, 0, 0.15),
+    0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+// Version mobile
+@media (max-width: 768px) {
+  .premiumBadge {
+    padding: 4px 8px;
+    font-size: 0.7rem;
+    border-radius: 16px;
+  }
+}
+
+

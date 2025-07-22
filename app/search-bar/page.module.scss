@@ -16,7 +16,6 @@
   flex: 1;
   min-width: 0;
   height: 100%;
-  width: 50%;
 
   @media (max-width: 768px) {
     width: 100%;
@@ -35,7 +34,7 @@
     width: 100%;
     height: auto;
     max-height: none;
-    padding: 1rem; // 🎯 Padding normal sur mobile
+    padding: 1rem;
   }
 
   @media (min-width: 1200px) {
@@ -53,7 +52,7 @@
   max-width: 640px;
 
   @media (max-width: 768px) {
-    max-width: none; // 🎯 Pas de limite sur mobile
+    max-width: none;
   }
 }
 
@@ -127,13 +126,33 @@
   min-width: 0;
 }
 
+.nameBadgeContainer {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+  flex-wrap: wrap;
+}
+
 .companyName {
-  margin: 0 0 0.5rem 0;
+  margin: 0;
   font-family: 'Quicksand', sans-serif;
   font-size: 1.25rem;
   font-weight: 600;
   color: #5E3E23;
   line-height: 1.2;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.premiumBadge {
+  flex-shrink: 0;
+  margin-left: 0.25rem;
+
+  @media (max-width: 480px) {
+    margin-left: 0;
+  }
 }
 
 .expertiseTags {

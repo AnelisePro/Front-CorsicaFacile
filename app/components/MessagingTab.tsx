@@ -5,6 +5,7 @@ import axios from 'axios'
 import { toast } from 'react-toastify'
 import { useAuth } from '../auth/AuthContext'
 import styles from './MessagingTab.module.scss'
+import PremiumBadge from './PremiumBadge'
 
 const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
 
