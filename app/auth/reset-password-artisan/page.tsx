@@ -29,56 +29,53 @@ export default function ResetPasswordArtisan() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
-
-    if (!password || !passwordConfirmation) {
-      setError('Veuillez remplir tous les champs.')
-      toast.error('Veuillez remplir tous les champs.')
-      return
-    }
+    setLoading(true)
 
     if (password !== passwordConfirmation) {
-      setError('Les mots de passe ne correspondent pas.')
-      toast.error('Les mots de passe ne correspondent pas.')
+      setError('Les mots de passe ne correspondent pas')
+      setLoading(false)
       return
     }
 
     if (password.length < 6) {
-      setError('Le mot de passe doit contenir au moins 6 caractères.')
-      toast.error('Le mot de passe doit contenir au moins 6 caractères.')
+      setError('Le mot de passe doit contenir au moins 6 caractères')
+      setLoading(false)
       return
     }
 
-    setLoading(true)
-
     try {
+      console.log('🔍 Calling API:', `${process.env.NEXT_PUBLIC_API_URL}/api/v1/password_resets/artisan/update`)
+      console.log('🔍 Token:', token)
+      
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/password_resets/artisan/update`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          token,
-          password,
+          token: token,
+          password: password,
           password_confirmation: passwordConfirmation
-        }),
+        })
       })
 
-      const data = await response.json()
-
+      console.log('🔍 Response status:', response.status)
+      
       if (response.ok) {
-        toast.success(data.message, { autoClose: 3000 })
-        setTimeout(() => {
-          router.push('/auth/login_artisan')
-        }, 3000)
+        const data = await response.json()
+        toast.success(data.message || 'Mot de passe mis à jour avec succès !', {
+          onClose: () => {
+            setTimeout(() => router.push('/auth/login_artisan'), 1000)
+          }
+        })
       } else {
-        setError(data.message)
-        toast.error(data.message)
+        const data = await response.json()
+        console.log('🔍 Error response:', data)
+        setError(data.message || 'Erreur lors de la mise à jour')
       }
     } catch (error) {
-      console.error('Erreur:', error)
-      const errorMessage = 'Erreur de connexion au serveur'
-      setError(errorMessage)
-      toast.error(errorMessage)
+      console.error('🔍 Network error:', error)
+      setError('Erreur de connexion')
     } finally {
       setLoading(false)
     }
