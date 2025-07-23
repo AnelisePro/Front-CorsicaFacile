@@ -24,14 +24,33 @@ export default function ForgottenPasswordArtisan() {
 
     setLoading(true)
 
-    setTimeout(() => {
-      toast.success(
-        `Un lien de réinitialisation a été envoyé à ${email} (simulation).`,
-        { autoClose: 5000 }
-      )
+    try {
+      // 🔥 APPEL API RÉEL POUR ARTISAN (plus de simulation !)
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/password_resets/artisan`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email }),
+      })
+
+      const data = await response.json()
+
+      if (response.ok) {
+        toast.success(data.message, { autoClose: 5000 })
+        setEmail('')
+      } else {
+        setError(data.message)
+        toast.error(data.message)
+      }
+    } catch (error) {
+      console.error('Erreur:', error)
+      const errorMessage = 'Erreur de connexion au serveur'
+      setError(errorMessage)
+      toast.error(errorMessage)
+    } finally {
       setLoading(false)
-      setEmail('')
-    }, 1500)
+    }
   }
 
   return (
