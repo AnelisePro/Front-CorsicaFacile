@@ -25,14 +25,27 @@ interface Client {
   avatar_url?: string | null
 }
 
-interface Schedule {
-  date: string
-  start: string
-  end: string
-}
+type ScheduleSingle = {
+  type: 'single_day';
+  date: string;
+  start_time: string;
+  end_time: string;
+  // Champs optionnels pour compatibilité
+  start_date?: never;
+  end_date?: never;
+};
 
-// Ou pour gérer les deux formats
-type ScheduleType = Schedule | [any, string, string, string] | any
+type ScheduleRange = {
+  type: 'date_range';
+  start_date: string;
+  end_date: string;
+  start_time: string;
+  end_time: string;
+  // Champ optionnel pour compatibilité
+  date?: never;
+};
+
+type Schedule = ScheduleSingle | ScheduleRange;
 
 interface Besoin {
   id: number
@@ -76,22 +89,23 @@ export default function ClientDashboard() {
   const [loadingExpertises, setLoadingExpertises] = useState(true)
 
   const [editForm, setEditForm] = useState<{
-    type_prestation: string | number,
-    description: string,
-    address: string,
-    schedule: Schedule | string,
-    images: string[],
-  }>({
-    type_prestation: '',
-    description: '',
-    address: '',
-    schedule: {
-      date: '',
-      start: '',
-      end: ''
-    },
-    images: [],
-  })
+  type_prestation: string | number;
+  description: string;
+  address: string;
+  schedule: Schedule;
+  images: string[];
+}>({
+  type_prestation: '',
+  description: '',
+  address: '',
+  schedule: {
+    type: 'single_day',
+    date: '',
+    start_time: '',
+    end_time: '',
+  },
+  images: [],
+});
 
   // Récupération des expertises
   useEffect(() => {
@@ -403,25 +417,15 @@ export default function ClientDashboard() {
     console.log('=== FIN DEBUG ===')
   }
 
-  const formatCreneauFromObject = (schedule: Schedule | any, besoinId?: number) => {
-    // Debug temporaire
-    if (besoinId) {
-      debugSchedule(schedule, besoinId)
-    }
+  const formatCreneauFromObject = (schedule: any, besoinId?: number): string => {
+    if (besoinId) debugSchedule(schedule, besoinId)
+    if (!schedule) return 'Créneau non défini'
 
-    if (!schedule) {
-      console.log('Schedule est null/undefined')
-      return 'Créneau non défini'
-    }
-
-    // Si c'est un array (format base de données)
+    // Format Array (ancien format BDD ?)
     if (Array.isArray(schedule)) {
-      console.log('Schedule est un array:', schedule)
       if (schedule.length >= 4) {
         const [, date, start, end] = schedule
-        console.log('Array values:', { date, start, end })
         if (!date) return 'Créneau non défini'
-        
         const formattedDate = new Date(date).toLocaleDateString('fr-FR', {
           day: 'numeric',
           month: 'long',
@@ -432,23 +436,68 @@ export default function ClientDashboard() {
       return 'Créneau non défini (array trop court)'
     }
 
-    // Si c'est un objet
-    if (schedule && typeof schedule === 'object') {
-      console.log('Schedule est un objet:', schedule)
-      if (schedule.date && schedule.start && schedule.end) {
-        const formattedDate = new Date(schedule.date).toLocaleDateString('fr-FR', {
+    // Format enrichi (depuis Step4)
+    if (typeof schedule === 'object') {
+      const {
+        date,
+        start_date,
+        end_date,
+        start_time,
+        end_time,
+        start,
+        end,
+        type
+      } = schedule
+
+      // Cas date unique (avec type explicite ou détection automatique)
+      if ((type === 'single_day' || date) && (start_time || start) && (end_time || end)) {
+        const targetDate = date || start_date
+        if (!targetDate) return 'Créneau non défini (date manquante)'
+        
+        const formattedDate = new Date(targetDate).toLocaleDateString('fr-FR', {
           day: 'numeric',
           month: 'long',
           year: 'numeric',
         })
-        return `Le ${formattedDate}, de ${schedule.start} à ${schedule.end}`
+        return `Le ${formattedDate}, de ${start_time || start} à ${end_time || end}`
       }
+
+      // Cas plage de dates
+      if (type === 'date_range' && start_date && end_date && (start_time || start) && (end_time || end)) {
+        const formattedStart = new Date(start_date).toLocaleDateString('fr-FR', {
+          day: 'numeric',
+          month: 'long',
+          year: 'numeric',
+        })
+        const formattedEnd = new Date(end_date).toLocaleDateString('fr-FR', {
+          day: 'numeric',
+          month: 'long',
+          year: 'numeric',
+        })
+        return `Du ${formattedStart} au ${formattedEnd}, chaque jour de ${start_time || start} à ${end_time || end}`
+      }
+
+      // Cas où type est null/undefined mais on a start_time/end_time seulement
+      if (!type && (start_time || start) && (end_time || end) && !date && !start_date) {
+        return `De ${start_time || start} à ${end_time || end} (date non précisée)`
+      }
+
+      // Fallback pour ancien format
+      if (date && start && end) {
+        const formattedDate = new Date(date).toLocaleDateString('fr-FR', {
+          day: 'numeric',
+          month: 'long',
+          year: 'numeric',
+        })
+        return `Le ${formattedDate}, de ${start} à ${end}`
+      }
+
       return 'Créneau non défini (propriétés manquantes)'
     }
 
-    console.log('Schedule format non reconnu')
-    return 'Créneau non défini'
+    return 'Créneau non défini (format inconnu)'
   }
+
 
   const handleImagesChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return
@@ -475,11 +524,6 @@ export default function ClientDashboard() {
     if (!token) return
 
     try {
-      // S'assurer que le schedule est au bon format
-      const scheduleData = typeof editForm.schedule === 'string' 
-        ? { date: '', start: '', end: '' }
-        : editForm.schedule
-
       // Déterminer si type_prestation est un ID ou un nom
       const typePrestationValue = typeof editForm.type_prestation === 'string'
         ? editForm.type_prestation
@@ -490,7 +534,7 @@ export default function ClientDashboard() {
           type_prestation: editForm.type_prestation,
           description: editForm.description,
           address: editForm.address,
-          schedule: scheduleData,
+          schedule: editForm.schedule,
           image_urls: editForm.images,
         }
       }, {
@@ -527,6 +571,79 @@ export default function ClientDashboard() {
       toast.error('Erreur lors de la mise à jour.')
     }
   }
+
+  const handleEditBesoin = (besoin: any) => {
+  // Normaliser le schedule pour le formulaire
+  let normalizedSchedule: Schedule = {
+    type: 'single_day',
+    date: '',
+    start_time: '',
+    end_time: '',
+  }
+
+  if (besoin.schedule) {
+    // Parser le schedule s'il est en string
+    const schedule = typeof besoin.schedule === 'string' 
+      ? JSON.parse(besoin.schedule) 
+      : besoin.schedule
+
+    console.log('Schedule à normaliser:', schedule) // Debug
+
+    // Cas 1: Type explicite date_range
+    if (schedule.type === 'date_range' && schedule.start_date && schedule.end_date) {
+      normalizedSchedule = {
+        type: 'date_range',
+        start_date: schedule.start_date,
+        end_date: schedule.end_date,
+        start_time: schedule.start_time || schedule.start || '',
+        end_time: schedule.end_time || schedule.end || '',
+      }
+    }
+    // Cas 2: Type explicite single_day OU ancien format migré
+    else if (schedule.type === 'single_day' || schedule.date) {
+      normalizedSchedule = {
+        type: 'single_day',
+        date: schedule.date || schedule.start_date || '',
+        start_time: schedule.start_time || schedule.start || '',
+        end_time: schedule.end_time || schedule.end || '',
+      }
+    }
+    // Cas 3: Type null - traiter comme single_day sans date
+    else if (schedule.type === null || !schedule.type) {
+      normalizedSchedule = {
+        type: 'single_day',
+        date: '', // Pas de date disponible
+        start_time: schedule.start_time || schedule.start || '',
+        end_time: schedule.end_time || schedule.end || '',
+      }
+    }
+    // Cas 4: Fallback pour tout autre format
+    else {
+      const date = schedule.date || schedule.start_date || ''
+      const start_time = schedule.start_time || schedule.start || ''
+      const end_time = schedule.end_time || schedule.end || ''
+      
+      normalizedSchedule = {
+        type: 'single_day',
+        date: date,
+        start_time: start_time,
+        end_time: end_time,
+      }
+    }
+  }
+
+  console.log('Schedule normalisé:', normalizedSchedule) // Debug
+
+  setEditForm({
+    type_prestation: besoin.type_prestation || '',
+    description: besoin.description || '',
+    address: besoin.address || '',
+    schedule: normalizedSchedule,
+    images: besoin.image_urls || [],
+  })
+  
+  setEditingBesoinId(besoin.id)
+}
 
   const handleRemoveImage = (index: number) => {
     if (window.confirm('Êtes-vous sûr de vouloir supprimer cette image ?')) {
@@ -731,7 +848,7 @@ export default function ClientDashboard() {
               return (
                 <div key={besoin.id} className={styles.besoinCard}>
                   {editingBesoinId === besoin.id ? (
-                    <form onSubmit={(e) => { e.preventDefault(); handleUpdateBesoin(besoin.id) }}>
+                    <form onSubmit={(e) => { e.preventDefault(); handleUpdateBesoin(besoin.id); }}>
                       <label htmlFor="type_prestation">Type de prestation</label>
                       <select
                         id="type_prestation"
@@ -747,106 +864,156 @@ export default function ClientDashboard() {
                         {expertises.map((expertise, index) => {
                           const expertiseName = typeof expertise === 'string' ? expertise : expertise.name;
                           const key = `expertise-${index}-${expertiseName}`;
-
                           return (
-                            <option
-                              key={key}
-                              value={expertiseName}
-                            >
+                            <option key={key} value={expertiseName}>
                               {expertiseName}
                             </option>
                           );
                         })}
                       </select>
-      
-                      <label>
-                        Description
-                        <textarea
-                          value={editForm.description || ''}
-                          onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
-                          required
-                        />
-                      </label>
-                      <label>
-                        Adresse
-                        <input
-                          type="text"
-                          value={editForm.address || ''}
-                          onChange={(e) => setEditForm({ ...editForm, address: e.target.value })}
-                          required
-                        />
-                      </label>
-                      <label>
-                        Date
-                        <input
-                          type="date"
-                          value={typeof editForm.schedule === 'string' ? '' : editForm.schedule.date}
-                          onChange={(e) => setEditForm({
-                            ...editForm,
-                            schedule: {
-                              ...(typeof editForm.schedule === 'string' ? { date: '', start: '', end: '' } : editForm.schedule),
-                              date: e.target.value,
-                            }
-                          })}
-                          required
-                        />
-                      </label>
 
-                      <label>
-                        Heure de début
+                      <label>Description</label>
+                      <textarea
+                        value={editForm.description}
+                        onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
+                        required
+                      />
+
+                      <label>Adresse</label>
+                      <input
+                        type="text"
+                        value={editForm.address}
+                        onChange={(e) => setEditForm({ ...editForm, address: e.target.value })}
+                        required
+                      />
+
+                      {/* Sélection du type de créneau */}
+                        <label>Type de créneau</label>
+                        <select
+                          value={editForm.schedule.type || 'single_day'}
+                          onChange={(e) => {
+                            const newType = e.target.value as 'single_day' | 'date_range';
+                            setEditForm({
+                              ...editForm,
+                              schedule: newType === 'single_day'
+                                ? { 
+                                    type: 'single_day', 
+                                    date: editForm.schedule.date || '', 
+                                    start_time: editForm.schedule.start_time || '', 
+                                    end_time: editForm.schedule.end_time || '' 
+                                  }
+                                : { 
+                                    type: 'date_range', 
+                                    start_date: editForm.schedule.start_date || '', 
+                                    end_date: editForm.schedule.end_date || '', 
+                                    start_time: editForm.schedule.start_time || '', 
+                                    end_time: editForm.schedule.end_time || '' 
+                                  },
+                            });
+                          }}
+                        >
+                          <option value="single_day">Jour unique</option>
+                          <option value="date_range">Période</option>
+                        </select>
+
+                      {/* Champs conditionnels selon le type */}
+                        {(editForm.schedule.type || 'single_day') === 'single_day' ? (
+                          <>
+                            <label>Date</label>
+                            <input
+                              type="date"
+                              value={editForm.schedule.date || ''}
+                              onChange={(e) => {
+                                if (editForm.schedule.type === 'single_day') {
+                                  setEditForm({
+                                    ...editForm,
+                                    schedule: { 
+                                      ...editForm.schedule, 
+                                      date: e.target.value 
+                                    },
+                                  })
+                                }
+                              }}
+                              required
+                            />
+                          </>
+                        ) : (
+                          <>
+                            <label>Date de début</label>
+                            <input
+                              type="date"
+                              value={editForm.schedule.start_date || ''}
+                              onChange={(e) => {
+                                if (editForm.schedule.type === 'date_range') {
+                                  setEditForm({
+                                    ...editForm,
+                                    schedule: { ...editForm.schedule, start_date: e.target.value },
+                                  })
+                                }
+                              }}
+                              required
+                            />
+                            <label>Date de fin</label>
+                            <input
+                              type="date"
+                              value={editForm.schedule.end_date || ''}
+                              onChange={(e) => {
+                                if (editForm.schedule.type === 'date_range') {
+                                  setEditForm({
+                                    ...editForm,
+                                    schedule: { ...editForm.schedule, end_date: e.target.value },
+                                  })
+                                }
+                              }}
+                              required
+                            />
+                          </>
+                        )}
+
+                        <label>Heure de début</label>
                         <input
                           type="time"
-                          value={typeof editForm.schedule === 'string' ? '' : editForm.schedule.start}
-                          onChange={(e) => setEditForm({
-                            ...editForm,
-                            schedule: {
-                              ...(typeof editForm.schedule === 'string' ? { date: '', start: '', end: '' } : editForm.schedule),
-                              start: e.target.value,
-                            }
-                          })}
+                          value={editForm.schedule.start_time || ''}
+                          onChange={(e) =>
+                            setEditForm({
+                              ...editForm,
+                              schedule: { ...editForm.schedule, start_time: e.target.value },
+                            })
+                          }
                           required
                         />
-                      </label>
 
-                      <label>
-                        Heure de fin
+                        <label>Heure de fin</label>
                         <input
                           type="time"
-                          value={typeof editForm.schedule === 'string' ? '' : editForm.schedule.end}
-                          onChange={(e) => setEditForm({
-                            ...editForm,
-                            schedule: {
-                              ...(typeof editForm.schedule === 'string' ? { date: '', start: '', end: '' } : editForm.schedule),
-                              end: e.target.value,
-                            }
-                          })}
+                          value={editForm.schedule.end_time || ''}
+                          onChange={(e) =>
+                            setEditForm({
+                              ...editForm,
+                              schedule: { ...editForm.schedule, end_time: e.target.value },
+                            })
+                          }
                           required
                         />
-                      </label>
-                      <label>
-                        Images
-                        <input
-                          type="file"
-                          multiple
-                          accept="image/*"
-                          onChange={handleImagesChange}
-                        />
-                      </label>
+
+                      <label>Images</label>
+                      <input type="file" multiple accept="image/*" onChange={handleImagesChange} />
+
                       <div className={styles.imagesPreview}>
                         {editForm.images.map((imgUrl, idx) => (
                           <div key={idx} className={styles.imageContainer}>
-                            <Image key={idx} src={imgUrl} alt={`Image ${idx + 1}`} width={100} height={100}className={styles.previewImage}/>
+                            <Image src={imgUrl} alt={`Image ${idx + 1}`} width={100} height={100} className={styles.previewImage} />
                             <button
                               type="button"
                               onClick={() => handleRemoveImage(idx)}
                               className={styles.removeImageButton}
                               aria-label={`Supprimer l'image ${idx + 1}`}
                               title="Supprimer cette image"
-                            >
-                            </button>
+                            />
                           </div>
                         ))}
                       </div>
+
                       <button type="submit">Enregistrer</button>
                       <button type="button" onClick={() => setEditingBesoinId(null)}>Annuler</button>
                     </form>
@@ -872,16 +1039,7 @@ export default function ClientDashboard() {
                       <div className={styles.besoinButtons}>
                         <button 
                           className={styles.modifyButton}
-                          onClick={() => {
-                            setEditingBesoinId(besoin.id)
-                            setEditForm({
-                              type_prestation: besoin.type_prestation || '',
-                              description: besoin.description || '',
-                              address: besoin.address || '',
-                              schedule: besoin.schedule || { date: '', start: '', end: '' },
-                              images: besoin.images || [],
-                            })
-                          }}
+                          onClick={() => handleEditBesoin(besoin)}
                         >
                           Modifier
                         </button>

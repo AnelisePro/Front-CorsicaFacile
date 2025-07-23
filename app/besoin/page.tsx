@@ -22,11 +22,11 @@ const BesoinForm = () => {
     type_prestation: '',
     custom_prestation: undefined,
     description: '',
-    images: [], // Contient des URLs S3
+    images: [],
     schedule: {
-      date: '',
-      start: '',
-      end: ''
+      type: 'single_day',
+      start_time: '',
+      end_time: ''
     },
     address: ''
   })
@@ -60,8 +60,19 @@ const BesoinForm = () => {
         return true
 
       case 4:
-        const { date, start, end } = formData.schedule
-        return date && start && end && start < end
+        const { type, start_time, end_time, date, start_date, end_date } = formData.schedule
+        
+        // Vérifier les horaires
+        if (!start_time || !end_time || start_time >= end_time) return false
+        
+        // Vérifier les dates selon le type
+        if (type === 'single_day') {
+          return !!date
+        } else if (type === 'date_range') {
+          return !!start_date && !!end_date && start_date <= end_date
+        }
+        
+        return false
 
       case 5:
         return !!formData.address?.trim()
@@ -83,31 +94,53 @@ const BesoinForm = () => {
   const handleSubmit = async () => {
     if (!token) return
 
-    // Préparer les données JSON au lieu de FormData
+    // Préparer les données avec le nouveau format de schedule
     const submitData = {
       type_prestation: formData.type_prestation,
+      custom_prestation: formData.custom_prestation,
       description: formData.description,
       address: formData.address,
-      schedule: formData.schedule,
-      images: formData.images // URLs S3 directement
+      schedule: {
+        type: formData.schedule.type,
+        start_time: formData.schedule.start_time,
+        end_time: formData.schedule.end_time,
+        ...(formData.schedule.type === 'single_day' 
+          ? { date: formData.schedule.date }
+          : { 
+              start_date: formData.schedule.start_date,
+              end_date: formData.schedule.end_date 
+            }
+        )
+      },
+      images: formData.images
     }
 
-    console.log('Données envoyées:', submitData) // Pour debug
+    console.log('Données envoyées:', submitData)
 
     try {
       const response = await axios.post(`${apiUrl}/clients/besoins`, submitData, {
         headers: {
           Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json' // JSON au lieu de multipart
+          'Content-Type': 'application/json'
         }
       })
       
       console.log('Réponse serveur:', response.data)
-      router.push('/')
-    } catch (error: any) { // Ajout du typage 'any'
+      router.push('/dashboard/client?success=besoin_created')
+    } catch (error: any) {
       console.error('Erreur lors de la soumission', error)
       if (error.response) {
         console.error('Détails erreur:', error.response.data)
+        
+        // Gestion des erreurs spécifiques
+        if (error.response.status === 422) {
+          alert('Données de planning invalides. Veuillez vérifier vos sélections.')
+          setStep(4) // Retour au step du planning
+        } else {
+          alert('Une erreur est survenue lors de l\'envoi. Veuillez réessayer.')
+        }
+      } else {
+        alert('Erreur de connexion. Veuillez vérifier votre connexion internet.')
       }
     }
   }
@@ -120,7 +153,7 @@ const BesoinForm = () => {
         <span className={`${styles.textExtraStrong} ${styles.textBlue}`}>Corse</span> !
       </p>
       <p className={styles.paragraphMedium}>
-        Avec <span className={styles.textStrong + ' ' + styles.textGreen}>CorsicaFacile</span>, décrivez votre besoin en quelques étapes, et on s’occupe du reste.
+        Avec <span className={styles.textStrong + ' ' + styles.textGreen}>CorsicaFacile</span>, décrivez votre besoin en quelques étapes, et on s'occupe du reste.
       </p>
       <p className={styles.paragraphLarge}>
         Un artisan qualifié vous répond rapidement !
@@ -202,6 +235,7 @@ const BesoinForm = () => {
 }
 
 export default BesoinForm
+
 
 
 
