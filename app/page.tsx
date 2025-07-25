@@ -175,26 +175,23 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Section Lancement */}
-        <section className={styles.launch}>
-          <div className={styles.launchContainer}>
-            <div className={styles.launchContent}>
+      {/* Section CTA */}
+        <section className={styles.cta}>
+          <div className={styles.ctaContainer}>
+            <div className={styles.ctaContent}>
               {/* ✅ TEXTE À GAUCHE */}
-              <div className={styles.launchText}>
-                <h2>Rejoignez nous</h2>
+              <div className={styles.ctaText}>
+                <h2>Déclarer votre besoin</h2>
                 <p>
-                  Corsica Facile c'est tout nouveau ! Rejoignez notre communauté grandissante
-                  d'artisans et de clients qui font confiance au savoir-faire corse.
+                  Décrivez votre projet en quelques clics et recevez des propositions 
+                  d'artisans corses qualifiés près de chez vous.
                 </p>
               </div>
               
-              {/* ✅ BOUTONS À DROITE */}
-              <div className={styles.launchButtons}>
-                <a href="/auth/login_client" className={styles.launchButton}>
-                  Je suis un Client
-                </a>
-                <a href="/auth/login_artisan" className={styles.launchButton}>
-                  Je suis un Artisan
+              {/* ✅ BOUTON À DROITE */}
+              <div className={styles.ctaButtons}>
+                <a href="/besoin" className={styles.ctaButton}>
+                  Déclarer mon besoin
                 </a>
               </div>
             </div>
@@ -272,6 +269,32 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Section Lancement */}
+        <section className={styles.launch}>
+          <div className={styles.launchContainer}>
+            <div className={styles.launchContent}>
+              {/* ✅ TEXTE À GAUCHE */}
+              <div className={styles.launchText}>
+                <h2>Rejoignez nous</h2>
+                <p>
+                  Corsica Facile c'est tout nouveau ! Rejoignez notre communauté grandissante
+                  d'artisans et de clients qui font confiance au savoir-faire corse.
+                </p>
+              </div>
+              
+              {/* ✅ BOUTONS À DROITE */}
+              <div className={styles.launchButtons}>
+                <a href="/auth/login_client" className={styles.launchButton}>
+                  Je suis un Client
+                </a>
+                <a href="/auth/login_artisan" className={styles.launchButton}>
+                  Je suis un Artisan
+                </a>
+              </div>
+            </div>
+          </div>
+        </section>
+
       {/* Section Formules */}
       <section className={styles.formulesSection}>
         <div className={styles.formulesContainer}>
@@ -324,25 +347,6 @@ export default function Home() {
               <p className={styles.cardPrice}>69,99 € / mois</p>
             </div>
           </div>
-        </div>
-      </section>
-
-      {/* Newsletter */}
-      <section className={styles.newsletter}>
-        <div className={styles.newsletterContainer}>
-          <h2>Restez informé de nos actualités</h2>
-          <p>Recevez les dernières nouvelles et soyez parmi les premiers à découvrir nos nouveautés</p>
-          <form className={styles.newsletterForm}>
-            <input 
-              type="email" 
-              placeholder="Votre adresse email" 
-              className={styles.emailInput}
-              required
-            />
-            <button type="submit" className={styles.submitButton}>
-              S'abonner
-            </button>
-          </form>
         </div>
       </section>
     </div>

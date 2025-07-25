@@ -41,7 +41,6 @@ type ScheduleRange = {
   end_date: string;
   start_time: string;
   end_time: string;
-  // Champ optionnel pour compatibilité
   date?: never;
 };
 
@@ -73,6 +72,26 @@ interface Expertise {
   name: string
 }
 
+interface Message {
+  id: number;
+  content: string;
+  sender_id: number;
+  sender_type: 'Client' | 'Artisan';
+  recipient_id: number;
+  recipient_type: 'Client' | 'Artisan';
+  sender_name: string;
+  sender_avatar?: string | null;
+  created_at: string;
+  read: boolean;
+}
+
+interface MessagingTabProps {
+  messages: Message[];
+  setMessages: React.Dispatch<React.SetStateAction<Message[]>>;
+  selectedConversation: number | null;
+  setSelectedConversation: React.Dispatch<React.SetStateAction<number | null>>;
+}
+
 export default function ClientDashboard() {
   const [client, setClient] = useState<Client | null>(null)
   const [loading, setLoading] = useState(true)
@@ -88,6 +107,8 @@ export default function ClientDashboard() {
   const [expertises, setExpertises] = useState<Expertise[]>([])
   const [loadingExpertises, setLoadingExpertises] = useState(true)
   const [annonceFilter, setAnnonceFilter] = useState<'toutes' | 'actives' | 'terminees' | 'refusees'>('toutes')
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [selectedConversation, setSelectedConversation] = useState<number | null>(null);
 
   const [editForm, setEditForm] = useState<{
   type_prestation: string | number;
@@ -1165,7 +1186,8 @@ export default function ClientDashboard() {
 
         {activeTab === 'messagerie' && (
           <div className={styles.messagerieContent}>
-            <MessagingTab />
+            <MessagingTab
+            />
           </div>
         )}
       </section>

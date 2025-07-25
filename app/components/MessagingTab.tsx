@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import axios from 'axios'
 import { toast } from 'react-toastify'
 import { useAuth } from '../auth/AuthContext'
@@ -36,14 +36,19 @@ type Conversation = {
 export default function MessagingTab() {
   const { user } = useAuth()
   const [conversations, setConversations] = useState<Conversation[]>([])
-  const [archivedConversations, setArchivedConversations] = useState<Conversation[]>([]) // État pour les conversations archivées
+  const [archivedConversations, setArchivedConversations] = useState<Conversation[]>([])
   const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(null)
   const [messages, setMessages] = useState<Message[]>([])
   const [newMessage, setNewMessage] = useState('')
   const [loading, setLoading] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
-  const [activeTab, setActiveTab] = useState('active'); 
+  const [activeTab, setActiveTab] = useState('active')
   const [shouldAutoScroll, setShouldAutoScroll] = useState(true)
+  
+  // Nouveaux états pour l'optimisation
+  const [messagesCache, setMessagesCache] = useState<{[key: number]: Message[]}>({})
+  const fetchTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const currentFetchRef = useRef<number | null>(null)
 
   const token = localStorage.getItem(user?.role === 'client' ? 'clientToken' : 'artisanToken')
   const userType = user?.role === 'client' ? 'Client' : 'Artisan'
@@ -60,10 +65,10 @@ export default function MessagingTab() {
   }, [selectedConversation])
 
   const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
-  const { scrollTop, scrollHeight, clientHeight } = e.currentTarget
-  const isNearBottom = scrollHeight - scrollTop - clientHeight < 50
-  setShouldAutoScroll(isNearBottom)
-}
+    const { scrollTop, scrollHeight, clientHeight } = e.currentTarget
+    const isNearBottom = scrollHeight - scrollTop - clientHeight < 50
+    setShouldAutoScroll(isNearBottom)
+  }
 
   const fetchConversations = async () => {
     try {
@@ -95,7 +100,6 @@ export default function MessagingTab() {
 
   const archiveConversation = async (conversationId: number) => {
     try {
-      // Changez POST en PATCH
       const endpoint = user?.role === 'client' ? `/clients/conversations/${conversationId}/archive` : `/artisans/conversations/${conversationId}/archive`
       await axios.patch(`${apiUrl}${endpoint}`, {}, {
         headers: { Authorization: `Bearer ${token}` }
@@ -129,25 +133,119 @@ export default function MessagingTab() {
     return archivedConversations.some(conv => conv.id === conversationId);
   };
 
-  const fetchMessages = async (conversationId: number) => {
+  
+  const fetchMessages = useCallback(async (conversationId: number, forceRefresh = false) => {
+    // Annuler le timeout précédent
+    if (fetchTimeoutRef.current) {
+      clearTimeout(fetchTimeoutRef.current)
+    }
+
+    // Utiliser le cache si disponible et pas de refresh forcé
+    if (messagesCache[conversationId] && !forceRefresh) {
+      console.log('📦 Messages chargés depuis le cache pour conversation:', conversationId)
+      setMessages(messagesCache[conversationId])
+      return
+    }
+
+    // Debouncing : attendre 200ms avant de faire la requête
+    fetchTimeoutRef.current = setTimeout(async () => {
+      // Vérifier si on n'est pas déjà en train de charger cette conversation
+      if (currentFetchRef.current === conversationId && !forceRefresh) {
+        console.log('⚠️ Requête déjà en cours pour conversation:', conversationId)
+        return
+      }
+
+      try {
+        console.log('🔄 Chargement des messages pour conversation:', conversationId)
+        setLoading(true)
+        currentFetchRef.current = conversationId
+
+        const endpoint = user?.role === 'client' ? '/clients/conversations' : '/artisans/conversations'
+
+        const response = await axios.get(`${apiUrl}${endpoint}/${conversationId}`, {
+          headers: { Authorization: `Bearer ${token}` }
+        })
+
+        // Vérifier si c'est toujours la conversation courante
+        if (currentFetchRef.current !== conversationId) {
+          console.log('⚠️ Conversation changée pendant le chargement')
+          return
+        }
+
+        console.log('✅ Messages reçus:', response.data)
+
+        // Gérer différentes structures de réponse
+        let messagesData = []
+        let conversationData = null
+
+        if (Array.isArray(response.data)) {
+          messagesData = response.data
+        } else if (response.data.messages) {
+          messagesData = response.data.messages
+          conversationData = response.data.conversation
+        }
+
+        // Mettre à jour le cache
+        setMessagesCache(prev => ({
+          ...prev,
+          [conversationId]: messagesData
+        }))
+
+        setMessages(messagesData)
+
+        if (conversationData) {
+          setSelectedConversation(conversationData)
+        }
+
+        // Marquer comme lu de manière asynchrone
+        markAsRead(conversationId)
+
+      } catch (error) {
+        console.error('❌ Erreur récupération messages:', error)
+        if (currentFetchRef.current === conversationId) {
+          toast.error('Erreur lors du chargement des messages')
+        }
+      } finally {
+        if (currentFetchRef.current === conversationId) {
+          setLoading(false)
+          currentFetchRef.current = null
+        }
+      }
+    }, 200) // Debouncing de 200ms
+  }, [messagesCache, user?.role, token])
+
+  // Fonction pour sélectionner une conversation et mettre à jour le unread_count
+const selectConversation = useCallback(async (conversation: Conversation) => {
+  console.log('🎯 Sélection de conversation:', conversation.id)
+  
+  // Mise à jour immédiate de l'interface (optimiste)
+  if (conversation.unread_count > 0) {
+    setConversations(prev => 
+      prev.map(conv => 
+        conv.id === conversation.id 
+          ? { ...conv, unread_count: 0 }
+          : conv
+      )
+    )
+  }
+  
+  // Sélectionner la conversation
+  setSelectedConversation(conversation)
+  
+  // Le markAsRead sera appelé dans fetchMessages
+}, [])
+
+   // Fonction pour marquer comme lu
+  const markAsRead = useCallback(async (conversationId: number) => {
     try {
       const endpoint = user?.role === 'client' ? '/clients/conversations' : '/artisans/conversations'
-      const response = await axios.get(`${apiUrl}${endpoint}/${conversationId}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      })
-      
-      // 👈 CHANGEMENT ICI : adapter à la nouvelle structure
-      const { conversation, messages } = response.data
-      
-      setMessages(messages) // 👈 Maintenant on prend les messages séparément
-      setSelectedConversation(conversation) // 👈 Stocker la conversation avec avatar
-      
-      // Marquer comme lu automatiquement
       await axios.put(`${apiUrl}${endpoint}/${conversationId}/mark_as_read`, {}, {
         headers: { Authorization: `Bearer ${token}` }
       })
       
-      // Mettre à jour le compteur de non-lus
+      console.log('✅ Messages marqués comme lus pour conversation:', conversationId)
+      
+      // Mettre à jour le unread_count dans la liste des conversations
       setConversations(prev => 
         prev.map(conv => 
           conv.id === conversationId 
@@ -155,10 +253,30 @@ export default function MessagingTab() {
             : conv
         )
       )
+      
     } catch (error) {
-      console.error('Erreur lors de la récupération des messages:', error)
+      console.error('❌ Erreur marquage lu:', error)
+      
+      // En cas d'erreur, restaurer le unread_count original
+      const originalConv = conversations.find(c => c.id === conversationId)
+      if (originalConv && originalConv.unread_count > 0) {
+        setConversations(prev => 
+          prev.map(conv => 
+            conv.id === conversationId 
+              ? { ...conv, unread_count: originalConv.unread_count }
+              : conv
+          )
+        )
+      }
     }
-  }
+  }, [user?.role, token, conversations])
+
+   const refreshMessages = useCallback(() => {
+    if (selectedConversation?.id) {
+      console.log('🔄 Rafraîchissement manuel des messages')
+      fetchMessages(selectedConversation.id, true)
+    }
+  }, [selectedConversation?.id, fetchMessages])
 
   const sendMessage = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -401,7 +519,7 @@ export default function MessagingTab() {
           <div className={styles.messagesContainer}>
             <div 
               className={styles.messagesScrollable}
-              onScroll={handleScroll} // 👈 AJOUTÉ ICI
+              onScroll={handleScroll}
             >
               {loading ? (
                 <div className={styles.loadingState}>
@@ -409,7 +527,7 @@ export default function MessagingTab() {
                   <p>Chargement des messages...</p>
                 </div>
               ) : (
-                messages.map(message => (
+                (messages || []).map(message => (
                   <div
                     key={message.id}
                     className={`${styles.messageWrapper} ${
