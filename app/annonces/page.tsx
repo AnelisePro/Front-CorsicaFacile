@@ -7,11 +7,23 @@ import styles from './page.module.scss'
 
 const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
 
+type Schedule = {
+  type: 'single_day' | 'date_range'
+    // Pour jour unique
+    date?: string
+    // Pour période
+    start_date?: string
+    end_date?: string
+    // Horaires (communs aux deux types)
+    start_time: string
+    end_time: string
+}
+
 type Besoin = {
   id: number
   type_prestation: string
   description: string
-  schedule: string
+  schedule: Schedule
   address: string
   image_urls: string[]
   client: {
@@ -240,6 +252,32 @@ export default function ArtisansAnnonces() {
                 <h3 className={styles.sectionTitle}>Localisation</h3>
                 <p className={styles.sectionContent}>{selectedBesoin.address}</p>
               </div>
+
+              {/* Ajout des horaires ici */}
+                <div className={styles.modalSection}>
+                  <h3 className={styles.sectionTitle}>Horaires</h3>
+                  {selectedBesoin.schedule.type === 'single_day' ? (
+                    <p className={styles.sectionContent}>
+                      De <strong>{selectedBesoin.schedule.start_time}</strong> à <strong>{selectedBesoin.schedule.end_time}</strong>
+                      {selectedBesoin.schedule.date && (
+                        <> le <strong>{new Date(selectedBesoin.schedule.date).toLocaleDateString('fr-FR')}</strong></>
+                      )}
+                    </p>
+                  ) : (
+                    <p className={styles.sectionContent}>
+                      {selectedBesoin.schedule.start_date && selectedBesoin.schedule.end_date ? (
+                        <>
+                          Du <strong>{new Date(selectedBesoin.schedule.start_date).toLocaleDateString('fr-FR')}</strong> au <strong>{new Date(selectedBesoin.schedule.end_date).toLocaleDateString('fr-FR')}</strong><br />
+                          Chaque jour de <strong>{selectedBesoin.schedule.start_time}</strong> à <strong>{selectedBesoin.schedule.end_time}</strong>
+                        </>
+                      ) : (
+                        <>
+                          Chaque jour de <strong>{selectedBesoin.schedule.start_time}</strong> à <strong>{selectedBesoin.schedule.end_time}</strong>
+                        </>
+                      )}
+                    </p>
+                  )}
+                </div>
 
               {selectedBesoin.image_urls.length > 0 && (
                 <div className={styles.modalSection}>

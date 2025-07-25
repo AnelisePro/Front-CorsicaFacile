@@ -14,7 +14,17 @@ type Besoin = {
   id: number
   type_prestation: string
   description: string
-  schedule: string
+  schedule: {
+    type: 'single_day' | 'date_range'
+    // Pour jour unique
+    date?: string
+    // Pour période
+    start_date?: string
+    end_date?: string
+    // Heures communes
+    start_time: string
+    end_time: string
+  }
   address: string
   image_urls: string[]
   client: {
@@ -70,51 +80,29 @@ export default function AnnonceDetailPage() {
     }
   }
 
-  const formatSchedule = (schedule: string) => {
-  // Si le format est déjà correct, le retourner tel quel
-  if (schedule.includes('Le ') && schedule.includes('entre')) {
-    return schedule
+  const formatSchedule = (schedule: Besoin['schedule']) => {
+    if (!schedule) return ''
+
+    try {
+      const { type, date, start_date, end_date, start_time, end_time } = schedule
+
+      if (type === 'single_day') {
+        const dateStr = date ? ` le ${new Date(date).toLocaleDateString('fr-FR')}` : ''
+        return `${dateStr} entre ${start_time} et ${end_time}`
+      } else if (type === 'date_range') {
+        if (start_date && end_date) {
+          return `Du ${new Date(start_date).toLocaleDateString('fr-FR')} au ${new Date(end_date).toLocaleDateString('fr-FR')}, chaque jour de ${start_time} à ${end_time}`
+        } else {
+          return `Chaque jour de ${start_time} à ${end_time}`
+        }
+      }
+
+      return 'Horaire non spécifié'
+    } catch (error) {
+      console.error('Erreur lors du formatage du schedule:', error)
+      return 'Horaire invalide'
+    }
   }
-
-  try {
-    // Tentative de parsing de différents formats
-    // Format ISO: "2025-07-30T08:00:00" ou "2025-07-30 08:00-13:00"
-    const dateRegex = /(\d{4})-(\d{2})-(\d{2})/
-    const timeRegex = /(\d{1,2}):(\d{2})/g
-    
-    const dateMatch = schedule.match(dateRegex)
-    const timeMatches = [...schedule.matchAll(timeRegex)]
-
-    if (dateMatch && timeMatches.length >= 2) {
-      const [, year, month, day] = dateMatch
-      const startTime = `${timeMatches[0][1].padStart(2, '0')}h${timeMatches[0][2]}`
-      const endTime = `${timeMatches[1][1].padStart(2, '0')}H${timeMatches[1][2]}`
-      
-      return `Le ${day}/${month}/${year} entre ${startTime} et ${endTime}`
-    }
-
-    // Si une seule heure est trouvée
-    if (dateMatch && timeMatches.length === 1) {
-      const [, year, month, day] = dateMatch
-      const time = `${timeMatches[0][1].padStart(2, '0')}h${timeMatches[0][2]}`
-      
-      return `Le ${day}/${month}/${year} à ${time}`
-    }
-
-    // Format date simple: "2025-07-30"
-    if (dateMatch) {
-      const [, year, month, day] = dateMatch
-      return `Le ${day}/${month}/${year}`
-    }
-
-    // Retourner le format original si aucun pattern ne correspond
-    return schedule
-
-  } catch (error) {
-    console.error('Erreur lors du formatage de la date:', error)
-    return schedule
-  }
-}
 
   if (loading) return (
     <div className={styles.loadingContainer}>
@@ -180,7 +168,7 @@ export default function AnnonceDetailPage() {
             {besoin.schedule && (
               <div className={styles.schedule}>
                 <FiClock className={styles.scheduleIcon} />
-                <span>Délai souhaité : {formatSchedule(besoin.schedule)}</span>
+                <span>Créneau souhaité : {formatSchedule(besoin.schedule)}</span>
               </div>
             )}
 

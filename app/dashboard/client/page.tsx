@@ -54,7 +54,7 @@ interface Besoin {
   address: string
   schedule: Schedule
   images?: string[]
-  notification_status?: 'accepted' | 'in_progress' | 'completed' | null
+  notification_status?: 'accepted' | 'in_progress' | 'completed' | 'refused' | null
   notification_id?: number
 }
 
@@ -87,6 +87,7 @@ export default function ClientDashboard() {
   const [unreadCount, setUnreadCount] = useState<number>(0)
   const [expertises, setExpertises] = useState<Expertise[]>([])
   const [loadingExpertises, setLoadingExpertises] = useState(true)
+  const [annonceFilter, setAnnonceFilter] = useState<'toutes' | 'actives' | 'terminees' | 'refusees'>('toutes')
 
   const [editForm, setEditForm] = useState<{
   type_prestation: string | number;
@@ -192,7 +193,7 @@ export default function ClientDashboard() {
   }, [])
 
   // Fonction pour mettre à jour le statut d'une mission
-  const handleStatusChange = (besoinId: number, newStatus: 'accepted' | 'in_progress' | 'completed') => {
+  const handleStatusChange = (besoinId: number, newStatus: 'accepted' | 'in_progress' | 'completed' | 'refused') => {
     setBesoins(prevBesoins => 
       prevBesoins.map(besoin => 
         besoin.id === besoinId 
@@ -655,6 +656,23 @@ export default function ClientDashboard() {
     }
   };
 
+  // Fonction pour filtrer les besoins selon le filtre sélectionné
+  const getFilteredBesoins = () => {
+    switch(annonceFilter) {
+      case 'actives':
+        return besoins.filter(besoin => 
+          !besoin.notification_status || 
+          besoin.notification_status === 'accepted' || 
+          besoin.notification_status === 'in_progress'
+        )
+      case 'terminees':
+        return besoins.filter(besoin => besoin.notification_status === 'completed')
+      case 'toutes':
+      default:
+        return besoins
+    }
+  }
+
   if (loading) return (
     <div className={styles.loadingContainer}>
       <div className={styles.spinner}></div>
@@ -841,221 +859,300 @@ export default function ClientDashboard() {
       {/* Contenu des onglets */}
       <section className={styles.tabContent}>
         {activeTab === 'annonces' && (
-          besoins.length === 0 ? (
-            <p>Aucune annonce.</p>
-          ) : (
-            besoins.map((besoin) => {
-              return (
-                <div key={besoin.id} className={styles.besoinCard}>
-                  {editingBesoinId === besoin.id ? (
-                    <form onSubmit={(e) => { e.preventDefault(); handleUpdateBesoin(besoin.id); }}>
-                      <label htmlFor="type_prestation">Type de prestation</label>
-                      <select
-                        id="type_prestation"
-                        value={editForm.type_prestation}
-                        onChange={(e) => setEditForm({
-                          ...editForm,
-                          type_prestation: e.target.value
-                        })}
-                        required
-                        className={styles.formSelect}
-                      >
-                        <option value="">Sélectionnez un type de prestation</option>
-                        {expertises.map((expertise, index) => {
-                          const expertiseName = typeof expertise === 'string' ? expertise : expertise.name;
-                          const key = `expertise-${index}-${expertiseName}`;
-                          return (
-                            <option key={key} value={expertiseName}>
-                              {expertiseName}
-                            </option>
-                          );
-                        })}
-                      </select>
+          <>
+            {/* Barre de filtres */}
+            <div className={styles.filterBar}>
+              <div className={styles.filterTabs}>
+                <button
+                  className={`${styles.filterTab} ${annonceFilter === 'toutes' ? styles.active : ''}`}
+                  onClick={() => setAnnonceFilter('toutes')}
+                >
+                  Toutes ({besoins.length})
+                </button>
+                <button
+                  className={`${styles.filterTab} ${annonceFilter === 'actives' ? styles.active : ''}`}
+                  onClick={() => setAnnonceFilter('actives')}
+                >
+                  Actives ({besoins.filter(b => !b.notification_status || b.notification_status === 'accepted' || b.notification_status === 'in_progress').length})
+                </button>
+                <button
+                  className={`${styles.filterTab} ${annonceFilter === 'terminees' ? styles.active : ''}`}
+                  onClick={() => setAnnonceFilter('terminees')}
+                >
+                  Terminées ({besoins.filter(b => b.notification_status === 'completed').length})
+                </button>
+              </div>
+            </div>
 
-                      <label>Description</label>
-                      <textarea
-                        value={editForm.description}
-                        onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
-                        required
-                      />
-
-                      <label>Adresse</label>
-                      <input
-                        type="text"
-                        value={editForm.address}
-                        onChange={(e) => setEditForm({ ...editForm, address: e.target.value })}
-                        required
-                      />
-
-                      {/* Sélection du type de créneau */}
-                        <label>Type de créneau</label>
-                        <select
-                          value={editForm.schedule.type || 'single_day'}
-                          onChange={(e) => {
-                            const newType = e.target.value as 'single_day' | 'date_range';
-                            setEditForm({
-                              ...editForm,
-                              schedule: newType === 'single_day'
-                                ? { 
-                                    type: 'single_day', 
-                                    date: editForm.schedule.date || '', 
-                                    start_time: editForm.schedule.start_time || '', 
-                                    end_time: editForm.schedule.end_time || '' 
-                                  }
-                                : { 
-                                    type: 'date_range', 
-                                    start_date: editForm.schedule.start_date || '', 
-                                    end_date: editForm.schedule.end_date || '', 
-                                    start_time: editForm.schedule.start_time || '', 
-                                    end_time: editForm.schedule.end_time || '' 
-                                  },
-                            });
-                          }}
-                        >
-                          <option value="single_day">Jour unique</option>
-                          <option value="date_range">Période</option>
-                        </select>
-
-                      {/* Champs conditionnels selon le type */}
-                        {(editForm.schedule.type || 'single_day') === 'single_day' ? (
-                          <>
-                            <label>Date</label>
-                            <input
-                              type="date"
-                              value={editForm.schedule.date || ''}
-                              onChange={(e) => {
-                                if (editForm.schedule.type === 'single_day') {
-                                  setEditForm({
-                                    ...editForm,
-                                    schedule: { 
-                                      ...editForm.schedule, 
-                                      date: e.target.value 
-                                    },
-                                  })
-                                }
-                              }}
-                              required
-                            />
-                          </>
-                        ) : (
-                          <>
-                            <label>Date de début</label>
-                            <input
-                              type="date"
-                              value={editForm.schedule.start_date || ''}
-                              onChange={(e) => {
-                                if (editForm.schedule.type === 'date_range') {
-                                  setEditForm({
-                                    ...editForm,
-                                    schedule: { ...editForm.schedule, start_date: e.target.value },
-                                  })
-                                }
-                              }}
-                              required
-                            />
-                            <label>Date de fin</label>
-                            <input
-                              type="date"
-                              value={editForm.schedule.end_date || ''}
-                              onChange={(e) => {
-                                if (editForm.schedule.type === 'date_range') {
-                                  setEditForm({
-                                    ...editForm,
-                                    schedule: { ...editForm.schedule, end_date: e.target.value },
-                                  })
-                                }
-                              }}
-                              required
-                            />
-                          </>
-                        )}
-
-                        <label>Heure de début</label>
-                        <input
-                          type="time"
-                          value={editForm.schedule.start_time || ''}
-                          onChange={(e) =>
-                            setEditForm({
-                              ...editForm,
-                              schedule: { ...editForm.schedule, start_time: e.target.value },
-                            })
-                          }
-                          required
-                        />
-
-                        <label>Heure de fin</label>
-                        <input
-                          type="time"
-                          value={editForm.schedule.end_time || ''}
-                          onChange={(e) =>
-                            setEditForm({
-                              ...editForm,
-                              schedule: { ...editForm.schedule, end_time: e.target.value },
-                            })
-                          }
-                          required
-                        />
-
-                      <label>Images</label>
-                      <input type="file" multiple accept="image/*" onChange={handleImagesChange} />
-
-                      <div className={styles.imagesPreview}>
-                        {editForm.images.map((imgUrl, idx) => (
-                          <div key={idx} className={styles.imageContainer}>
-                            <Image src={imgUrl} alt={`Image ${idx + 1}`} width={100} height={100} className={styles.previewImage} />
-                            <button
-                              type="button"
-                              onClick={() => handleRemoveImage(idx)}
-                              className={styles.removeImageButton}
-                              aria-label={`Supprimer l'image ${idx + 1}`}
-                              title="Supprimer cette image"
-                            />
-                          </div>
-                        ))}
-                      </div>
-
-                      <button type="submit">Enregistrer</button>
-                      <button type="button" onClick={() => setEditingBesoinId(null)}>Annuler</button>
-                    </form>
-                  ) : (
-                    <>
-                      <h4 className={styles.titleBesoin}>{besoin.type_prestation}</h4>
-                      <p><strong>Description : </strong>{besoin.description}</p>
-                      <p><strong>Adresse :</strong> {besoin.address}</p>
-                      <p><strong>Créneau :</strong> {formatCreneauFromObject(besoin.schedule, besoin.id)}</p>
-
-                      {/* Affichage de la MissionProgressBar si une mission est acceptée */}
-                      {besoin.notification_status && besoin.notification_id && (
-                        <div className={styles.missionProgress}>
-                          <h5>Statut de la mission</h5>
-                          <MissionProgressBar
-                            status={besoin.notification_status}
-                            notificationId={besoin.notification_id}
-                            onStatusChange={(newStatus) => handleStatusChange(besoin.id, newStatus)}
-                          />
-                        </div>
-                      )}
-
-                      <div className={styles.besoinButtons}>
-                        <button 
-                          className={styles.modifyButton}
-                          onClick={() => handleEditBesoin(besoin)}
-                        >
-                          Modifier
-                        </button>
-                        <button 
-                          className={styles.removeButton}
-                          onClick={() => handleDeleteBesoin(besoin.id)}
-                        >
-                          Supprimer
-                        </button>
-                      </div>
-                    </>
+            {/* Liste filtrée des annonces */}
+            <div className={styles.annoncesContent}>
+              {getFilteredBesoins().length === 0 ? (
+                <div className={styles.emptyState}>
+                  <p>Aucune annonce {annonceFilter === 'toutes' ? '' : `dans la catégorie "${annonceFilter}"`}.</p>
+                  {annonceFilter !== 'toutes' && (
+                    <button 
+                      className={styles.resetFilter}
+                      onClick={() => setAnnonceFilter('toutes')}
+                    >
+                      Voir toutes les annonces
+                    </button>
                   )}
                 </div>
-              )
-            })
-          )
+              ) : (
+                getFilteredBesoins().map((besoin) => {
+                  return (
+                    <div key={besoin.id} className={styles.besoinCard}>
+                      {editingBesoinId === besoin.id ? (
+                        <form onSubmit={(e) => { e.preventDefault(); handleUpdateBesoin(besoin.id); }}>
+                          <label htmlFor="type_prestation">Type de prestation</label>
+                          <select
+                            id="type_prestation"
+                            value={editForm.type_prestation}
+                            onChange={(e) => setEditForm({
+                              ...editForm,
+                              type_prestation: e.target.value
+                            })}
+                            required
+                            className={styles.formSelect}
+                          >
+                            <option value="">Sélectionnez un type de prestation</option>
+                            {expertises.map((expertise, index) => {
+                              const expertiseName = typeof expertise === 'string' ? expertise : expertise.name;
+                              const key = `expertise-${index}-${expertiseName}`;
+                              return (
+                                <option key={key} value={expertiseName}>
+                                  {expertiseName}
+                                </option>
+                              );
+                            })}
+                          </select>
+
+                          <label>Description</label>
+                          <textarea
+                            value={editForm.description}
+                            onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
+                            required
+                          />
+
+                          <label>Adresse</label>
+                          <input
+                            type="text"
+                            value={editForm.address}
+                            onChange={(e) => setEditForm({ ...editForm, address: e.target.value })}
+                            required
+                          />
+
+                          {/* Sélection du type de créneau */}
+                          <label>Type de créneau</label>
+                            <div className={styles.customSelectWrapper}>
+                              <select
+                                className={styles.customSelect}
+                                value={editForm.schedule.type || 'single_day'}
+                                onChange={(e) => {
+                                  const newType = e.target.value as 'single_day' | 'date_range';
+                                  setEditForm({
+                                    ...editForm,
+                                    schedule: newType === 'single_day'
+                                      ? { 
+                                          type: 'single_day', 
+                                          date: editForm.schedule.date || '', 
+                                          start_time: editForm.schedule.start_time || '', 
+                                          end_time: editForm.schedule.end_time || '' 
+                                        }
+                                      : { 
+                                          type: 'date_range', 
+                                          start_date: editForm.schedule.start_date || '', 
+                                          end_date: editForm.schedule.end_date || '', 
+                                          start_time: editForm.schedule.start_time || '', 
+                                          end_time: editForm.schedule.end_time || '' 
+                                        },
+                                  });
+                                }}
+                              >
+                                <option value="single_day">Jour unique</option>
+                                <option value="date_range">Période</option>
+                              </select>
+                              <div className={styles.selectIcon}>
+                                <svg width="12" height="8" viewBox="0 0 12 8" fill="none">
+                                  <path d="M1 1.5L6 6.5L11 1.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                                </svg>
+                              </div>
+                            </div>
+
+                          {/* Champs conditionnels selon le type */}
+                          {(editForm.schedule.type || 'single_day') === 'single_day' ? (
+                            <>
+                              <label>Date</label>
+                              <input
+                                type="date"
+                                value={editForm.schedule.date || ''}
+                                onChange={(e) => {
+                                  if (editForm.schedule.type === 'single_day' || !editForm.schedule.type) {
+                                    setEditForm({
+                                      ...editForm,
+                                      schedule: { 
+                                        type: 'single_day', 
+                                        date: e.target.value,
+                                        start_time: editForm.schedule.start_time || '',
+                                        end_time: editForm.schedule.end_time || ''
+                                      },
+                                    })
+                                  }
+                                }}
+                                required
+                              />
+                            </>
+                          ) : (
+                            <>
+                              <label>Date de début</label>
+                              <input
+                                type="date"
+                                value={editForm.schedule.start_date || ''}
+                                onChange={(e) => {
+                                  if (editForm.schedule.type === 'date_range') {
+                                    setEditForm({
+                                      ...editForm,
+                                      schedule: { ...editForm.schedule, start_date: e.target.value },
+                                    })
+                                  }
+                                }}
+                                required
+                              />
+                              <label>Date de fin</label>
+                              <input
+                                type="date"
+                                value={editForm.schedule.end_date || ''}
+                                onChange={(e) => {
+                                  if (editForm.schedule.type === 'date_range') {
+                                    setEditForm({
+                                      ...editForm,
+                                      schedule: { ...editForm.schedule, end_date: e.target.value },
+                                    })
+                                  }
+                                }}
+                                required
+                              />
+                            </>
+                          )}
+
+                          <label>Heure de début</label>
+                          <input
+                            type="time"
+                            value={editForm.schedule.start_time || ''}
+                            onChange={(e) =>
+                              setEditForm({
+                                ...editForm,
+                                schedule: { ...editForm.schedule, start_time: e.target.value },
+                              })
+                            }
+                            required
+                          />
+
+                          <label>Heure de fin</label>
+                          <input
+                            type="time"
+                            value={editForm.schedule.end_time || ''}
+                            onChange={(e) =>
+                              setEditForm({
+                                ...editForm,
+                                schedule: { ...editForm.schedule, end_time: e.target.value },
+                              })
+                            }
+                            required
+                          />
+
+                          <label>Images</label>
+                          <input type="file" multiple accept="image/*" onChange={handleImagesChange} />
+
+                          <div className={styles.imagesPreview}>
+                            {editForm.images.map((imgUrl, idx) => (
+                              <div key={idx} className={styles.imageContainer}>
+                                <Image src={imgUrl} alt={`Image ${idx + 1}`} width={100} height={100} className={styles.previewImage} />
+                                <button
+                                  type="button"
+                                  onClick={() => handleRemoveImage(idx)}
+                                  className={styles.removeImageButton}
+                                  aria-label={`Supprimer l'image ${idx + 1}`}
+                                  title="Supprimer cette image"
+                                />
+                              </div>
+                            ))}
+                          </div>
+
+                          <div className={styles.besoinButtons}>
+                            <button type="submit" className={styles.saveButton}>Enregistrer</button>
+                            <button type="button" onClick={() => setEditingBesoinId(null)} className={styles.removeButton}>Annuler</button>
+                          </div>
+                        </form>
+                      ) : (
+                        <>
+                          <h4 className={styles.titleBesoin}>{besoin.type_prestation}</h4>
+                          <p><strong>Description : </strong>{besoin.description}</p>
+                          <p><strong>Adresse :</strong> {besoin.address}</p>
+                          <p><strong>Créneau :</strong> {formatCreneauFromObject(besoin.schedule, besoin.id)}</p>
+
+                          {/* Affichage des images */}
+                          {besoin.images && besoin.images.length > 0 && (
+                            <div className={styles.imagesDisplay}>
+                              <div className={styles.imagesGrid}>
+                                {besoin.images.map((imageUrl, idx) => (
+                                  <Image 
+                                    key={idx} 
+                                    src={imageUrl} 
+                                    alt={`Image du besoin ${idx + 1}`} 
+                                    width={100} 
+                                    height={100} 
+                                    className={styles.besoinImage} 
+                                  />
+                                ))}
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Affichage de la MissionProgressBar si une mission est acceptée */}
+                          {besoin.notification_status && besoin.notification_id && (
+                            <div className={styles.missionProgress}>
+                              <h5>Progression de la mission</h5>
+                              <MissionProgressBar
+                                status={besoin.notification_status}
+                                notificationId={besoin.notification_id}
+                                onStatusChange={(newStatus) => handleStatusChange(besoin.id, newStatus)}
+                              />
+                            </div>
+                          )}
+
+                          {/* Actions */}
+                          <div className={styles.besoinButtons}>
+                            <button 
+                              onClick={() => handleEditBesoin(besoin)}
+                              className={styles.modifyButton}
+                              disabled={besoin.notification_status === 'in_progress' || besoin.notification_status === 'completed'}
+                            >
+                              Modifier
+                            </button>
+                            <button 
+                              onClick={() => handleDeleteBesoin(besoin.id)}
+                              className={styles.removeButton}
+                              disabled={besoin.notification_status === 'in_progress' || besoin.notification_status === 'completed'}
+                            >
+                              Supprimer
+                            </button>
+                          </div>
+
+                          {/* Message d'information pour les missions actives */}
+                          {(besoin.notification_status === 'in_progress' || besoin.notification_status === 'completed') && (
+                            <div className={styles.infoMessage}>
+                              <p>⚠️ Cette annonce ne peut plus être modifiée car la mission est en cours ou terminée.</p>
+                            </div>
+                          )}
+                        </>
+                      )}
+                    </div>
+                  )
+                })
+              )}
+            </div>
+          </>
         )}
 
         {activeTab === 'notifications' && (

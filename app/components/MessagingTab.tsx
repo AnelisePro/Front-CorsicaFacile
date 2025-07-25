@@ -5,7 +5,6 @@ import axios from 'axios'
 import { toast } from 'react-toastify'
 import { useAuth } from '../auth/AuthContext'
 import styles from './MessagingTab.module.scss'
-import PremiumBadge from './PremiumBadge'
 
 const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
 
@@ -34,6 +33,7 @@ type Conversation = {
 export default function MessagingTab() {
   const { user } = useAuth()
   const [conversations, setConversations] = useState<Conversation[]>([])
+  const [archivedConversations, setArchivedConversations] = useState<Conversation[]>([]) // État pour les conversations archivées
   const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(null)
   const [messages, setMessages] = useState<Message[]>([])
   const [newMessage, setNewMessage] = useState('')
@@ -45,6 +45,7 @@ export default function MessagingTab() {
 
   useEffect(() => {
     fetchConversations()
+    fetchArchivedConversations()
   }, [])
 
   useEffect(() => {
@@ -70,8 +71,60 @@ export default function MessagingTab() {
       setConversations(response.data)
     } catch (error) {
       console.error('Erreur lors de la récupération des conversations:', error)
+      if (axios.isAxiosError(error)) {
+        toast.error(`Erreur ${error.response?.status}: ${error.response?.data?.message || 'Impossible de récupérer les conversations'}`)
+      }
     }
   }
+
+  const fetchArchivedConversations = async () => {
+    try {
+      // Changez l'endpoint - archived est maintenant en collection
+      const endpoint = user?.role === 'client' ? '/clients/conversations/archived' : '/artisans/conversations/archived'
+      const response = await axios.get(`${apiUrl}${endpoint}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+      setArchivedConversations(response.data)
+    } catch (error) {
+      console.error('Erreur lors de la récupération des conversations archivées:', error)
+    }
+  }
+
+  const archiveConversation = async (conversationId: number) => {
+    try {
+      // Changez POST en PATCH
+      const endpoint = user?.role === 'client' ? `/clients/conversations/${conversationId}/archive` : `/artisans/conversations/${conversationId}/archive`
+      await axios.patch(`${apiUrl}${endpoint}`, {}, {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+      toast.success('Conversation archivée avec succès.')
+      fetchConversations()
+      fetchArchivedConversations()
+    } catch (error) {
+      console.error('Erreur lors de l\'archivage de la conversation :', error)
+      toast.error('Erreur lors de l\'archivage de la conversation.')
+    }
+  }
+
+  const unarchiveConversation = async (conversationId: number) => {
+    try {
+      const endpoint = user?.role === 'client' ? `/clients/conversations/${conversationId}/unarchive` : `/artisans/conversations/${conversationId}/unarchive`;
+      await axios.patch(`${apiUrl}${endpoint}`, {}, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      toast.success('Conversation désarchivée avec succès.');
+      fetchConversations();
+      fetchArchivedConversations();
+      setSelectedConversation(null);
+    } catch (error) {
+      console.error('Erreur lors du désarchivage de la conversation :', error);
+      toast.error('Erreur lors du désarchivage de la conversation.');
+    }
+  };
+
+  const isConversationArchived = (conversationId: number): boolean => {
+    return archivedConversations.some(conv => conv.id === conversationId);
+  };
 
   const fetchMessages = async (conversationId: number) => {
     try {
@@ -139,9 +192,39 @@ export default function MessagingTab() {
 
   // Fonction pour déterminer si un message est envoyé par l'utilisateur actuel
   const isMessageFromCurrentUser = (message: Message) => {
-    // Comparer par type d'utilisateur au lieu de l'ID
     return message.sender_type === userType
   }
+
+  // Fonction pour supprimer la conversation
+  const deleteConversation = async (conversationId: number) => {
+    // Demander confirmation avant suppression
+    const isConfirmed = window.confirm('Êtes-vous sûr de vouloir supprimer cette conversation ? Cette action est irréversible.');
+    
+    if (!isConfirmed) {
+      return; // L'utilisateur a annulé
+    }
+    
+    try {
+      const endpoint = user?.role === 'client' ? `/clients/conversations/${conversationId}` : `/artisans/conversations/${conversationId}`;
+      await axios.delete(`${apiUrl}${endpoint}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      
+      // Mettre à jour TOUS les states
+      setConversations(prev => prev.filter(conv => conv.id !== conversationId));
+      setArchivedConversations(prev => prev.filter(conv => conv.id !== conversationId));
+      
+      // Désélectionner si c'était la conversation sélectionnée
+      if (selectedConversation?.id === conversationId) {
+        setSelectedConversation(null);
+      }
+      
+      toast.success('Conversation supprimée avec succès.');
+    } catch (error) {
+      console.error('Erreur lors de la suppression de la conversation :', error);
+      toast.error('Erreur lors de la suppression de la conversation.');
+    }
+  };
 
   return (
     <div className={styles.messagingContainer}>
@@ -171,6 +254,28 @@ export default function MessagingTab() {
             </div>
           ))
         )}
+        
+        {/* Section pour les conversations archivées */}
+        <h3>Conversations Archivées</h3>
+        {archivedConversations.length === 0 ? (
+          <p className={styles.none}>Aucune conversation archivée</p>
+        ) : (
+          archivedConversations.map(conversation => (
+            <div
+              key={conversation.id}
+              className={`${styles.archivedConversationItem} ${
+                selectedConversation?.id === conversation.id ? styles.active : ''
+              }`}
+              onClick={() => setSelectedConversation(conversation)}
+            >
+              <div className={styles.conversationInfo}>
+                <h4>{conversation.other_user_name}</h4>
+                <p className={styles.lastMessage}>{conversation.last_message}</p>
+                <small>{formatTime(conversation.last_message_at)}</small>
+              </div>
+            </div>
+          ))
+        )}
       </div>
 
       <div className={styles.messagesArea}>
@@ -178,6 +283,41 @@ export default function MessagingTab() {
           <>
             <div className={styles.messagesHeader}>
               <h3>Conversation avec {selectedConversation.other_user_name}</h3>
+            </div>
+
+            <div className={styles.actionButtons}>
+              {/* Vérifier si la conversation est archivée pour afficher les bons boutons */}
+              {isConversationArchived(selectedConversation.id) ? (
+                <>
+                  <button 
+                    onClick={() => unarchiveConversation(selectedConversation.id)}
+                    className={styles.unarchiveButton}
+                  >
+                    Désarchiver
+                  </button>
+                  <button 
+                    onClick={() => deleteConversation(selectedConversation.id)}
+                    className={styles.deleteButton}
+                  >
+                    Supprimer
+                  </button>
+                </>
+              ) : (
+                <>
+                  <button 
+                    onClick={() => archiveConversation(selectedConversation.id)}
+                    className={styles.archiveButton}
+                  >
+                    Archiver
+                  </button>
+                  <button 
+                    onClick={() => deleteConversation(selectedConversation.id)}
+                    className={styles.deleteButton}
+                  >
+                    Supprimer
+                  </button>
+                </>
+              )}
             </div>
             
             <div className={styles.messagesContainer}>
@@ -201,26 +341,37 @@ export default function MessagingTab() {
               <div ref={messagesEndRef} />
             </div>
 
-            <form onSubmit={sendMessage} className={styles.messageForm}>
-              <textarea
-                value={newMessage}
-                onChange={(e) => setNewMessage(e.target.value)}
-                placeholder="Tapez votre message..."
-                required
-                rows={3}
-              />
-              <button type="submit" disabled={!newMessage.trim()}>
-                Envoyer
-              </button>
-            </form>
-          </>
-        ) : (
-          <div className={styles.noConversation}>
-            <p>Sélectionnez une conversation pour voir les messages</p>
-          </div>
-        )}
+            {/* Empêcher l'envoi de messages pour les conversations archivées */}
+              {!isConversationArchived(selectedConversation.id) && (
+                <form onSubmit={sendMessage} className={styles.messageForm}>
+                  <textarea
+                    value={newMessage}
+                    onChange={(e) => setNewMessage(e.target.value)}
+                    placeholder="Tapez votre message..."
+                    required
+                    rows={3}
+                  />
+                  <button type="submit" disabled={!newMessage.trim()}>
+                    Envoyer
+                  </button>
+                </form>
+              )}
+
+              {/* Afficher un message si la conversation est archivée */}
+              {isConversationArchived(selectedConversation.id) && (
+                <div className={styles.archivedMessage}>
+                  <p>Cette conversation est archivée. Désarchivez-la pour pouvoir envoyer des messages.</p>
+                </div>
+              )}
+            </>
+          ) : (
+            <div className={styles.noConversation}>
+              <p>Sélectionnez une conversation pour voir les messages</p>
+            </div>
+          )}
+        </div>
       </div>
-    </div>
-  )
+    )
 }
+
 

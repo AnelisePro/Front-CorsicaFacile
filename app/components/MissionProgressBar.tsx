@@ -6,9 +6,9 @@ import { toast } from 'react-toastify'
 import styles from './MissionProgressBar.module.scss'
 
 interface MissionProgressBarProps {
-  status: 'accepted' | 'in_progress' | 'completed'
+  status: 'accepted' | 'in_progress' | 'completed' | 'refused'
   notificationId: number
-  onStatusChange?: (newStatus: 'accepted' | 'in_progress' | 'completed') => void
+  onStatusChange?: (newStatus: 'accepted' | 'in_progress' | 'completed' | 'refused') => void
   isArtisan?: boolean
 }
 
@@ -25,6 +25,7 @@ const MissionProgressBar = ({
       case 'accepted': return 0
       case 'in_progress': return 1
       case 'completed': return 2
+      case 'refused': return -1  // Statut spécial pour refusé
       default: return -1
     }
   }
@@ -36,6 +37,29 @@ const MissionProgressBar = ({
     { id: 1, label: 'En cours', status: 'in_progress' },
     { id: 2, label: 'Terminée', status: 'completed' }
   ]
+
+  // Si la mission est refusée, tout afficher en grisé
+  if (status === 'refused') {
+    return (
+      <div className={`${styles.progressContainer} ${styles.refused}`}>
+        <div className={styles.stepsContainer}>
+          {steps.map((step, index) => (
+            <div key={step.id} className={styles.stepItem}>
+              <div className={`${styles.stepCircle} ${styles.refusedCircle}`}>
+                {step.id + 1}
+              </div>
+              <div className={`${styles.stepLabel} ${styles.refusedLabel}`}>
+                {step.label}
+              </div>
+              {index < steps.length - 1 && (
+                <div className={`${styles.stepConnector} ${styles.refusedConnector}`}></div>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+    )
+  }
 
   // Fonction pour mettre à jour le statut - seulement pour les clients
   const updateMissionStatus = async (newStatus: 'in_progress' | 'completed') => {
@@ -57,7 +81,7 @@ const MissionProgressBar = ({
       if (response.status === 200) {
         const messages = {
           'in_progress': 'La mission a été marquée comme En Cours par le client',
-          'completed': 'La mission a été marquée comme terminée par le client'
+          'completed': 'La mission a été marquée comme Terminée par le client'
         }
 
         toast.success(messages[newStatus])
@@ -127,6 +151,7 @@ const MissionProgressBar = ({
 }
 
 export default MissionProgressBar
+
 
 
 

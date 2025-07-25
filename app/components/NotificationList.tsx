@@ -98,11 +98,12 @@ export default function NotificationList({ onActiveMissionsChange }: { onActiveM
     }
   }
 
-  const normalizeStatus = (status: string): 'accepted' | 'in_progress' | 'completed' => {
+  const normalizeStatus = (status: string): 'accepted' | 'in_progress' | 'completed' | 'refused' => {
     switch(status) {
       case 'accepted':
       case 'in_progress':
       case 'completed':
+      case 'refused':
         return status
       default:
         return 'accepted'

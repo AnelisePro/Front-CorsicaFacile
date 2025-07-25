@@ -369,14 +369,14 @@
     .sectionTitle {
       font-family: 'Quicksand', sans-serif;
       font-size: 1.3rem;
-      color: #212121;
+      color: #5E3E23;
       margin-bottom: 0.75rem;
       border-bottom: 1px solid #eee;
       padding-bottom: 0.5rem;
     }
 
     .sectionContent {
-      color: #555;
+      color: #5E3E23;
       line-height: 1.6;
     }
   }
@@ -402,7 +402,7 @@
 
     .contactName {
       font-weight: 600;
-      color: #2c3e50;
+      color: #81A04A;
     }
 
     .contactEmail, .contactPhone {

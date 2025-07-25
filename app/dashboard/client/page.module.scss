@@ -997,10 +997,134 @@
   }
 }
 
+.filterBar {
+  margin-bottom: 2rem;
+  padding: 1rem 0;
+  border-bottom: 1px solid #e0e0e0;
+  
+  .filterTabs {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    
+    .filterTab {
+      background: #3498db30;
+      border: 1px solid #3498db;
+      padding: 0.5rem 1rem;
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      transition: all 0.3s ease;
+      color: #3498db;
+      font-weight: 600;
+      
+      &:hover {
+        background: #3498db;
+        color: #FEFBF4;
+        border-color: #3498db;
+      }
+      
+      &.active {
+        background: #3498db;
+        color: #FEFBF4;
+        border-color: #3498db;
+        
+        &:hover {
+          background: #135dab;
+          border-color: #135dab;
+        }
+      }
+    }
+  }
+}
 
+.emptyState {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: #666;
+  
+  .resetFilter {
+    margin-top: 1rem;
+    background: #007bff;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+    
+    &:hover {
+      background: #0056b3;
+    }
+  }
+}
 
+.besoinImage {
+  border-radius: 12px;
+  margin-bottom: 0.5rem;
+}
 
-
+.customSelectWrapper {
+  position: relative;
+  display: inline-block;
+  width: 100%;
+  
+  .customSelect {
+    width: 100%;
+    padding: 12px 40px 12px 16px;
+    border: 2px solid #80a04a5b;
+    border-radius: 8px;
+    background-color: #80a04a09;
+    font-size: 14px;
+    font-weight: 500;
+    color: #5E3E23;
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    transition: all 0.2s ease-in-out;
+    
+    &:focus {
+      outline: none;
+      border-color: #007bff;
+      box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+    }
+    
+    option {
+      padding: 12px;
+      background-color: #80a04a5b;
+      color: #5E3E23;
+      font-weight: 500;
+      
+      &:checked {
+        background-color: #5E3E23;
+        color: white;
+      }
+    }
+  }
+  
+  .selectIcon {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+    color: #5E3E23;
+    transition: transform 0.2s ease-in-out;
+    
+    svg {
+      display: block;
+    }
+  }
+  
+  &:hover .selectIcon {
+    color: #5E3E23;
+  }
+  
+  .customSelect:focus + .selectIcon {
+    transform: translateY(-50%) rotate(180deg);
+    color: #5E3E23;
+  }
+}
 
 
 

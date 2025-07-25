@@ -444,3 +444,52 @@
   }
 }
 
+.actionButtons {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 1rem;
+  padding: 10px;
+  border-bottom: 1px solid #eee;
+}
+
+.archiveButton {
+  background-color: #ffa500;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.unarchiveButton {
+  background-color: #28a745;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.deleteButton {
+  background-color: #dc3545;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.archivedMessage {
+  padding: 15px;
+  background-color: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 4px;
+  text-align: center;
+  color: #6c757d;
+  font-style: italic;
+}
+
+.archivedConversationItem.active {
+  background-color: #f0f8ff;
+  border-left: 3px solid #007bff;
+}
