@@ -5,6 +5,7 @@ import axios from 'axios'
 import { toast } from 'react-toastify'
 import { useAuth } from '../auth/AuthContext'
 import styles from './MessagingTab.module.scss'
+import Avatar from './Avatar'
 
 const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
 
@@ -16,6 +17,7 @@ type Message = {
   recipient_id: number
   recipient_type: 'Client' | 'Artisan'
   sender_name: string
+  sender_avatar?: string | null
   created_at: string
   read: boolean
 }
@@ -24,6 +26,7 @@ type Conversation = {
   id: number
   other_user_id: number
   other_user_name: string
+  other_user_avatar?: string | null
   other_user_type: 'Client' | 'Artisan'
   last_message: string
   last_message_at: string
@@ -39,6 +42,8 @@ export default function MessagingTab() {
   const [newMessage, setNewMessage] = useState('')
   const [loading, setLoading] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
+  const [activeTab, setActiveTab] = useState('active'); 
+  const [shouldAutoScroll, setShouldAutoScroll] = useState(true)
 
   const token = localStorage.getItem(user?.role === 'client' ? 'clientToken' : 'artisanToken')
   const userType = user?.role === 'client' ? 'Client' : 'Artisan'
@@ -54,13 +59,11 @@ export default function MessagingTab() {
     }
   }, [selectedConversation])
 
-  useEffect(() => {
-    scrollToBottom()
-  }, [messages])
-
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }
+  const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
+  const { scrollTop, scrollHeight, clientHeight } = e.currentTarget
+  const isNearBottom = scrollHeight - scrollTop - clientHeight < 50
+  setShouldAutoScroll(isNearBottom)
+}
 
   const fetchConversations = async () => {
     try {
@@ -132,7 +135,12 @@ export default function MessagingTab() {
       const response = await axios.get(`${apiUrl}${endpoint}/${conversationId}`, {
         headers: { Authorization: `Bearer ${token}` }
       })
-      setMessages(response.data)
+      
+      // 👈 CHANGEMENT ICI : adapter à la nouvelle structure
+      const { conversation, messages } = response.data
+      
+      setMessages(messages) // 👈 Maintenant on prend les messages séparément
+      setSelectedConversation(conversation) // 👈 Stocker la conversation avec avatar
       
       // Marquer comme lu automatiquement
       await axios.put(`${apiUrl}${endpoint}/${conversationId}/mark_as_read`, {}, {
@@ -157,6 +165,8 @@ export default function MessagingTab() {
     if (!selectedConversation || !newMessage.trim()) return
 
     try {
+      setShouldAutoScroll(true)
+
       const endpoint = user?.role === 'client' ? '/clients/conversations' : '/artisans/conversations'
       const response = await axios.post(
         `${apiUrl}${endpoint}/${selectedConversation.id}/send_message`,
@@ -227,151 +237,249 @@ export default function MessagingTab() {
   };
 
   return (
-    <div className={styles.messagingContainer}>
-      <div className={styles.conversationsList}>
-        <h3>Conversations</h3>
-        {conversations.length === 0 ? (
-          <p className={styles.none}>Aucune conversation</p>
-        ) : (
-          conversations.map(conversation => (
-            <div
-              key={conversation.id}
-              className={`${styles.conversationItem} ${
-                selectedConversation?.id === conversation.id ? styles.active : ''
-              }`}
-              onClick={() => setSelectedConversation(conversation)}
-            >
-              <div className={styles.conversationInfo}>
-                <h4>{conversation.other_user_name}</h4>
-                <p className={styles.lastMessage}>{conversation.last_message}</p>
-                <small>{formatTime(conversation.last_message_at)}</small>
-              </div>
-              {conversation.unread_count > 0 && (
-                <span className={styles.unreadBadge}>
-                  {conversation.unread_count}
-                </span>
-              )}
-            </div>
-          ))
-        )}
+  <div className={styles.messagingContainer}>
+    <div className={styles.sidebar}>
+      {/* Navigation tabs */}
+      <div className={styles.tabsContainer}>
+        <button 
+          className={`${styles.tab} ${activeTab === 'active' ? styles.activeTab : ''}`}
+          onClick={() => setActiveTab('active')}
+        >
+          <span className={styles.tabIcon}>💬</span>
+          Conversations
+          {conversations.length > 0 && (
+            <span className={styles.tabCount}>({conversations.length})</span>
+          )}
+        </button>
         
-        {/* Section pour les conversations archivées */}
-        <h3>Conversations Archivées</h3>
-        {archivedConversations.length === 0 ? (
-          <p className={styles.none}>Aucune conversation archivée</p>
-        ) : (
-          archivedConversations.map(conversation => (
-            <div
-              key={conversation.id}
-              className={`${styles.archivedConversationItem} ${
-                selectedConversation?.id === conversation.id ? styles.active : ''
-              }`}
-              onClick={() => setSelectedConversation(conversation)}
-            >
-              <div className={styles.conversationInfo}>
-                <h4>{conversation.other_user_name}</h4>
-                <p className={styles.lastMessage}>{conversation.last_message}</p>
-                <small>{formatTime(conversation.last_message_at)}</small>
-              </div>
-            </div>
-          ))
-        )}
+        <button 
+          className={`${styles.tab} ${activeTab === 'archived' ? styles.activeTab : ''}`}
+          onClick={() => setActiveTab('archived')}
+        >
+          <span className={styles.tabIcon}>📁</span>
+          Archivées
+          {archivedConversations.length > 0 && (
+            <span className={styles.tabCount}>({archivedConversations.length})</span>
+          )}
+        </button>
       </div>
 
-      <div className={styles.messagesArea}>
-        {selectedConversation ? (
-          <>
-            <div className={styles.messagesHeader}>
-              <h3>Conversation avec {selectedConversation.other_user_name}</h3>
+      {/* Conversations list */}
+      <div className={styles.conversationsList}>
+        {activeTab === 'active' ? (
+          conversations.length === 0 ? (
+            <div className={styles.emptyState}>
+              <div className={styles.emptyIcon}>💬</div>
+              <p className={styles.emptyTitle}>Aucune conversation</p>
+              <p className={styles.emptySubtitle}>Vos conversations apparaîtront ici</p>
             </div>
+          ) : (
+            conversations.map(conversation => (
+              <div
+                key={conversation.id}
+                className={`${styles.conversationItem} ${
+                  selectedConversation?.id === conversation.id ? styles.selected : ''
+                }`}
+                onClick={() => setSelectedConversation(conversation)}
+              >
+                <div className={styles.avatar}>
+                  <Avatar avatarUrl={conversation.other_user_avatar} userName={conversation.other_user_name} />
+                </div>
+                <div className={styles.conversationContent}>
+                  <div className={styles.conversationHeader}>
+                    <h4 className={styles.userName}>{conversation.other_user_name}</h4>
+                    <span className={styles.timestamp}>
+                      {formatTime(conversation.last_message_at)}
+                    </span>
+                  </div>
+                  <p className={styles.lastMessage}>{conversation.last_message}</p>
+                </div>
+                {conversation.unread_count > 0 && (
+                  <div className={styles.unreadBadge}>
+                    {conversation.unread_count}
+                  </div>
+                )}
+              </div>
+            ))
+          )
+        ) : (
+          archivedConversations.length === 0 ? (
+            <div className={styles.emptyState}>
+              <div className={styles.emptyIcon}>📁</div>
+              <p className={styles.emptyTitle}>Aucune conversation archivée</p>
+              <p className={styles.emptySubtitle}>Vos conversations archivées apparaîtront ici</p>
+            </div>
+          ) : (
+            archivedConversations.map(conversation => (
+              <div
+                key={conversation.id}
+                className={`${styles.conversationItem} ${styles.archivedItem} ${
+                  selectedConversation?.id === conversation.id ? styles.selected : ''
+                }`}
+                onClick={() => setSelectedConversation(conversation)}
+              >
+                <div className={`${styles.avatar} ${styles.archivedAvatar}`}>
+                 <Avatar avatarUrl={conversation.other_user_avatar} userName={conversation.other_user_name} />
+                </div>
+                <div className={styles.conversationContent}>
+                  <div className={styles.conversationHeader}>
+                    <h4 className={styles.userName}>{conversation.other_user_name}</h4>
+                    <span className={styles.timestamp}>
+                      {formatTime(conversation.last_message_at)}
+                    </span>
+                  </div>
+                  <p className={styles.lastMessage}>{conversation.last_message}</p>
+                </div>
+                <div className={styles.archivedIcon}>📁</div>
+              </div>
+            ))
+          )
+        )}
+      </div>
+    </div>
 
-            <div className={styles.actionButtons}>
-              {/* Vérifier si la conversation est archivée pour afficher les bons boutons */}
+    <div className={styles.chatArea}>
+      {selectedConversation ? (
+        <>
+          {/* Chat header */}
+          <div className={styles.chatHeader}>
+            <div className={styles.chatHeaderLeft}>
+              <div>
+                {selectedConversation && (
+                  <Avatar 
+                    avatarUrl={selectedConversation.other_user_avatar} 
+                    userName={selectedConversation.other_user_name}
+                    size="large"
+                  />
+                )}
+              </div>
+              <div>
+                <h3 className={styles.chatTitle}>{selectedConversation.other_user_name}</h3>
+              </div>
+            </div>
+            
+            <div className={styles.chatActions}>
               {isConversationArchived(selectedConversation.id) ? (
                 <>
                   <button 
                     onClick={() => unarchiveConversation(selectedConversation.id)}
-                    className={styles.unarchiveButton}
+                    className={`${styles.actionButton} ${styles.unarchiveButton}`}
+                    title="Désarchiver"
                   >
-                    Désarchiver
+                    📤
                   </button>
                   <button 
                     onClick={() => deleteConversation(selectedConversation.id)}
-                    className={styles.deleteButton}
+                    className={`${styles.actionButton} ${styles.deleteButton}`}
+                    title="Supprimer"
                   >
-                    Supprimer
+                    🗑️
                   </button>
                 </>
               ) : (
                 <>
                   <button 
                     onClick={() => archiveConversation(selectedConversation.id)}
-                    className={styles.archiveButton}
+                    className={`${styles.actionButton} ${styles.archiveButton}`}
+                    title="Archiver"
                   >
-                    Archiver
+                    📁
                   </button>
                   <button 
                     onClick={() => deleteConversation(selectedConversation.id)}
-                    className={styles.deleteButton}
+                    className={`${styles.actionButton} ${styles.deleteButton}`}
+                    title="Supprimer"
                   >
-                    Supprimer
+                    🗑️
                   </button>
                 </>
               )}
             </div>
-            
-            <div className={styles.messagesContainer}>
+          </div>
+          
+          {/* Messages area avec gestion du scroll */}
+          <div className={styles.messagesContainer}>
+            <div 
+              className={styles.messagesScrollable}
+              onScroll={handleScroll} // 👈 AJOUTÉ ICI
+            >
               {loading ? (
-                <p>Chargement des messages...</p>
+                <div className={styles.loadingState}>
+                  <div className={styles.loadingSpinner}></div>
+                  <p>Chargement des messages...</p>
+                </div>
               ) : (
                 messages.map(message => (
                   <div
                     key={message.id}
-                    className={`${styles.message} ${
+                    className={`${styles.messageWrapper} ${
                       isMessageFromCurrentUser(message) ? styles.sent : styles.received
                     }`}
                   >
-                    <div className={styles.messageContent}>
-                      <p>{message.content}</p>
-                      <small>{formatTime(message.created_at)}</small>
+                    <div className={styles.message}>
+                      <div className={styles.messageContent}>
+                        <p>{message.content}</p>
+                      </div>
+                      <div className={styles.messageTime}>
+                        {formatTime(message.created_at)}
+                      </div>
                     </div>
                   </div>
                 ))
               )}
               <div ref={messagesEndRef} />
             </div>
+          </div>
 
-            {/* Empêcher l'envoi de messages pour les conversations archivées */}
-              {!isConversationArchived(selectedConversation.id) && (
-                <form onSubmit={sendMessage} className={styles.messageForm}>
-                  <textarea
-                    value={newMessage}
-                    onChange={(e) => setNewMessage(e.target.value)}
-                    placeholder="Tapez votre message..."
-                    required
-                    rows={3}
-                  />
-                  <button type="submit" disabled={!newMessage.trim()}>
-                    Envoyer
-                  </button>
-                </form>
-              )}
-
-              {/* Afficher un message si la conversation est archivée */}
-              {isConversationArchived(selectedConversation.id) && (
-                <div className={styles.archivedMessage}>
-                  <p>Cette conversation est archivée. Désarchivez-la pour pouvoir envoyer des messages.</p>
-                </div>
-              )}
-            </>
+          {/* Message input */}
+          {!isConversationArchived(selectedConversation.id) ? (
+            <form onSubmit={sendMessage} className={styles.messageForm}>
+              <div className={styles.inputContainer}>
+                <textarea
+                  value={newMessage}
+                  onChange={(e) => setNewMessage(e.target.value)}
+                  placeholder="Tapez votre message..."
+                  className={styles.messageInput}
+                  rows={1}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                      e.preventDefault();
+                      sendMessage(e);
+                    }
+                  }}
+                />
+                <button 
+                  type="submit" 
+                  disabled={!newMessage.trim()}
+                  className={styles.sendButton}
+                >
+                  <span>➤</span>
+                </button>
+              </div>
+            </form>
           ) : (
-            <div className={styles.noConversation}>
-              <p>Sélectionnez une conversation pour voir les messages</p>
+            <div className={styles.archivedNotice}>
+              <div className={styles.archivedIcon}>📁</div>
+              <p>Cette conversation est archivée</p>
+              <button 
+                onClick={() => unarchiveConversation(selectedConversation.id)}
+                className={styles.unarchiveLink}
+              >
+                Désarchiver pour répondre
+              </button>
             </div>
           )}
+        </>
+      ) : (
+        <div className={styles.welcomeState}>
+          <div className={styles.welcomeIcon}>💬</div>
+          <h3 className={styles.welcomeTitle}>Bienvenue dans votre messagerie</h3>
+          <p className={styles.welcomeSubtitle}>
+            Sélectionnez une conversation pour commencer à discuter
+          </p>
         </div>
-      </div>
-    )
+      )}
+    </div>
+  </div>
+);
 }
-
-
