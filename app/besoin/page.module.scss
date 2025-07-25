@@ -99,15 +99,45 @@
   justify-content: center;
   align-items: center;
   margin-bottom: 2rem;
+  padding: 0 1rem;
   
+  // Pour tablettes
+  @media (max-width: 1024px) {
+    margin-bottom: 1.5rem;
+    padding: 0 0.5rem;
+  }
+  
+  // Pour mobiles
+  @media (max-width: 768px) {
+    margin-bottom: 1rem;
+    padding: 0;
+    min-width: 100%;
+    justify-content: space-between;
+    margin-left: 1.2rem;
+  }
+  
+  // Pour très petits écrans
+  @media (max-width: 480px) {
+    overflow-x: visible;
+    flex-wrap: nowrap;
+    gap: 0;
+    margin-left: 0.8rem;
+  }
 }
 
 .stepWrapper {
   display: flex;
   align-items: center;
+  flex-shrink: 0;
+  
+  @media (max-width: 768px) {
+    flex: 1;
+    justify-content: center;
+    position: relative;
+  }
 }
 
-/* Cercle d’étape */
+/* Cercle d'étape responsive */
 .stepCircle {
   width: 2.5rem;
   height: 2.5rem;
@@ -120,52 +150,156 @@
   align-items: center;
   font-family: 'Quicksand', sans-serif;
   font-size: 1.25rem;
-  transition: background-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
-  box-shadow: inset 0 0 8px rgba(0,0,0,0.05);
+  transition: all 0.3s ease;
+  box-shadow: inset 0 0 8px rgba(178, 178, 178, 0.05);
   cursor: default;
   position: relative;
-  margin-top: 0.125rem;
+  z-index: 2;
+  
+  // Tablette
+  @media (max-width: 1024px) {
+    width: 2.2rem;
+    height: 2.2rem;
+    font-size: 1.1rem;
+  }
+  
+  // Mobile
+  @media (max-width: 768px) {
+    width: 2rem;
+    height: 2rem;
+    font-size: 1rem;
+    font-weight: 600;
+  }
+  
+  // Très petits écrans
+  @media (max-width: 480px) {
+    width: 1.8rem;
+    height: 1.8rem;
+    font-size: 0.9rem;
+  }
+  
+  // Très très petits écrans
+  @media (max-width: 320px) {
+    width: 1.6rem;
+    height: 1.6rem;
+    font-size: 0.8rem;
+  }
 }
 
 .stepCircle.active {
-  background: linear-gradient(135deg, #0F78B1, #3BA9D4);
+  background: linear-gradient(135deg, #3498db, #3BA9D4);
   color: #FEFBF4;
-  box-shadow:
-    0 0 10px rgba(59, 169, 212, 0.282),
-    0 0 15px rgba(15, 120, 177, 0.37);
   animation: pulse 1.5s infinite alternate;
 }
 
-/* Animation pulse pour étape active */
+/* Animation pulse responsive */
 @keyframes pulse {
   0% {
-    box-shadow:
-      0 0 10px rgba(59, 169, 212, 0.571),
-      0 0 15px rgba(15, 120, 177, 0.9);
+    box-shadow: 0 0 10px rgba(59, 169, 212, 0.571), 0 0 15px rgba(15, 120, 177, 0.9);
   }
   100% {
-    box-shadow:
-      0 0 20px rgba(59, 169, 212, 1),
-      0 0 30px rgba(15, 120, 177, 1);
+    box-shadow: 0 0 20px rgba(59, 169, 212, 1), 0 0 30px rgba(15, 120, 177, 1);
   }
 }
 
-/* Ligne entre les étapes */
+@media (max-width: 768px) {
+  @keyframes pulse {
+    0% {
+      box-shadow: 0 0 8px rgba(59, 169, 212, 0.6), 0 0 12px rgba(15, 120, 177, 0.8);
+    }
+    100% {
+      box-shadow: 0 0 15px rgba(59, 169, 212, 0.9), 0 0 20px rgba(15, 120, 177, 1);
+    }
+  }
+}
+
+/* Ligne entre les étapes responsive */
 .stepLine {
-  width: 3rem;
   height: 0.25rem;
   background: #e5e7eb;
   border-radius: 9999px;
   transition: background-color 0.3s ease;
+  position: relative;
+  z-index: 1;
+  
+  // Desktop
+  width: 3rem;
   margin-left: 0.8rem;
   margin-right: 0.8rem;
-  position: relative;
-  top: 0;
+  
+  // Tablette
+  @media (max-width: 1024px) {
+    width: 2.5rem;
+    margin-left: 0.6rem;
+    margin-right: 0.6rem;
+    height: 0.2rem;
+  }
+  
+  // Mobile - ligne flexible qui s'adapte à l'espace
+  @media (max-width: 768px) {
+    flex: 1;
+    width: auto;
+    margin: 0 0.3rem;
+    height: 0.15rem;
+    min-width: 20px;
+    max-width: 60px;
+  }
+  
+  // Très petits écrans
+  @media (max-width: 480px) {
+    margin: 0 0.2rem;
+    height: 0.125rem;
+    min-width: 15px;
+    max-width: 40px;
+  }
+  
+  // Très très petits écrans
+  @media (max-width: 320px) {
+    margin: 0 0.1rem;
+    min-width: 10px;
+    max-width: 30px;
+  }
 }
 
 .stepLine.activeLine {
-  background: linear-gradient(90deg, #0F78B1, #3BA9D4);
+  background: linear-gradient(90deg, #3498db, #3BA9D4);
   box-shadow: 0 0 8px rgba(59, 169, 212, 0.8);
+  
+  @media (max-width: 768px) {
+    box-shadow: 0 0 4px rgba(59, 169, 212, 0.6);
+  }
+  
+  @media (max-width: 480px) {
+    box-shadow: 0 0 2px rgba(59, 169, 212, 0.7);
+  }
+}
+
+// Amélioration pour éviter le débordement sur très petits écrans
+@media (max-width: 320px) {
+  .progressBarContainer {
+    transform: scale(0.9);
+    transform-origin: center;
+  }
+}
+
+// Alternative compacte pour très petits écrans
+@media (max-width: 280px) {
+  .progressBarContainer {
+    transform: scale(0.8);
+  }
+  
+  .stepCircle {
+    width: 1.4rem;
+    height: 1.4rem;
+    font-size: 0.7rem;
+  }
+  
+  .stepLine {
+    height: 0.1rem;
+    margin: 0 0.05rem;
+    min-width: 8px;
+    max-width: 20px;
+  }
 }
 
 /* ============================= */
@@ -194,61 +328,290 @@
 /* Navigation boutons */
 /* ============================= */
 
+// Navigation des boutons
 .buttonsNav {
-  margin-top: 1.5rem;
+  margin-top: 2rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 1rem;
+  padding: 0 1rem;
+  
+  @media (max-width: 768px) {
+    flex-direction: column-reverse;
+    gap: 1rem;
+    
+    > * {
+      width: 100%;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    padding: 0;
+    margin-top: 1.5rem;
+  }
 }
 
+// Bouton Retour
 .buttonBack {
-  padding: 0.5rem 1rem;
-  background-color: #d1d5db;
-  color: black;
-  border-radius: 0.25rem;
-  border: none;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-}
-
-.buttonBack:hover {
-  background-color: #9ca3af;
-}
-
-.buttonNext {
-  padding: 0.5rem 1rem;
-  background-color: #3498db;
-  color: white;
-  border-radius: 0.25rem;
-  border: none;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-}
-
-.buttonNext:hover {
-  background-color: #0d6394;
-}
-
-.buttonNext:disabled,
-.buttonNext[aria-disabled='true'] {
-  background-color: #d1d5db;
-  cursor: not-allowed;
-  color: #212121;
-}
-
-.buttonSubmit {
-  padding: 0.5rem 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.8rem 1.5rem;
+  background: transparent;
+  color: #6c757d;
+  border: 2px solid #dee2e6;
+  border-radius: 10px;
+  font-family: 'Nunito', sans-serif;
   font-weight: 600;
-  background-color: #81A04A;
-  color: #FEFBF4;
-  border-radius: 0.25rem;
-  border: none;
+  font-size: 1rem;
   cursor: pointer;
-  transition: background-color 0.3s ease;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '←';
+    margin-right: 0.3rem;
+    transition: transform 0.3s ease;
+  }
+
+  &:hover {
+    border-color: #3498db;
+    color: #3498db;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 123, 255, 0.2);
+    
+    &::before {
+      transform: translateX(-3px);
+    }
+  }
+
+  &:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 8px rgba(0, 123, 255, 0.3);
+  }
+
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+  }
+
+  @media (max-width: 768px) {
+    justify-content: center;
+    padding: 1rem;
+    width: 100%;
+  }
 }
 
-.buttonSubmit:hover {
-  background-color: #80a04ae1;
+// Bouton Suivant
+.buttonNext {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.8rem 2rem;
+  background: #81A04A;
+  color: #FEFBF4;
+  border: none;
+  border-radius: 10px;
+  font-family: 'Nunito', sans-serif;
+  font-weight: 700;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 4px 15px #80a04a19;
+
+  &::after {
+    content: '→';
+    margin-left: 0.3rem;
+    transition: transform 0.3s ease;
+  }
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    transition: left 0.5s ease;
+  }
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 25px #80a04a2e;
+    
+    &::after {
+      transform: translateX(3px);
+    }
+    
+    &::before {
+      left: 100%;
+    }
+  }
+
+  &:active {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 15px #80a04a2e;
+  }
+
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px #80a04a2e, 0 4px 15px #80a04a5c;
+  }
+
+  // État désactivé
+  &:disabled,
+  &[aria-disabled='true'] {
+    background: #dee2e6,;
+    color: #6c757d;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: none;
+    
+    &::after {
+      opacity: 0.5;
+    }
+    
+    &:hover {
+      transform: none;
+      box-shadow: none;
+      
+      &::after {
+        transform: none;
+      }
+      
+      &::before {
+        left: -100%;
+      }
+    }
+  }
+
+  @media (max-width: 768px) {
+    justify-content: center;
+    padding: 1rem;
+    width: 100%;
+  }
 }
+
+// Bouton Valider
+.buttonSubmit {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.8rem 2.5rem;
+  background: #3498db;
+  color: #FEFBF4;
+  border: none;
+  border-radius: 10px;
+  font-family: 'Quicksand', sans-serif;
+  font-weight: 700;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 4px 15px #419edc;
+
+  &::after {
+    content: '✓';
+    margin-left: 0.3rem;
+    font-size: 1.2rem;
+    transition: transform 0.3s ease;
+  }
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    transition: width 0.6s ease, height 0.6s ease;
+  }
+
+  &:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 30px #3498db76;
+    
+    &::after {
+      transform: scale(1.2) rotate(10deg);
+    }
+    
+    &::before {
+      width: 300px;
+      height: 300px;
+    }
+  }
+
+  &:active {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 20px #3498db;
+  }
+
+  &:focus {
+    outline: none;;
+  }
+
+  @media (max-width: 768px) {
+    justify-content: center;
+    padding: 1rem;
+    width: 100%;
+    font-size: 1rem;
+  }
+}
+
+// Animation pour les boutons au chargement
+@keyframes buttonFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.buttonsNav {
+  animation: buttonFadeIn 0.5s ease-out;
+}
+
+// Micro-interactions pour le feedback tactile
+@media (hover: none) and (pointer: coarse) {
+  .buttonNext:hover,
+  .buttonBack:hover,
+  .buttonSubmit:hover {
+    transform: none;
+  }
+  
+  .buttonNext:active,
+  .buttonBack:active,
+  .buttonSubmit:active {
+    transform: scale(0.98);
+  }
+}
+
+// Style pour les très petits écrans
+@media (max-width: 320px) {
+  .buttonNext,
+  .buttonBack,
+  .buttonSubmit {
+    padding: 0.9rem 1rem;
+    font-size: 0.95rem;
+  }
+  
+  .buttonsNav {
+    gap: 0.8rem;
+    margin-top: 1rem;
+  }
+}
+
 
 

@@ -1,3 +1,5 @@
+'use client'
+
 import styles from './page.module.scss'
 
 export default function Formules() {
@@ -54,5 +56,6 @@ export default function Formules() {
     </main>
   )
 }
+
 
 

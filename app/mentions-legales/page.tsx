@@ -1,3 +1,5 @@
+'use client'
+
 import styles from './page.module.scss'
 
 export default function MentionsLegales() {
@@ -17,24 +19,24 @@ export default function MentionsLegales() {
       <section className={styles.section}>
         <h2 className={styles.sectionTitle}>Hébergement</h2>
         <p className={styles.sectionText}>Le site CorsicaFacile est hébergé par :</p>
-        <p className={styles.sectionText}><strong>Nom de l’hébergeur</strong></p>
-        <p className={styles.sectionText}>Adresse de l’hébergeur</p>
+        <p className={styles.sectionText}><strong>Nom de l'hébergeur</strong></p>
+        <p className={styles.sectionText}>Adresse de l'hébergeur</p>
         <p className={styles.sectionText}>Téléphone : 01 23 45 67 89</p>
       </section>
 
       <section className={styles.section}>
         <h2 className={styles.sectionTitle}>Propriété intellectuelle</h2>
         <p className={styles.sectionText}>
-          L’ensemble du contenu présent sur ce site (textes, images, logos, vidéos, graphiques, etc.) est la propriété exclusive de CorsicaFacile, sauf mentions contraires.
-          Toute reproduction, distribution, modification, adaptation, retransmission ou publication, même partielle, de ces différents éléments est strictement interdite sans l’accord exprès par écrit de CorsicaFacile.
+          L'ensemble du contenu présent sur ce site (textes, images, logos, vidéos, graphiques, etc.) est la propriété exclusive de CorsicaFacile, sauf mentions contraires.
+          Toute reproduction, distribution, modification, adaptation, retransmission ou publication, même partielle, de ces différents éléments est strictement interdite sans l'accord exprès par écrit de CorsicaFacile.
         </p>
       </section>
 
       <section className={styles.section}>
         <h2 className={styles.sectionTitle}>Responsabilité</h2>
         <p className={styles.sectionText}>
-          CorsicaFacile met tout en œuvre pour assurer l’exactitude et la mise à jour des informations diffusées sur ce site. Toutefois, CorsicaFacile ne peut garantir l’exactitude, la complétude ou l’actualité des informations fournies.
-          L’utilisateur reconnaît utiliser ces informations sous sa responsabilité exclusive.
+          CorsicaFacile met tout en œuvre pour assurer l'exactitude et la mise à jour des informations diffusées sur ce site. Toutefois, CorsicaFacile ne peut garantir l'exactitude, la complétude ou l'actualité des informations fournies.
+          L'utilisateur reconnaît utiliser ces informations sous sa responsabilité exclusive.
         </p>
       </section>
 
@@ -42,14 +44,14 @@ export default function MentionsLegales() {
         <h2 className={styles.sectionTitle}>Protection des données personnelles</h2>
         <p className={styles.sectionText}>
           CorsicaFacile collecte et traite les données personnelles des utilisateurs conformément à la réglementation en vigueur, notamment le Règlement Général sur la Protection des Données (RGPD).
-          Pour plus d’informations, veuillez consulter notre <a href="/confidentialite">Politique de confidentialité</a>.
+          Pour plus d'informations, veuillez consulter notre <a href="/confidentialite">Politique de confidentialité</a>.
         </p>
       </section>
 
       <section className={styles.section}>
         <h2 className={styles.sectionTitle}>Cookies</h2>
         <p className={styles.sectionText}>
-          Ce site utilise des cookies pour améliorer votre expérience utilisateur. En poursuivant votre navigation, vous acceptez l’utilisation de ces cookies.
+          Ce site utilise des cookies pour améliorer votre expérience utilisateur. En poursuivant votre navigation, vous acceptez l'utilisation de ces cookies.
           Vous pouvez gérer vos préférences relatives aux cookies à tout moment via les paramètres de votre navigateur.
         </p>
       </section>
@@ -64,5 +66,6 @@ export default function MentionsLegales() {
     </main>
   )
 }
+
 
 

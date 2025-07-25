@@ -1,3 +1,5 @@
+'use client'
+
 import styles from './page.module.scss'
 
 export default function Confidentialite() {
@@ -57,13 +59,13 @@ export default function Confidentialite() {
           Vous disposez des droits suivants concernant vos données personnelles :
         </p>
         <ul className={styles.sectionText}>
-          <li>Droit d’accès, de rectification et de suppression</li>
+          <li>Droit d'accès, de rectification et de suppression</li>
           <li>Droit de limiter ou de vous opposer au traitement</li>
           <li>Droit à la portabilité des données</li>
           <li>Droit de retirer votre consentement à tout moment</li>
         </ul>
         <p className={styles.sectionText}>
-          Pour exercer vos droits, vous pouvez nous contacter à l’adresse : <a href="mailto:contact@corsicafacile.com">contact@corsicafacile.com</a>.
+          Pour exercer vos droits, vous pouvez nous contacter à l'adresse : <a href="mailto:contact@corsicafacile.com">contact@corsicafacile.com</a>.
         </p>
       </section>
 
@@ -84,7 +86,7 @@ export default function Confidentialite() {
       <section className={styles.section}>
         <h2 className={styles.sectionTitle}>Contact</h2>
         <p className={styles.sectionText}>
-          Pour toute question concernant vos données personnelles, vous pouvez nous contacter à l’adresse ci-dessus.
+          Pour toute question concernant vos données personnelles, vous pouvez nous contacter à l'adresse ci-dessus.
         </p>
       </section>
     </main>

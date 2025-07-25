@@ -115,7 +115,7 @@
   label {
     font-family: 'Nunito', sans-serif;
     font-weight: 600;
-    color: #5E3E23 ;
+    color: #5E3E23;
     font-size: 0.95rem;
   }
 
@@ -224,12 +224,47 @@
   margin-bottom: 1rem;
 }
 
-// Responsive design
+// Responsive design avec scroll
+@media (max-width: 1024px) {
+  .contentSection {
+    // Activation du scroll pour tablettes
+    overflow-y: auto;
+    max-height: 500px;
+    
+    // Scrollbar personnalisée pour WebKit (Chrome, Safari, Edge)
+    &::-webkit-scrollbar {
+      width: 8px;
+    }
+    
+    &::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 10px;
+    }
+    
+    &::-webkit-scrollbar-thumb {
+      background: linear-gradient(180deg, rgba(129, 160, 74, 0.7), rgba(129, 160, 74, 0.9));
+      border-radius: 10px;
+      border: 2px solid transparent;
+      background-clip: padding-box;
+    }
+    
+    &::-webkit-scrollbar-thumb:hover {
+      background: linear-gradient(180deg, rgba(129, 160, 74, 0.8), rgba(129, 160, 74, 1));
+    }
+    
+    // Firefox scrollbar
+    scrollbar-width: thin;
+    scrollbar-color: rgba(129, 160, 74, 0.7) rgba(255, 255, 255, 0.1);
+  }
+}
+
 @media (max-width: 768px) {
   .card {
     flex-direction: column;
     max-width: 90%;
     width: 90%;
+    height: auto;
+    max-height: 85vh;
   }
   
   .imageSection, .contentSection {
@@ -237,17 +272,45 @@
   }
   
   .imageSection {
-    height: 250px;
+    height: 200px;
+    flex-shrink: 0;
   }
   
   .contentSection {
     border-left: none;
     border-top: 1px solid rgba(255, 255, 255, 0.3);
-    padding: 2rem;
+    padding: 1.5rem;
+    overflow-y: auto;
+    flex: 1;
+    max-height: calc(85vh - 200px);
+    
+    // Scrollbar mobile avec couleurs du site
+    &::-webkit-scrollbar {
+      width: 6px;
+    }
+    
+    &::-webkit-scrollbar-track {
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 8px;
+    }
+    
+    &::-webkit-scrollbar-thumb {
+      background: linear-gradient(180deg, rgba(94, 62, 35, 0.6), rgba(94, 62, 35, 0.8));
+      border-radius: 8px;
+      border: 1px solid transparent;
+    }
+    
+    &::-webkit-scrollbar-thumb:hover {
+      background: linear-gradient(180deg, rgba(94, 62, 35, 0.7), rgba(94, 62, 35, 0.9));
+    }
+    
+    // Firefox mobile
+    scrollbar-width: thin;
+    scrollbar-color: rgba(94, 62, 35, 0.6) rgba(255, 255, 255, 0.05);
   }
   
   .title {
-    font-size: 1.8rem;
+    font-size: 1.6rem;
     margin-bottom: 1.5rem;
   }
   
@@ -269,5 +332,138 @@
     margin-bottom: 1.5rem;
   }
 }
+
+@media (max-width: 480px) {
+  .card {
+    margin: 1rem 0.5rem;
+    width: calc(100% - 1rem);
+    max-height: 90vh;
+  }
+  
+  .imageSection {
+    height: 160px;
+  }
+  
+  .contentSection {
+    padding: 1rem;
+    max-height: calc(90vh - 160px);
+    
+    // Scroll très discret sur petits écrans
+    &::-webkit-scrollbar {
+      width: 4px;
+    }
+    
+    &::-webkit-scrollbar-thumb {
+      background: rgba(94, 62, 35, 0.5);
+      border-radius: 4px;
+    }
+    
+    &::-webkit-scrollbar-thumb:hover {
+      background: rgba(94, 62, 35, 0.7);
+    }
+  }
+  
+  .title {
+    font-size: 1.4rem;
+    margin-bottom: 1rem;
+  }
+  
+  .form {
+    gap: 0.8rem;
+    margin-bottom: 1rem;
+  }
+  
+  .inputGroup input {
+    padding: 0.7rem 0.8rem;
+    font-size: 0.95rem;
+  }
+  
+  .submitButton {
+    padding: 0.9rem 1.2rem;
+    font-size: 1rem;
+  }
+  
+  .backButton {
+    margin-top: 1rem;
+    padding: 0.7rem 1.2rem;
+  }
+  
+  .links {
+    gap: 0.4rem;
+    margin-bottom: 1rem;
+  }
+}
+
+// Animation d'apparition du scroll
+@keyframes fadeInScroll {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.contentSection::-webkit-scrollbar-thumb {
+  animation: fadeInScroll 0.3s ease-in-out;
+}
+
+// Style pour améliorer l'UX mobile
+@media (hover: none) and (pointer: coarse) {
+  .contentSection {
+    // Scroll momentum sur iOS
+    -webkit-overflow-scrolling: touch;
+    
+    // Padding pour éviter que le contenu touche les bords pendant le scroll
+    padding-bottom: 2rem;
+  }
+}
+
+// Très petits écrans
+@media (max-width: 320px) {
+  .card {
+    margin: 0.5rem;
+    width: calc(100% - 1rem);
+    max-height: 95vh;
+  }
+  
+  .imageSection {
+    height: 140px;
+  }
+  
+  .contentSection {
+    padding: 0.8rem;
+    max-height: calc(95vh - 140px);
+    
+    &::-webkit-scrollbar {
+      width: 3px;
+    }
+  }
+  
+  .title {
+    font-size: 1.3rem;
+    margin-bottom: 0.8rem;
+  }
+  
+  .form {
+    gap: 0.7rem;
+  }
+  
+  .inputGroup input {
+    padding: 0.6rem 0.7rem;
+    font-size: 0.9rem;
+  }
+  
+  .submitButton {
+    padding: 0.8rem 1rem;
+    font-size: 0.95rem;
+  }
+  
+  .backButton {
+    padding: 0.6rem 1rem;
+    font-size: 0.9rem;
+  }
+}
+
 
 

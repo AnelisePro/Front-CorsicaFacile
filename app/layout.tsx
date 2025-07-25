@@ -7,6 +7,7 @@ import { AuthProvider } from './auth/AuthContext'
 import ToastProvider from './ToastProvider'
 import 'react-toastify/dist/ReactToastify.css'
 import GeminiChatbot from '../app/components/GeminiChatbot'
+import ScrollToTop from './components/ScrollToTop'
 
 export const metadata = {
   title: 'CorsicaFacile',
@@ -19,6 +20,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       <body>
         <div className="layout-wrapper">
           <AuthProvider>
+            <ScrollToTop />
             <Navbar />
             <main>{children}</main>
             <GeminiChatbot />
@@ -30,6 +32,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
     </html>
   )
 }
+
 
 
 

@@ -1,3 +1,5 @@
+'use client'
+
 import styles from './page.module.scss'
 
 export default function Contact() {
@@ -6,7 +8,7 @@ export default function Contact() {
       <h1 className={styles.h1}>Contactez-nous</h1>
       
       <p className={styles.sectionText}>
-        Vous avez une question, une suggestion ou besoin d’aide ? N’hésitez pas à nous contacter :
+        Vous avez une question, une suggestion ou besoin d'aide ? N'hésitez pas à nous contacter :
       </p>
       
       <ul className={styles.sectionText}>
@@ -21,4 +23,5 @@ export default function Contact() {
     </main>
   )
 }
+
 

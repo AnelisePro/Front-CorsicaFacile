@@ -12,9 +12,9 @@ export default function CommentCaMarcheClients() {
           <p>Voici les étapes afin de vous aider à comprendre notre plateforme :</p>
           <ol>
             <li>Déclarez votre besoin.</li>
-            <li>Recevez des propositions d’artisans.</li>
-            <li>Choisissez l’artisan qui vous convient.</li>
-            <li>Suivez l’avancement de votre projet.</li>
+            <li>Recevez des propositions d'artisans.</li>
+            <li>Choisissez l'artisan qui vous convient.</li>
+            <li>Suivez l'avancement de votre projet.</li>
           </ol>
         </div>
         <div className={styles.image}>
@@ -31,4 +31,5 @@ export default function CommentCaMarcheClients() {
     </main>
   )
 }
+
 

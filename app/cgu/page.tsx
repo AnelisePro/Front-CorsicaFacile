@@ -1,3 +1,5 @@
+'use client'
+
 import styles from './page.module.scss'
 
 export default function CGU() {
@@ -8,7 +10,7 @@ export default function CGU() {
       <section className={styles.section}>
         <h2 className={styles.sectionTitle}>1. Objet</h2>
         <p className={styles.sectionText}>
-          Les présentes conditions générales d’utilisation régissent l’accès et l’utilisation du site CorsicaFacile.
+          Les présentes conditions générales d'utilisation régissent l'accès et l'utilisation du site CorsicaFacile.
           En utilisant ce site, vous acceptez sans réserve ces conditions.
         </p>
       </section>
@@ -25,15 +27,15 @@ export default function CGU() {
         <h2 className={styles.sectionTitle}>3. Utilisation du service</h2>
         <p className={styles.sectionText}>
           CorsicaFacile met en relation des clients et des artisans pour faciliter la réalisation de projets.
-          Chaque utilisateur s’engage à fournir des informations exactes, à respecter les autres utilisateurs, et à ne pas utiliser le site à des fins illégales.
+          Chaque utilisateur s'engage à fournir des informations exactes, à respecter les autres utilisateurs, et à ne pas utiliser le site à des fins illégales.
         </p>
       </section>
 
       <section className={styles.section}>
         <h2 className={styles.sectionTitle}>4. Responsabilité</h2>
         <p className={styles.sectionText}>
-          CorsicaFacile agit en tant qu’intermédiaire et ne peut être tenu responsable des relations contractuelles ou des litiges entre clients et artisans.
-          L’utilisation du site se fait sous la responsabilité exclusive de l’utilisateur.
+          CorsicaFacile agit en tant qu'intermédiaire et ne peut être tenu responsable des relations contractuelles ou des litiges entre clients et artisans.
+          L'utilisation du site se fait sous la responsabilité exclusive de l'utilisateur.
         </p>
       </section>
 
@@ -68,5 +70,7 @@ export default function CGU() {
     </main>
   )
 }
+
+
 
 

@@ -8,7 +8,6 @@
   z-index: 1000;
   padding: 1rem 2rem;
   
-  // EFFET DE VERRE AVEC BORDS ARRONDIS
   .navbar {
     background: rgba(254, 251, 244, 0.85);
     backdrop-filter: blur(20px);
@@ -17,7 +16,6 @@
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
     transition: all 0.3s ease;
     
-    // BACKGROUND PLUS FONCÉ AU SCROLL
     &.scrolled {
       background: rgba(254, 251, 244, 0.95);
       box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
@@ -49,7 +47,6 @@
   }
 }
 
-// NAVIGATION PLUS DÉCALÉE VERS LA DROITE
 .navLinks {
   display: flex;
   align-items: center;
@@ -86,13 +83,11 @@
     }
   }
 
-  // LIEN ACTIF SANS POINT
   .active {
     color: #3498db;
     font-weight: 600;
   }
 
-  // DROPDOWN AVEC FLÈCHE FIXE
   .dropdown {
     span {
       display: flex;
@@ -122,7 +117,7 @@
     min-width: 180px;
     z-index: 1000;
     list-style: none;
-    overflow: hidden; // ✅ EMPÊCHE LE DÉBORDEMENT
+    overflow: hidden;
     
     li {
       padding: 0;
@@ -132,14 +127,14 @@
       a {
         color: #5E3E23;
         display: block;
-        width: calc(100% - 1rem); // ✅ LARGEUR RÉDUITE POUR ÉVITER LE DÉBORDEMENT
+        width: calc(100% - 1rem);
         text-align: left;
         padding: 0.8rem 1.2rem;
         font-weight: 500;
         transition: all 0.3s ease;
         border-radius: 8px;
-        margin: 0 0.5rem; // ✅ MARGE UNIFORME
-        box-sizing: border-box; // ✅ INCLUT PADDING ET BORDER DANS LA LARGEUR
+        margin: 0 0.5rem;
+        box-sizing: border-box;
         
         &:hover {
           background: rgba(52, 152, 219, 0.1);
@@ -151,7 +146,6 @@
   }
 }
 
-// SECTION DROITE AVEC VOS COULEURS
 .rightSection {
   display: flex;
   align-items: center;
@@ -159,7 +153,6 @@
   flex-shrink: 0;
 }
 
-// BOUTON CTA AVEC VOS COULEURS
 .cta {
   background: linear-gradient(135deg, #81A04A 0%, #6d8a3f 100%);
   color: #FEFBF4;
@@ -181,7 +174,6 @@
   }
 }
 
-// AVATAR PLUS GROS AVEC VOS COULEURS
 .avatarLink {
   padding: 0 !important;
   transition: all 0.3s ease;
@@ -206,7 +198,6 @@
   }
 }
 
-// BOUTON DÉCONNEXION AVEC VOS COULEURS
 .logoutButton {
   background: rgba(15, 120, 177, 0.1);
   color: #0F78B1;
@@ -276,6 +267,56 @@
   }
 }
 
+// VERSION MOBILE PAYSAGE - Contenu plus petit
+@media screen and (max-width: 812px) and (orientation: landscape) {
+  .header {
+    padding: 0.5rem 1rem; // Padding réduit
+  }
+  
+  .navbar {
+    padding: 0.5rem 1rem; // Padding réduit
+    height: 50px; // Hauteur réduite
+  }
+  
+  .logo {
+    height: 24px; // Logo plus petit
+    max-width: 90px;
+    margin-top: 0.3rem;
+  }
+  
+  .navLinks {
+    gap: 1rem; // Gap réduit entre les éléments
+    font-size: 0.85rem; // Texte plus petit
+  }
+  
+  .rightSection {
+    gap: 0.8rem; // Gap réduit
+  }
+  
+  .cta {
+    padding: 0.5rem 1rem; // Padding réduit
+    font-size: 0.8rem; // Texte plus petit
+  }
+  
+  .avatar {
+    width: 35px; // Avatar plus petit
+    height: 35px;
+  }
+  
+  .logoutButton {
+    padding: 0.5rem 0.8rem; // Padding réduit
+    font-size: 0.75rem; // Texte plus petit
+  }
+  
+  .burger {
+    div {
+      width: 18px; // Burger plus petit
+      height: 1.5px;
+      margin: 2px 0;
+    }
+  }
+}
+
 @media screen and (max-width: 768px) {
   .burger {
     display: flex;
@@ -323,7 +364,7 @@
         font-size: 1rem;
         border-radius: 0;
         margin: 0;
-        box-sizing: border-box; // ✅ MOBILE AUSSI
+        box-sizing: border-box;
         
         &:hover {
           background: rgba(52, 152, 219, 0.1);
@@ -340,7 +381,7 @@
       margin: 0;
       border-radius: 0;
       list-style: none;
-      overflow: hidden; // ✅ MOBILE AUSSI
+      overflow: hidden;
       
       li {
         list-style: none;
@@ -364,6 +405,7 @@
     height: 40px;
   }
 }
+
 
 
 
