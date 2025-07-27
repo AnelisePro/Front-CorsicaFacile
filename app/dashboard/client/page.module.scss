@@ -1005,15 +1005,16 @@
   
   .resetFilter {
     margin-top: 1rem;
-    background: #007bff;
-    color: white;
+    background: #3498db;
+    color: #FEFBF4;
     border: none;
     padding: 0.5rem 1rem;
-    border-radius: 4px;
+    border-radius: 8px;
     cursor: pointer;
+    font-weight: 600;
     
     &:hover {
-      background: #0056b3;
+      background: #1d7cbc;
     }
   }
 }

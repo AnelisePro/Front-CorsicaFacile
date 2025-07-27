@@ -6,7 +6,7 @@ import { useEffect, useState, useRef } from 'react'
 import dynamic from 'next/dynamic'
 import SearchForm from '../components/SearchForm'
 import styles from './page.module.scss'
-import { FaMapMarkerAlt } from 'react-icons/fa'
+import { FaMapMarkerAlt, FaStar } from 'react-icons/fa'
 import PremiumBadge from '../components/PremiumBadge'
 
 const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
@@ -22,6 +22,8 @@ type Artisan = {
   longitude?: number
   avatar_url?: string | null
   membership_plan?: string | null
+  average_rating?: number
+  total_reviews?: number
 }
 
 function isArtisan(a: Artisan | null): a is Artisan {
@@ -74,7 +76,6 @@ export default function RecherchePage() {
       return
     }
 
-    // 🎯 IMPORTANT: Sauvegarder les paramètres dès qu'on fait une recherche
     sessionStorage.setItem('searchParams', JSON.stringify({
       expertise: expertise,
       location: location
@@ -142,6 +143,21 @@ export default function RecherchePage() {
       }
     }
   }, [hoveredArtisanId, artisans])
+
+  const renderStars = (rating: number) => {
+    return (
+      <div className={styles.starsContainer}>
+        {[1, 2, 3, 4, 5].map((star) => (
+          <FaStar
+            key={star}
+            className={`${styles.star} ${
+              star <= Math.round(rating) ? styles.starFilled : styles.starEmpty
+            }`}
+          />
+        ))}
+      </div>
+    )
+  }
 
   return (
     <div className={styles.resultsPage}>
@@ -232,6 +248,24 @@ export default function RecherchePage() {
                   </div>
 
                   <div className={styles.cardFooter}>
+                    <div className={styles.reviewsInfo}>
+                      {artisan.total_reviews && artisan.total_reviews > 0 ? (
+                        <>
+                          <div className={styles.rating}>
+                            {renderStars(artisan.average_rating || 0)}
+                            <span className={styles.ratingValue}>
+                              {(artisan.average_rating || 0).toFixed(1)}
+                            </span>
+                          </div>
+                          <span className={styles.reviewsCount}>
+                            ({artisan.total_reviews} avis)
+                          </span>
+                        </>
+                      ) : (
+                        <span className={styles.noReviews}>Aucun avis</span>
+                      )}
+                    </div>
+                    
                     <button
                       className={styles.profileButton}
                       onClick={e => {

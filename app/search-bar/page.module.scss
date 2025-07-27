@@ -213,6 +213,55 @@
   border-top: 1px solid rgba(129, 160, 74, 0.1);
 }
 
+.reviewsInfo {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex: 1;
+}
+
+.rating {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.starsContainer {
+  display: flex;
+  gap: 0.1rem;
+}
+
+.star {
+  font-size: 0.8rem;
+  
+  &Filled {
+    color: #f39c12;
+  }
+  
+  &Empty {
+    color: #e9ecef;
+  }
+}
+
+.ratingValue {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #3498db;
+  margin-left: 0.2rem;
+}
+
+.reviewsCount {
+  font-size: 0.8rem;
+  color: #5E3E23;
+  font-weight: 500;
+}
+
+.noReviews {
+  font-size: 0.8rem;
+  color: #5E3E23;
+  font-style: italic;
+}
+
 .profileButton {
   display: inline-flex;
   align-items: center;

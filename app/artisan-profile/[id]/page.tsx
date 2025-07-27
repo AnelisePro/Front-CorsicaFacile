@@ -10,6 +10,7 @@ import styles from './page.module.scss'
 import { useAuth } from '../../auth/AuthContext'
 import { toast } from 'react-toastify'
 import PremiumBadge from '../../components/PremiumBadge'
+import ReviewsSection from '../../components/ReviewsSection'
 
 type ProjectImageType = {
   id: number
@@ -309,7 +310,10 @@ export default function ArtisanProfilePage() {
               </div>
             )}
 
-            {/* 🎯 Section contact déplacée ici */}
+            {/* Section des avis */}
+            <ReviewsSection artisanId={artisan.id} />
+
+            {/* Section contact */}
             <div className={styles.card}>
               <div className={styles.cardHeader}>
                 <h2>

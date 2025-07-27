@@ -90,18 +90,24 @@ const MissionProgressBar = ({
           onStatusChange(newStatus)
         }
 
-        setTimeout(() => {
-          window.location.reload()
-        }, 2000)
+        // Ne pas recharger la page si c'est "completed"
+        if (newStatus !== 'completed') {
+          setTimeout(() => {
+            window.location.reload()
+          }, 2000)
+        }
+
+        return true // Indique que la mise à jour a réussi
       }
     } catch (error) {
       console.error('Erreur lors de la mise à jour du statut:', error)
       toast.error('Erreur lors de la mise à jour du statut de la mission')
+      return false
     }
   }
 
   // Fonction pour gérer le clic sur un cercle
-  const handleCircleClick = (step: any) => {
+  const handleCircleClick = async (step: any) => {
     if (isArtisan) return // Pas de clic pour les artisans
 
     const isClickable = (
@@ -110,7 +116,19 @@ const MissionProgressBar = ({
     )
 
     if (isClickable) {
-      updateMissionStatus(step.status as 'in_progress' | 'completed')
+      if (step.status === 'completed') {
+        // Quand on marque comme terminé, mettre à jour puis rediriger vers la page d'avis
+        const updateSuccess = await updateMissionStatus(step.status as 'completed')
+        
+        if (updateSuccess) {
+          // Attendre un peu pour que le toast s'affiche puis ouvrir dans un nouvel onglet
+          setTimeout(() => {
+            window.open(`/client/review/${notificationId}`, '_blank')
+          }, 1000)
+        }
+      } else {
+        await updateMissionStatus(step.status as 'in_progress')
+      }
     }
   }
 

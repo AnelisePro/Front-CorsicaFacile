@@ -519,14 +519,9 @@
   border: 1px solid rgba(52, 152, 219, 0.1);
 }
 
-.loginIcon {
-  font-size: 3rem;
-  margin-bottom: 1rem;
-}
-
 .loginPrompt h3 {
   font-family: 'Quicksand', sans-serif;
-  color: #1a1a1a;
+  color: #81A04A;
   font-size: 1.3rem;
   font-weight: 600;
   margin: 0 0 1rem 0;
@@ -534,7 +529,7 @@
 
 .loginPrompt p {
   font-family: 'Nunito', sans-serif;
-  color: #6b7280;
+  color: #5E3E23;
   font-size: 1rem;
   line-height: 1.6;
   margin: 0 0 2rem 0;
@@ -548,7 +543,7 @@
   font-weight: 600;
   border: none;
   padding: 1rem 2rem;
-  border-radius: 50px;
+  border-radius: 12px;
   cursor: pointer;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   box-shadow: 0 6px 20px rgba(52, 152, 219, 0.25);

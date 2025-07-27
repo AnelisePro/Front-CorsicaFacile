@@ -1163,7 +1163,7 @@ export default function ClientDashboard() {
                           {/* Message d'information pour les missions actives */}
                           {(besoin.notification_status === 'in_progress' || besoin.notification_status === 'completed') && (
                             <div className={styles.infoMessage}>
-                              <p>⚠️ Cette annonce ne peut plus être modifiée car la mission est en cours ou terminée.</p>
+                              <p>⚠️ Cette annonce ne peut plus être modifiée ou supprimée car la mission est en cours ou terminée.</p>
                             </div>
                           )}
                         </>
