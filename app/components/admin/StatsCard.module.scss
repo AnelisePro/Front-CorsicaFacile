@@ -1,0 +1,366 @@
+@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&family=Nunito:wght@300;400;500;600;700;800&display=swap');
+
+// Variables de couleurs
+$blue: #3498db;
+$green: #81A04A;
+$beige: #FEFBF4;
+$brown: #5E3E23;
+
+// Couleurs pour les cartes
+$colors: (
+  'blue': ($blue, lighten($blue, 10%)),
+  'green': ($green, lighten($green, 10%)),
+  'yellow': (#f39c12, lighten(#f39c12, 10%)),
+  'purple': (#9b59b6, lighten(#9b59b6, 10%)),
+  'red': (#e74c3c, lighten(#e74c3c, 10%))
+);
+
+// Mixins utiles
+@mixin transition-smooth {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@mixin shadow-modern {
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08), 
+              0 6px 12px rgba(0, 0, 0, 0.06);
+}
+
+@mixin shadow-hover {
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12), 
+              0 10px 20px rgba(0, 0, 0, 0.08);
+}
+
+// Card principale
+.statsCard {
+  background: white;
+  border-radius: 1.5rem;
+  padding: 2rem;
+  position: relative;
+  overflow: hidden;
+  @include shadow-modern;
+  @include transition-smooth;
+  cursor: pointer;
+
+  // Élément décoratif d'arrière-plan
+  &::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -50%;
+    width: 12rem;
+    height: 12rem;
+    background: linear-gradient(135deg, rgba($blue, 0.02) 0%, rgba($green, 0.01) 100%);
+    border-radius: 50%;
+    transform: rotate(-15deg);
+    @include transition-smooth;
+  }
+
+  &:hover {
+    @include shadow-hover;
+    transform: translateY(-5px) scale(1.02);
+
+    &::before {
+      transform: rotate(-15deg) scale(1.2);
+    }
+
+    .iconContainer {
+      transform: rotate(5deg) scale(1.1);
+    }
+
+    .value {
+      transform: scale(1.05);
+    }
+
+    .changeIndicator {
+      transform: scale(1.05);
+    }
+  }
+
+  // Animation d'apparition
+  opacity: 0;
+  animation: slideInUp 0.6s ease forwards;
+}
+
+// Header de la card
+.cardHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+  position: relative;
+  z-index: 2;
+}
+
+// Contenu principal
+.cardContent {
+  flex: 1;
+}
+
+// Section titre et icône
+.titleSection {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1rem;
+
+  .iconContainer {
+    position: relative;
+    width: 3rem;
+    height: 3rem;
+    border-radius: 1rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 1rem;
+    @include transition-smooth;
+
+    // Génération des couleurs dynamiquement
+    @each $name, $color-pair in $colors {
+      &.#{$name} {
+        background: linear-gradient(135deg, nth($color-pair, 1) 0%, nth($color-pair, 2) 100%);
+      }
+    }
+
+    .icon {
+      font-size: 1.25rem;
+      position: relative;
+      z-index: 1;
+      @include transition-smooth;
+      color: white;
+
+      // Effet de filtre pour les emojis
+      filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+    }
+  }
+
+  .titleGroup {
+    flex: 1;
+
+    .title {
+      font-family: 'Quicksand', sans-serif;
+      font-size: 0.875rem;
+      font-weight: 800;
+      color: $brown;
+      margin: 0 0 0.25rem 0;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .subtitle {
+      font-family: 'Nunito', sans-serif;
+      font-weight: 600;
+      font-size: 0.75rem;
+      color: rgba($brown, 0.8);
+      margin: 0;
+    }
+  }
+}
+
+// Section valeur et changement
+.valueSection {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  position: relative;
+  z-index: 2;
+
+  .valueGroup {
+    flex: 1;
+
+    .value {
+      font-family: 'Quicksand', sans-serif;
+      font-size: 2.25rem;
+      font-weight: 700;
+      color: $brown;
+      margin: 0;
+      line-height: 1.1;
+      @include transition-smooth;
+
+      @media (max-width: 768px) {
+        font-size: 1.875rem;
+      }
+
+      // Animation des chiffres
+      &.animate {
+        animation: countUp 1s ease-out;
+      }
+    }
+  }
+
+  .changeIndicator {
+    @include transition-smooth;
+    
+    .changeBadge {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.375rem 0.75rem;
+      border-radius: 2rem;
+      font-family: 'Nunito', sans-serif;
+      font-size: 0.75rem;
+      font-weight: 600;
+      position: relative;
+      overflow: hidden;
+
+      // Types de changement
+      &.positive {
+        background: linear-gradient(135deg, rgba($green, 0.15) 0%, rgba($green, 0.2) 100%);
+        color: $green;
+        
+        &::before {
+          content: '↗';
+          margin-right: 0.25rem;
+        }
+      }
+
+      &.negative {
+        background: linear-gradient(135deg, rgba(#e74c3c, 0.15) 0%, rgba(#e74c3c, 0.2) 100%);
+        color: #e74c3c;
+        
+        &::before {
+          content: '↘';
+          margin-right: 0.25rem;
+        }
+      }
+
+      &.neutral {
+        background: linear-gradient(135deg, rgba($brown, 0.1) 0%, rgba($brown, 0.15) 100%);
+        color: $brown;
+        
+        &::before {
+          content: '→';
+          margin-right: 0.25rem;
+        }
+      }
+
+      // Effet shimmer
+      &::after {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.6), transparent);
+        transition: left 0.5s;
+      }
+
+      &:hover::after {
+        left: 100%;
+      }
+    }
+  }
+}
+
+// Barre de progression
+.progressBar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 3px;
+  background: linear-gradient(90deg, transparent 0%, $blue 50%, transparent 100%);
+  animation: progressFlow 3s ease-in-out infinite;
+}
+
+// Animations
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes countUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes progressFlow {
+  0%, 100% {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+// Animation de délai pour les cards
+@for $i from 1 through 10 {
+  .statsCard:nth-child(#{$i}) {
+    animation-delay: #{$i * 150ms};
+  }
+}
+
+// Responsive design
+@media (max-width: 640px) {
+  .statsCard {
+    padding: 1.5rem;
+
+    .titleSection {
+      .iconContainer {
+        width: 2.5rem;
+        height: 2.5rem;
+
+        .icon {
+          font-size: 1.125rem;
+        }
+      }
+
+      .titleGroup {
+        .title {
+          font-size: 0.8rem;
+        }
+
+        .subtitle {
+          font-size: 0.7rem;
+        }
+      }
+    }
+
+    .valueSection {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.75rem;
+
+      .changeIndicator {
+        align-self: flex-end;
+      }
+    }
+  }
+}
+
+// État de chargement
+.loading {
+  .value {
+    background: linear-gradient(90deg, rgba($brown, 0.1) 25%, rgba($brown, 0.2) 50%, rgba($brown, 0.1) 75%);
+    background-size: 200% 100%;
+    animation: loading 1.5s infinite;
+    border-radius: 0.5rem;
+    color: transparent;
+
+    &::after {
+      content: '---';
+      color: rgba($brown, 0.3);
+    }
+  }
+}
+
+@keyframes loading {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+

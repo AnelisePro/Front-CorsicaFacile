@@ -1,0 +1,504 @@
+@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&family=Nunito:wght@300;400;500;600;700;800&display=swap');
+
+// Variables de couleurs
+$blue: #3498db;
+$green: #81A04A;
+$beige: #FEFBF4;
+$brown: #5E3E23;
+
+// Mixins utiles
+@mixin gradient-primary {
+  background: linear-gradient(135deg, $blue 0%, $green 100%);
+}
+
+@mixin gradient-secondary {
+  background: linear-gradient(135deg, rgba($blue, 0.1) 0%, rgba($green, 0.1) 100%);
+}
+
+@mixin transition-smooth {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@mixin shadow-modern {
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08), 
+              0 6px 12px rgba(0, 0, 0, 0.06);
+}
+
+@mixin shadow-hover {
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12), 
+              0 10px 20px rgba(0, 0, 0, 0.08);
+}
+
+// Container principal (offset pour la sidebar)
+.dashboardContainer {
+  min-height: 100vh;
+  background: linear-gradient(135deg, $beige 0%, white 100%);
+  padding: 2rem 8rem;
+  
+  @media (max-width: 1023px) {
+    margin-left: 0;
+    padding: 1.5rem;
+  }
+
+  @media (max-width: 768px) {
+    padding: 1rem;
+  }
+}
+
+// Loading state
+.loadingContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 16rem;
+
+  .spinner {
+    width: 3rem;
+    height: 3rem;
+    border: 3px solid rgba($blue, 0.2);
+    border-top: 3px solid $blue;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+}
+
+// Header section
+.header {
+  margin-bottom: 2rem;
+  position: relative;
+  padding: 2rem;
+  background: white;
+  border-radius: 1.5rem;
+  @include shadow-modern;
+  overflow: hidden;
+
+  // Éléments décoratifs
+  &::before {
+    content: '';
+    position: absolute;
+    top: -5rem;
+    right: -5rem;
+    width: 12rem;
+    height: 12rem;
+    @include gradient-primary;
+    border-radius: 50%;
+    opacity: 0.1;
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: -3rem;
+    left: -3rem;
+    width: 8rem;
+    height: 8rem;
+    background-color: rgba($green, 0.05);
+    border-radius: 50%;
+  }
+
+  .headerContent {
+    position: relative;
+    z-index: 1;
+
+    .title {
+      font-family: 'Quicksand', sans-serif;
+      font-size: 2.5rem;
+      font-weight: 700;
+      @include gradient-primary;
+      background-clip: text;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin: 0 0 0.5rem 0;
+      letter-spacing: -0.02em;
+
+      @media (max-width: 768px) {
+        font-size: 2rem;
+      }
+    }
+    
+    .subtitle {
+      font-family: 'Nunito', sans-serif;
+      font-size: 1.125rem;
+      color: $brown;
+      margin: 0;
+      font-weight: 400;
+
+      @media (max-width: 768px) {
+        font-size: 1rem;
+      }
+    }
+  }
+}
+
+// Grille des statistiques
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+}
+
+// Section principale avec 2 colonnes
+.mainSection {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  margin-bottom: 2rem;
+
+  @media (max-width: 1024px) {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+}
+
+// Cards génériques
+.card {
+  background: white;
+  border-radius: 1.5rem;
+  padding: 2rem;
+  @include shadow-modern;
+  @include transition-smooth;
+  position: relative;
+  overflow: hidden;
+
+  &:hover {
+    @include shadow-hover;
+    transform: translateY(-2px);
+  }
+
+  // Élément décoratif pour chaque card
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 6rem;
+    height: 6rem;
+    @include gradient-secondary;
+    border-radius: 0 1.5rem 0 50%;
+  }
+
+  .cardHeader {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    margin-bottom: 1.5rem;
+
+    .cardIcon {
+      margin-right: 0.75rem;
+      font-size: 1.5rem;
+      @include transition-smooth;
+    }
+
+    .cardTitle {
+      font-family: 'Quicksand', sans-serif;
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: $brown;
+      margin: 0;
+    }
+  }
+
+  &:hover .cardHeader .cardIcon {
+    transform: scale(1.2) rotate(5deg);
+  }
+}
+
+// Inscriptions récentes
+.signupsCard {
+  .signupsContent {
+    .signupSection {
+      margin-bottom: 1.5rem;
+      
+      &:last-child {
+        margin-bottom: 0;
+      }
+
+      .sectionBorder {
+        border-left: 4px solid;
+        padding-left: 1rem;
+        @include transition-smooth;
+
+        &.today {
+          border-color: $blue;
+        }
+
+        &.week {
+          border-color: $green;
+        }
+      }
+
+      .sectionTitle {
+        font-family: 'Quicksand', sans-serif;
+        font-weight: 600;
+        color: $brown;
+        margin: 0 0 1rem 0;
+        font-size: 1rem;
+      }
+
+      .statsRow {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+
+        .statItem {
+          text-align: center;
+          padding: 1rem;
+          border-radius: 1rem;
+          @include transition-smooth;
+
+          &.clients {
+            background: rgba($blue, 0.08);
+          }
+
+          &.artisans {
+            background: rgba($green, 0.08);
+          }
+
+          .statValue {
+            font-family: 'Quicksand', sans-serif;
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin: 0 0 0.25rem 0;
+
+            &.clients {
+              color: $blue;
+            }
+
+            &.artisans {
+              color: $green;
+            }
+          }
+
+          .statLabel {
+            font-family: 'Nunito', sans-serif;
+            font-size: 0.875rem;
+            color: $brown;
+            margin: 0;
+          }
+        }
+      }
+    }
+  }
+}
+
+// Actions rapides
+.actionsCard {
+  .actionsList {
+    .actionItem {
+      width: 100%;
+      padding: 1.25rem;
+      border: none;
+      border-radius: 1rem;
+      text-align: left;
+      @include transition-smooth;
+      margin-bottom: 0.75rem;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+
+      &.users {
+        background: rgba($blue, 0.08);
+        
+        &:hover {
+          background: rgba($blue, 0.15);
+          transform: translateX(5px);
+        }
+      }
+
+      &.stats {
+        background: rgba($green, 0.08);
+        
+        &:hover {
+          background: rgba($green, 0.15);
+          transform: translateX(5px);
+        }
+      }
+
+      &.config {
+        background: rgba(255, 165, 0, 0.08);
+        
+        &:hover {
+          background: rgba(255, 165, 0, 0.15);
+          transform: translateX(5px);
+        }
+      }
+
+      .actionContent {
+        display: flex;
+        align-items: center;
+
+        .actionIcon {
+          font-size: 1.75rem;
+          margin-right: 1rem;
+          @include transition-smooth;
+        }
+
+        .actionText {
+          flex: 1;
+
+          .actionTitle {
+            font-family: 'Quicksand', sans-serif;
+            font-weight: 600;
+            color: $brown;
+            margin: 0 0 0.25rem 0;
+            font-size: 1rem;
+          }
+
+          .actionDescription {
+            font-family: 'Nunito', sans-serif;
+            color: rgba($brown, 0.8);
+            margin: 0;
+            font-size: 0.875rem;
+          }
+        }
+
+        .actionArrow {
+          color: rgba($brown, 0.8);
+          font-size: 1.25rem;
+          @include transition-smooth;
+        }
+      }
+
+      &:hover {
+        .actionContent {
+          .actionIcon {
+            transform: scale(1.2);
+          }
+
+          .actionArrow {
+            color: $brown;
+            transform: translateX(5px);
+          }
+        }
+      }
+    }
+  }
+}
+
+// Activité récente
+.activityCard {
+  .emptyState {
+    text-align: center;
+    padding: 3rem 2rem;
+    color: rgba($brown, 0.5);
+
+    .emptyIcon {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+      opacity: 0.5;
+    }
+
+    .emptyTitle {
+      font-family: 'Quicksand', sans-serif;
+      font-size: 1.125rem;
+      font-weight: 600;
+      margin: 0 0 0.5rem 0;
+    }
+
+    .emptySubtitle {
+      font-family: 'Nunito', sans-serif;
+      font-size: 0.875rem;
+      margin: 0;
+      opacity: 0.7;
+    }
+  }
+}
+
+// Animations
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+// Animation d'apparition pour les cards
+.card {
+  opacity: 0;
+  animation: slideInUp 0.6s ease forwards;
+
+  @for $i from 1 through 10 {
+    &:nth-child(#{$i}) {
+      animation-delay: #{$i * 100ms};
+    }
+  }
+}
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// Animation pour les éléments interactifs
+.actionItem, .statItem {
+  position: relative;
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.3) 50%, transparent 70%);
+    transform: translateX(-100%);
+    transition: transform 0.6s;
+  }
+
+  &:hover::after {
+    transform: translateX(100%);
+  }
+}
+
+// Responsive amélioré
+@media (max-width: 640px) {
+  .dashboardContainer {
+    padding: 1rem 0.75rem;
+  }
+
+  .header {
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+
+    .headerContent {
+      .title {
+        font-size: 1.75rem;
+      }
+
+      .subtitle {
+        font-size: 0.875rem;
+      }
+    }
+  }
+
+  .card {
+    padding: 1.5rem;
+
+    .cardHeader {
+      .cardTitle {
+        font-size: 1.125rem;
+      }
+    }
+  }
+
+  .signupsCard .signupsContent .signupSection .statsRow {
+    .statItem .statValue {
+      font-size: 1.5rem;
+    }
+  }
+}

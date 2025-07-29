@@ -1,0 +1,423 @@
+@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&family=Nunito:wght@300;400;500;600;700&display=swap');
+
+// ✅ Variables SCSS (pas CSS custom properties)
+$color-blue: #3498db;
+$color-green: #81A04A;
+$color-beige: #FEFBF4;
+$color-brown: #5E3E23;
+$color-light-brown: rgba(94, 62, 35, 0.1);
+$color-light-blue: rgba(52, 152, 219, 0.1);
+$color-light-green: rgba(129, 160, 74, 0.1);
+$blue: #3498db;
+$green: #81A04A;
+$beige: #FEFBF4;
+$brown: #5E3E23;
+
+@mixin shadow-modern {
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08), 
+              0 6px 12px rgba(0, 0, 0, 0.06);
+}
+
+@mixin gradient-primary {
+  background: linear-gradient(135deg, $blue 0%, $green 100%);
+}
+
+.container {
+  font-family: 'Nunito', sans-serif;
+  min-height: 100vh;
+  background: linear-gradient(135deg, $color-beige 0%, #f8f5ed 100%);
+  padding: 2rem 8rem;
+
+  @media (max-width: 768px) {
+    padding: 1rem;
+  }
+}
+
+.content {
+  max-width: 1400px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+// Header Section
+.header {
+  margin-bottom: 2rem;
+  position: relative;
+  padding: 2rem;
+  background: white;
+  border-radius: 1.5rem;
+  @include shadow-modern;
+  overflow: hidden;
+
+  // Éléments décoratifs
+  &::before {
+    content: '';
+    position: absolute;
+    top: -5rem;
+    right: -5rem;
+    width: 12rem;
+    height: 12rem;
+    @include gradient-primary;
+    border-radius: 50%;
+    opacity: 0.1;
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: -3rem;
+    left: -3rem;
+    width: 8rem;
+    height: 8rem;
+    background-color: rgba($green, 0.05);
+    border-radius: 50%;
+  }
+
+  .headerContent {
+    position: relative;
+    z-index: 1;
+
+    .title {
+      font-family: 'Quicksand', sans-serif;
+      font-size: 2.5rem;
+      font-weight: 700;
+      @include gradient-primary;
+      background-clip: text;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin: 0 0 0.5rem 0;
+      letter-spacing: -0.02em;
+
+      @media (max-width: 768px) {
+        font-size: 2rem;
+      }
+    }
+
+    .subtitle {
+      font-family: 'Nunito', sans-serif;
+      font-size: 1.125rem;
+      color: $brown;
+      margin: 0;
+      font-weight: 400;
+
+      @media (max-width: 768px) {
+        font-size: 1rem;
+      }
+    }
+  }
+}
+
+// Stats Cards
+.statsContainer {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+
+  @media (max-width: 640px) {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+}
+
+.statCard {
+  background: white;
+  border-radius: 20px;
+  padding: 2rem;
+  box-shadow: 
+    0 4px 20px rgba(94, 62, 35, 0.08),
+    0 1px 4px rgba(0, 0, 0, 0.05);
+  border: 2px solid transparent;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+
+  &:hover {
+    transform: translateY(-8px);
+    box-shadow: 
+      0 12px 40px rgba(94, 62, 35, 0.12),
+      0 4px 20px rgba(0, 0, 0, 0.08);
+  }
+
+  @media (max-width: 768px) {
+    padding: 1.5rem;
+  }
+}
+
+.statIcon {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+  display: block;
+  
+  &.clients {
+    color: $color-blue;
+  }
+  
+  &.artisans {
+    color: $color-green;
+  }
+  
+  &.total {
+    color: $color-brown;
+  }
+  
+  &.banned {
+    color: #e74c3c;
+  }
+}
+
+.statValue {
+  font-family: 'Quicksand', sans-serif;
+  font-size: 2.8rem;
+  font-weight: 700;
+  color: $color-brown;
+  line-height: 1;
+  margin-bottom: 0.5rem;
+
+  @media (max-width: 768px) {
+    font-size: 2.4rem;
+  }
+}
+
+.statLabel {
+  color: $color-brown;
+  opacity: 0.7;
+  font-weight: 600;
+  font-size: 0.95rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-family: 'Nunito', sans-serif;
+}
+
+// Filters Section
+.filtersSection {
+  background: white;
+  border-radius: 20px;
+  padding: 2.5rem;
+  box-shadow: 
+    0 4px 20px rgba(94, 62, 35, 0.08),
+    0 1px 4px rgba(0, 0, 0, 0.05);
+  border: 1px solid $color-light-green;
+  margin-bottom: 2rem;
+
+  @media (max-width: 768px) {
+    padding: 1.5rem;
+  }
+}
+
+.filtersTitle {
+  font-family: 'Quicksand', sans-serif;
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: $color-brown;
+  margin-bottom: 2rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.filtersGrid {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr;
+  gap: 2rem;
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+}
+
+.filterGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.filterLabel {
+  font-weight: 600;
+  color: $color-brown;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-family: 'Nunito', sans-serif;
+  margin-left: 0.4rem;
+}
+
+.searchInput {
+  width: 100%;
+  padding: 1.2rem 1.5rem;
+  border: 2px solid #e8e5df;
+  border-radius: 15px;
+  font-size: 1rem;
+  font-family: 'Nunito', sans-serif;
+  font-weight: 400;
+  transition: all 0.3s ease;
+  background: $color-beige;
+
+  &:focus {
+    outline: none;
+    border-color: $color-blue;
+    background: white;
+    box-shadow: 
+      0 0 0 4px $color-light-blue,
+      0 4px 12px rgba(52, 152, 219, 0.15);
+    transform: translateY(-2px);
+  }
+
+  &::placeholder {
+    color: rgba(94, 62, 35, 0.5);
+    font-style: italic;
+  }
+}
+
+.selectInput {
+  width: 100%;
+  padding: 1.2rem 1.5rem;
+  border: 2px solid #e8e5df;
+  border-radius: 15px;
+  font-size: 1rem;
+  font-family: 'Nunito', sans-serif;
+  font-weight: 500;
+  background: $color-beige;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  color: $color-brown;
+
+  &:focus {
+    outline: none;
+    border-color: $color-blue;
+    background: white;
+    box-shadow: 
+      0 0 0 4px $color-light-green,
+      0 4px 12px rgba(129, 160, 74, 0.15);
+    transform: translateY(-2px);
+  }
+
+  &:hover {
+    background: white;
+  }
+
+  option {
+    font-family: 'Nunito', sans-serif;
+    padding: 0.5rem;
+  }
+}
+
+// Results Summary
+.resultsInfo {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: $color-light-green;
+  padding: 1.5rem;
+  border-radius: 15px;
+  margin-bottom: 1.5rem;
+  border-left: 4px solid $color-green;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    gap: 1rem;
+    text-align: center;
+  }
+}
+
+.resultsText {
+  font-family: 'Nunito', sans-serif;
+  font-weight: 600;
+  color: $color-brown;
+  font-size: 1.1rem;
+
+  .resultsCount {
+    font-family: 'Quicksand', sans-serif;
+    font-weight: 700;
+    color: $color-green;
+    font-size: 1.3rem;
+  }
+}
+
+.clearFilters {
+  background: transparent;
+  border: 2px solid red;
+  color: red;
+  padding: 0.75rem 1.5rem;
+  border-radius: 12px;
+  font-family: 'Nunito', sans-serif;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 0.9rem;
+
+  &:hover {
+    background: red;
+    color: $beige;
+    transform: translateY(-2px);
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+// Loading State
+.loadingContainer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4rem;
+  text-align: center;
+
+  .spinner {
+    width: 50px;
+    height: 50px;
+    border: 4px solid rgba(52, 152, 219, 0.2);
+    border-radius: 50%;
+    border-top-color: #3498db;
+    animation: spin 1s ease-in-out infinite;
+    margin-bottom: 1rem;
+  }
+
+  .loadingText {
+    color: #7f8c8d;
+    font-size: 1.1rem;
+  }
+}
+
+// Table Container
+.tableContainer {
+  background: white;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 
+    0 4px 20px rgba(94, 62, 35, 0.08),
+    0 1px 4px rgba(0, 0, 0, 0.05);
+  border: 1px solid $color-light-green;
+}
+
+// Responsive Design
+@media (max-width: 1024px) {
+  .container {
+    padding: 1.5rem;
+  }
+  
+  .content {
+    gap: 1.5rem;
+  }
+}
+
+@media (max-width: 640px) {
+  .title {
+    font-size: 2rem;
+  }
+  
+  .filtersSection {
+    padding: 1.5rem;
+  }
+  
+  .statCard {
+    padding: 1.5rem;
+  }
+}
+

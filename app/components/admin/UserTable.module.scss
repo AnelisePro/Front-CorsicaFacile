@@ -1,0 +1,458 @@
+@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&family=Nunito:wght@300;400;500;600;700&display=swap');
+
+// Variables de couleurs
+$color-blue: #3498db;
+$color-green: #81A04A;
+$color-beige: #FEFBF4;
+$color-brown: #5E3E23;
+$color-light-brown: rgba(94, 62, 35, 0.1);
+$color-light-blue: rgba(52, 152, 219, 0.1);
+$color-light-green: rgba(129, 160, 74, 0.1);
+
+.tableContainer {
+  background: white;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 
+    0 8px 30px rgba(94, 62, 35, 0.08),
+    0 2px 6px rgba(0, 0, 0, 0.06);
+  border: 2px solid $color-light-green;
+  font-family: 'Nunito', sans-serif;
+
+  @media (max-width: 768px) {
+    border-radius: 15px;
+    margin: 0 -0.5rem;
+  }
+}
+
+.scrollContainer {
+  overflow-x: auto;
+  
+  &::-webkit-scrollbar {
+    height: 8px;
+  }
+  
+  &::-webkit-scrollbar-track {
+    background: $color-beige;
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background: $color-light-brown;
+    border-radius: 4px;
+    
+    &:hover {
+      background: rgba(94, 62, 35, 0.3);
+    }
+  }
+}
+
+.table {
+  width: 100%;
+  min-width: 800px;
+  border-collapse: separate;
+  border-spacing: 0;
+
+  @media (max-width: 768px) {
+    font-size: 0.9rem;
+  }
+}
+
+// Table Header
+.tableHead {
+  background: linear-gradient(135deg, $color-blue 0%, #2d75a5 100%);
+  position: relative;
+}
+
+.tableRow {
+  &.headerRow {
+    th {
+      padding: 1.5rem 1.5rem;
+      text-align: center;
+      font-family: 'Quicksand', sans-serif;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: white;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      position: relative;
+
+      @media (max-width: 768px) {
+        padding: 1rem;
+        font-size: 0.75rem;
+      }
+
+      &:not(:last-child)::after {
+        content: '';
+        position: absolute;
+        right: 0;
+        top: 25%;
+        height: 50%;
+        width: 1px;
+        background: rgba(255, 255, 255, 0.2);
+      }
+    }
+  }
+
+  &.bodyRow {
+    background: white;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    border-bottom: 1px solid rgba(242, 240, 235, 0.8);
+
+    &:hover {
+      background: #3498db2d;
+      transform: scale(1.01);
+      box-shadow: 
+        0 4px 20px rgba(94, 62, 35, 0.08),
+        0 2px 8px rgba(0, 0, 0, 0.04);
+    }
+
+    &:last-child {
+      border-bottom: none;
+    }
+
+    td {
+      padding: 1.5rem;
+      vertical-align: middle;
+      border: none;
+
+      @media (max-width: 768px) {
+        padding: 1rem;
+      }
+    }
+  }
+}
+
+// User Cell
+.userCell {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+
+  @media (max-width: 768px) {
+    gap: 0.75rem;
+  }
+}
+
+.userAvatar {
+  flex-shrink: 0;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: $color-green;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(151, 173, 116, 0.2);
+  position: relative;
+  overflow: hidden;
+
+  @media (max-width: 768px) {
+    width: 40px;
+    height: 40px;
+  }
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 2px;
+    border-radius: 50%;
+    background: white;
+  }
+}
+
+.userInitials {
+  font-family: 'Quicksand', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: $color-brown;
+  position: relative;
+  z-index: 1;
+
+  @media (max-width: 768px) {
+    font-size: 0.9rem;
+  }
+}
+
+.userInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.userName {
+  font-family: 'Quicksand', sans-serif;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: $color-brown;
+  margin-bottom: 0.25rem;
+  line-height: 1.2;
+
+  @media (max-width: 768px) {
+    font-size: 1rem;
+  }
+}
+
+.userEmail {
+  font-size: 0.9rem;
+  color: $color-brown;
+  font-weight: 400;
+  line-height: 1.2;
+
+  @media (max-width: 768px) {
+    font-size: 0.8rem;
+  }
+}
+
+.userBadges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+.verifiedBadge {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.75rem;
+  color: $color-green;
+  font-weight: 600;
+  background: $color-light-green;
+  padding: 0.25rem 0.5rem;
+  border-radius: 8px;
+}
+
+.ratingBadge {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.75rem;
+  color: #f39c12;
+  font-weight: 600;
+  background: rgba(243, 156, 18, 0.1);
+  padding: 0.25rem 0.5rem;
+  border-radius: 8px;
+}
+
+// Badges
+.typeBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1rem;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  font-family: 'Nunito', sans-serif;
+  text-transform: capitalize;
+  letter-spacing: 0.02em;
+
+  &.client {
+    background: $color-light-blue;
+    color: $color-blue;
+    border: 1px solid rgba(52, 152, 219, 0.3);
+  }
+
+  &.artisan {
+    background: $color-light-green;
+    color: $color-green;
+    border: 1px solid rgba(129, 160, 74, 0.3);
+  }
+}
+
+.statusBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6rem 1rem;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  font-family: 'Nunito', sans-serif;
+  text-transform: capitalize;
+  letter-spacing: 0.02em;
+
+  &.active {
+    background: $color-light-green;
+    color: $color-green;
+    border: 1px solid rgba(129, 160, 74, 0.3);
+  }
+
+  &.banned {
+    background: rgba(231, 76, 60, 0.1);
+    color: #e74c3c;
+    border: 1px solid rgba(231, 76, 60, 0.3);
+  }
+}
+
+// Data Cells
+.dateCell {
+  font-size: 0.95rem;
+  color: rgba(94, 62, 35, 0.7);
+  font-weight: 500;
+  text-align: center;
+
+  @media (max-width: 768px) {
+    font-size: 0.85rem;
+  }
+}
+
+.activityCell {
+  font-size: 0.95rem;
+  color: $color-brown;
+  font-weight: 600;
+  text-align: center;
+
+  @media (max-width: 768px) {
+    font-size: 0.85rem;
+  }
+}
+
+// Action Button
+.actionCell {
+  text-align: right;
+  padding-right: 1.5rem !important;
+
+  @media (max-width: 768px) {
+    padding-right: 1rem !important;
+  }
+}
+
+.actionButton {
+  padding: 0.7rem 1.2rem;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  font-family: 'Nunito', sans-serif;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: capitalize;
+  letter-spacing: 0.02em;
+  
+
+  @media (max-width: 768px) {
+    padding: 0.6rem 1rem;
+    font-size: 0.8rem;
+  }
+
+  &.ban {
+    background: rgba(231, 76, 60, 0.1);
+    color: #e74c3c;
+    border-color: rgba(231, 76, 60, 0.3);
+
+    &:hover {
+      background: #e74c3c;
+      color: white;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(231, 76, 60, 0.3);
+    }
+  }
+
+  &.unban {
+    background: $color-light-green;
+    color: $color-green;
+    border-color: rgba(129, 160, 74, 0.3);
+
+    &:hover {
+      background: $color-green;
+      color: white;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(129, 160, 74, 0.3);
+    }
+  }
+
+  &:active {
+    transform: translateY(0);
+  }
+}
+
+// Empty State
+.emptyState {
+  text-align: center;
+  padding: 4rem 2rem;
+  background: $color-beige;
+
+  @media (max-width: 768px) {
+    padding: 3rem 1.5rem;
+  }
+}
+
+.emptyIcon {
+  font-size: 4rem;
+  margin-bottom: 1.5rem;
+  display: block;
+  opacity: 0.6;
+
+  @media (max-width: 768px) {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+  }
+}
+
+.emptyTitle {
+  font-family: 'Quicksand', sans-serif;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: $color-brown;
+  margin-bottom: 0.5rem;
+
+  @media (max-width: 768px) {
+    font-size: 1.3rem;
+  }
+}
+
+.emptySubtitle {
+  font-size: 1rem;
+  color: rgba(94, 62, 35, 0.6);
+  font-weight: 400;
+
+  @media (max-width: 768px) {
+    font-size: 0.9rem;
+  }
+}
+
+// Loading Animation
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.loading {
+  .bodyRow {
+    animation: pulse 1.5s ease-in-out infinite;
+  }
+}
+
+// Responsive Design
+@media (max-width: 640px) {
+  .table {
+    min-width: 700px;
+  }
+  
+  .userCell {
+    gap: 0.5rem;
+  }
+  
+  .typeBadge,
+  .statusBadge {
+    padding: 0.4rem 0.7rem;
+    font-size: 0.75rem;
+  }
+  
+  .actionButton {
+    padding: 0.5rem 0.8rem;
+    font-size: 0.75rem;
+  }
+}
+
+// Hover Effects
+.tableContainer:hover {
+  box-shadow: 
+    0 12px 40px rgba(35, 65, 94, 0.12),
+    0 4px 12px rgba(0, 0, 0, 0.08);
+}

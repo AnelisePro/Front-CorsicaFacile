@@ -1,0 +1,714 @@
+@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&family=Nunito:wght@300;400;500;600;700;800&display=swap');
+
+// Variables de couleurs
+$blue: #3498db;
+$green: #81A04A;
+$beige: #FEFBF4;
+$brown: #5E3E23;
+$sidebar-bg: #ffffff;
+$header-bg: #f8f9fa;
+$button-bg: #e8f4f8;
+
+// Variables pour la sidebar rétractable
+$sidebar-width-expanded: 18rem;
+$sidebar-width-collapsed: 4.5rem;
+
+// Mixins utiles
+@mixin gradient-primary {
+  background: linear-gradient(135deg, $blue 0%, $green 100%);
+}
+
+@mixin transition-smooth {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@mixin shadow-modern {
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1), 0 6px 12px rgba(0, 0, 0, 0.08);
+}
+
+// Toggle button pour rétracter/étendre
+.toggleButton {
+  position: fixed;
+  top: 7rem;
+  left: 1rem;
+  z-index: 60;
+  width: 2.5rem;
+  height: 2.5rem;
+  background-color: $sidebar-bg;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  @include transition-smooth;
+  @include shadow-modern;
+
+  &:hover {
+    background-color: $button-bg;
+    transform: scale(1.05);
+  }
+
+  .toggleIcon {
+    font-size: 1.25rem;
+    color: $brown;
+    @include transition-smooth;
+  }
+
+  // Quand la sidebar est rétractée (collapsed)
+  &.collapsed {
+    left: 1rem;
+    
+    .toggleIcon {
+      transform: rotate(0deg); // Flèche pointe vers la droite (→)
+    }
+  }
+
+  // Quand la sidebar est étendue (expanded)
+  &.expanded {
+    left: 17rem;
+    
+    .toggleIcon {
+      transform: rotate(0deg);
+    }
+  }
+
+  @media (max-width: 1023px) {
+    display: none;
+  }
+}
+
+
+// Mobile menu button
+.mobileMenuButton {
+  position: fixed;
+  top: 6rem;
+  left: 1rem;
+  z-index: 50;
+  padding: 0.5rem;
+  background-color: $sidebar-bg;
+  border-radius: 0.75rem;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  @include transition-smooth;
+  @include shadow-modern;
+
+  @media (min-width: 1024px) {
+    display: none;
+  }
+
+  &:hover {
+    background-color: $button-bg;
+    transform: translateY(-1px);
+  }
+
+  .hamburgerIcon {
+    width: 1.5rem;
+    height: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 0.25rem;
+
+    .line {
+      height: 2px;
+      background-color: $brown;
+      border-radius: 1px;
+      @include transition-smooth;
+
+      &.line1 {
+        &.open {
+          transform: rotate(45deg) translateY(6px);
+        }
+      }
+
+      &.line2 {
+        &.open {
+          opacity: 0;
+        }
+      }
+
+      &.line3 {
+        &.open {
+          transform: rotate(-45deg) translateY(-6px);
+        }
+      }
+    }
+  }
+}
+
+// Mobile overlay
+.mobileOverlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 40;
+  transition: opacity 0.3s ease;
+
+  @media (min-width: 1024px) {
+    display: none;
+  }
+}
+
+// Main sidebar container
+.sidebar {
+  position: fixed;
+  left: 0;
+  top: 6.6rem;
+  height: calc(100vh - 8rem);
+  width: $sidebar-width-expanded;
+  background-color: $sidebar-bg;
+  z-index: 40;
+  @include transition-smooth;
+  @include shadow-modern;
+  border-radius: 0 1.5rem 1.5rem 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+
+  // État rétracté
+  &.collapsed {
+    width: $sidebar-width-collapsed;
+
+    .header {
+      .headerContent {
+        justify-content: center;
+        max-height: 18px;
+
+        .headerText {
+          opacity: 0;
+          width: 0;
+        }
+      }
+    }
+
+    .navigation {
+      background-color: transparent;
+      padding: 1.5rem 0.5rem;
+
+      .menuList {
+        gap: 2rem; 
+        
+        .menuItem {
+          justify-content: center;
+          padding: 1rem 0.5rem;
+          background-color: transparent;
+          margin-bottom: 0;
+
+          .menuIcon {
+            margin-right: 0;
+            
+            .iconContainer {
+              width: 3.5rem;
+              height: 3.5rem;
+              @include shadow-modern;
+              background-color: $sidebar-bg;
+            }
+          }
+
+          .menuText {
+            opacity: 0;
+            width: 0;
+            overflow: hidden;
+          }
+
+          .activeDot {
+            display: none;
+          }
+
+          // État actif en mode rétracté
+          &.active {
+            background-color: transparent;
+            transform: none;
+            box-shadow: none;
+
+            .menuIcon {
+              .iconContainer {
+                background-color: $blue;
+                transform: scale(1.05);
+              }
+            }
+          }
+
+          // Hover en mode rétracté
+          &:hover {
+            background-color: transparent;
+            transform: none;
+
+            .menuIcon {
+              .iconContainer {
+                transform: scale(1.1);
+                @include shadow-modern;
+              }
+            }
+          }
+        }
+      }
+    }
+
+    .footer {
+      .footerContent {
+        justify-content: center;
+
+        .userInfo {
+          display: none;
+        }
+
+        .logoutButton {
+          position: relative;
+          padding: 0.75rem;
+          color: $brown;
+          border: none;
+          background: none;
+          border-radius: 0.75rem;
+          cursor: pointer;
+          @include transition-smooth;
+          transform: scale(1);
+
+          &:hover {
+            color: white;
+            border: 2px solid $green;
+            transform: scale(1.1);
+
+            .logoutIcon {
+              transform: rotate(12deg);
+            }
+          }
+
+          .logoutIcon {
+            font-size: 1.25rem;
+            @include transition-smooth;
+          }
+        }
+      }
+    }
+  }
+
+  // Mobile responsive
+  @media (max-width: 1023px) {
+    transform: translateX(-100%);
+    border-radius: 0 2rem 2rem 0;
+
+    &.mobileOpen {
+      transform: translateX(0);
+    }
+  }
+
+  @media (min-width: 1024px) {
+    transform: translateX(0);
+  }
+}
+
+// Navigation section
+.navigation {
+  flex: 1;
+  padding: 1.5rem;
+  overflow-y: auto;
+  overflow-x: hidden;
+
+  .menuList {
+    display: flex;
+    flex-direction: column;
+    gap: 4rem;
+
+    .menuItem {
+      position: relative;
+      display: flex;
+      align-items: center;
+      padding: 1rem 1.25rem;
+      border-radius: 1rem;
+      text-decoration: none;
+      @include transition-smooth;
+      background-color: transparent;
+
+      &:hover {
+        background-color: $button-bg;
+        transform: translateX(0.25rem);
+      }
+
+      &.active {
+        background-color: $blue;
+        color: white;
+        transform: translateX(0.5rem);
+        @include shadow-modern;
+
+        .menuIcon {
+          .iconContainer {
+            background-color: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+
+            .icon {
+              color: white;
+            }
+          }
+        }
+
+        .menuText {
+          .menuTitle {
+            color: white;
+          }
+
+          .menuDescription {
+            color: rgba(255, 255, 255, 0.9);
+          }
+        }
+
+        .activeDot {
+          width: 0.75rem;
+          height: 0.75rem;
+          background-color: white;
+          border-radius: 50%;
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+          animation: pulse 2s infinite;
+        }
+      }
+
+      .menuIcon {
+        margin-right: 1rem;
+        flex-shrink: 0;
+        @include transition-smooth;
+
+        .iconContainer {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          width: 3rem;
+          height: 3rem;
+          border-radius: 0.75rem;
+          background-color: $button-bg;
+          @include transition-smooth;
+
+          .icon {
+            font-size: 1.5rem;
+            color: $blue;
+            @include transition-smooth;
+          }
+        }
+      }
+
+      .menuText {
+        flex: 1;
+        min-width: 0;
+        @include transition-smooth;
+
+        .menuTitle {
+          font-family: 'Quicksand', sans-serif;
+          font-weight: 600;
+          font-size: 1rem;
+          color: $brown;
+          margin: 0 0 0.25rem 0;
+          @include transition-smooth;
+        }
+
+        .menuDescription {
+          font-family: 'Nunito', sans-serif;
+          font-size: 0.875rem;
+          color: rgba(94, 62, 35, 0.6);
+          margin: 0;
+          @include transition-smooth;
+        }
+      }
+
+      &:hover:not(.active) {
+        .menuIcon {
+          .iconContainer {
+            background-color: $blue;
+
+            .icon {
+              color: white;
+              transform: scale(1.1);
+            }
+          }
+        }
+
+        .menuText {
+          .menuTitle {
+            color: $blue;
+          }
+
+          .menuDescription {
+            color: rgba(52, 152, 219, 0.8);
+          }
+        }
+      }
+    }
+  }
+}
+
+// Header section (pas de changement)
+.header {
+  position: relative;
+  padding: 1.5rem;
+  background-color: $header-bg;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  color: $brown;
+
+  .headerContent {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    @include transition-smooth;
+
+    .headerText {
+      flex: 1;
+      min-width: 0;
+      @include transition-smooth;
+      text-align: center;
+
+      .title {
+        font-family: 'Quicksand', sans-serif;
+        font-size: 2rem;
+        font-weight: 600;
+        letter-spacing: 0.025em;
+        margin: 0 0 0.25rem 0;
+        color: $green;
+      }
+
+      .subtitle {
+        font-family: 'Nunito', sans-serif;
+        color: $brown;
+        font-size: 1rem;
+        margin: 0;
+      }
+    }
+  }
+}
+
+
+// Footer section
+.footer {
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
+  padding: 1.5rem;
+  background-color: $header-bg;
+
+  .footerContent {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    @include transition-smooth;
+
+    .userInfo {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      flex: 1;
+      min-width: 0;
+
+      .userAvatarContainer {
+        position: relative;
+        flex-shrink: 0;
+
+        .userAvatar {
+          width: 3rem;
+          height: 3rem;
+          background-color: $button-bg;
+          border: 2px solid $green;
+          border-radius: 0.75rem;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: $green;
+          font-family: 'Quicksand', sans-serif;
+          font-weight: 700;
+          font-size: 0.875rem;
+        }
+
+        .userStatus {
+          position: absolute;
+          bottom: -0.25rem;
+          right: -0.25rem;
+          width: 1rem;
+          height: 1rem;
+          background-color: $green;
+          border-radius: 50%;
+          border: 2px solid white;
+          animation: pulse 2s infinite;
+        }
+      }
+
+      .userDetails {
+        flex: 1;
+        min-width: 0;
+        @include transition-smooth;
+
+        .userName {
+          font-family: 'Quicksand', sans-serif;
+          font-weight: 600;
+          font-size: 0.875rem;
+          color: $brown;
+          margin: 0 0 0.125rem 0;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+
+        .userRole {
+          font-family: 'Nunito', sans-serif;
+          font-size: 0.75rem;
+          color: rgba(94, 62, 35, 0.7);
+          margin: 0;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+      }
+    }
+
+    .logoutButton {
+      position: relative;
+      padding: 0.75rem;
+      color: $brown;
+      border: none;
+      background: none;
+      border-radius: 0.75rem;
+      cursor: pointer;
+      @include transition-smooth;
+      transform: scale(1);
+
+      &:hover {
+        color: white;
+        @include gradient-primary;
+        @include shadow-modern;
+        transform: scale(1.1);
+
+        .logoutIcon {
+          transform: rotate(12deg);
+        }
+
+        .tooltip {
+          opacity: 1;
+          visibility: visible;
+        }
+      }
+
+      .logoutIcon {
+        font-size: 1.25rem;
+        @include transition-smooth;
+      }
+
+      .tooltip {
+        position: absolute;
+        bottom: calc(100% + 0.5rem);
+        right: 0;
+        padding: 0.5rem 0.75rem;
+        background-color: $brown;
+        color: white;
+        font-family: 'Nunito', sans-serif;
+        font-size: 0.75rem;
+        border-radius: 0.5rem;
+        opacity: 0;
+        visibility: hidden;
+        @include transition-smooth;
+        white-space: nowrap;
+
+        &::after {
+          content: '';
+          position: absolute;
+          top: 100%;
+          right: 0.5rem;
+          width: 0;
+          height: 0;
+          border-left: 4px solid transparent;
+          border-right: 4px solid transparent;
+          border-top: 4px solid $brown;
+        }
+      }
+    }
+  }
+}
+
+// Animations
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(0.95);
+  }
+}
+
+// Scrollbar personnalisé
+.navigation::-webkit-scrollbar {
+  width: 4px;
+}
+
+.navigation::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.navigation::-webkit-scrollbar-thumb {
+  background: rgba(52, 152, 219, 0.3);
+  border-radius: 2px;
+}
+
+.navigation::-webkit-scrollbar-thumb:hover {
+  background: rgba(52, 152, 219, 0.5);
+}
+
+// Animations
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+// Animation d'entrée pour les éléments de menu
+.menuItem {
+  opacity: 0;
+  animation: slideInFromLeft 0.6s ease forwards;
+
+  @for $i from 1 through 10 {
+    &:nth-child(#{$i}) {
+      animation-delay: #{$i * 100ms};
+    }
+  }
+}
+
+@keyframes slideInFromLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 768px) {
+  .sidebar {
+    width: 16rem;
+  }
+
+  .header {
+    padding: 1.25rem;
+
+    .headerContent {
+      .avatarContainer .avatar {
+        width: 3rem;
+        height: 3rem;
+        font-size: 1rem;
+      }
+
+      .headerText {
+        .title {
+          font-size: 1.125rem;
+        }
+      }
+    }
+  }
+
+  .navigation {
+    padding: 1.25rem;
+  }
+
+  .footer {
+    padding: 1.25rem;
+  }
+}

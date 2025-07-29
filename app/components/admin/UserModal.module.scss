@@ -1,0 +1,211 @@
+@import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600&family=Quicksand:wght@600&display=swap');
+
+// Variables SCSS
+$blue: #3498db;
+$green: #81A04A;
+$beige: #FEFBF4;
+$brown: #5E3E23;
+$red: #e74c3c;
+$gray: #666;
+$light-gray: #f5f5f5;
+
+
+.modal {
+  position: fixed;
+  inset: 0;
+  z-index: 999;
+  overflow-y: auto;
+  font-family: 'Nunito', sans-serif;
+}
+
+.overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: -1;
+}
+
+.content {
+  background: white;
+  border-radius: 12px;
+  margin: 2rem auto;
+  max-width: 800px;
+  width: 90%;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  animation: fadeIn 0.3s ease;
+}
+
+.header {
+  padding: 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: $beige;
+  font-family: 'Quicksand', sans-serif;
+}
+
+.userInfo {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 9999px;
+  background: linear-gradient(135deg, $blue, $green);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: white;
+  font-weight: bold;
+}
+
+.nameBlock {
+  display: flex;
+  flex-direction: column;
+}
+
+.name {
+  font-size: 1.2rem;
+  color: $brown;
+  font-weight: 600;
+}
+
+.email {
+  font-size: 0.875rem;
+  color: $gray;
+}
+
+.badge {
+  margin-top: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 12px;
+  display: inline-block;
+  
+  &.client {
+    background: #e3f1fc;
+    color: $blue;
+  }
+  
+  &.artisan {
+    background: #eef6e7;
+    color: $green;
+  }
+}
+
+.closeBtn {
+  background: transparent;
+  border: none;
+  font-size: 1.25rem;
+  color: $gray;
+  cursor: pointer;
+}
+
+.body {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.section {
+  background: $light-gray;
+  padding: 1rem;
+  border-radius: 8px;
+}
+
+.sectionTitle {
+  font-size: 0.875rem;
+  color: $gray;
+  font-weight: 600;
+  font-family: 'Quicksand', sans-serif;
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+  color: $gray;
+}
+
+.value {
+  font-size: 0.875rem;
+  color: #000;
+}
+
+.actions {
+  padding: 1rem 1.5rem;
+  background: $beige;
+  display: flex;
+  flex-direction: column-reverse;
+  gap: 0.75rem;
+
+  @media (min-width: 640px) {
+    flex-direction: row-reverse;
+    justify-content: flex-end;
+  }
+}
+
+.button {
+  padding: 0.5rem 1.25rem;
+  border-radius: 6px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.ban {
+  background: $red;
+  color: white;
+
+  &:hover {
+    background: #c0392b;
+  }
+}
+
+.unban {
+  background: $green;
+  color: white;
+
+  &:hover {
+    background: #6c863e;
+  }
+}
+
+.cancel {
+  background: white;
+  color: $blue;
+  border: 1px solid #ccc;
+
+  &:hover {
+    background: #f0f0f0;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

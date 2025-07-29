@@ -1,0 +1,507 @@
+@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&family=Nunito:wght@300;400;500;600;700;800&display=swap');
+
+// Variables de couleurs
+$blue: #3498db;
+$green: #81A04A;
+$beige: #FEFBF4;
+$brown: #5E3E23;
+$purple: #9b59b6;
+$yellow: #f39c12;
+
+// Variables communes
+$border-color: #e5e7eb;
+$text-primary: #111827;
+$text-secondary: #6b7280;
+$text-light: #9ca3af;
+$shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+$radius: 8px;
+
+@mixin shadow-modern {
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08), 
+              0 6px 12px rgba(0, 0, 0, 0.06);
+}
+
+@mixin transition-smooth {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@mixin gradient-primary {
+  background: linear-gradient(135deg, $blue 0%, $green 100%);
+}
+
+
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding: 2rem 8rem;
+}
+
+// Loading spinner
+.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 16rem;
+
+  .spinner {
+    width: 3rem;
+    height: 3rem;
+    border: 2px solid transparent;
+    border-bottom-color: $blue;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+// Header
+.header {
+  margin-bottom: 2rem;
+  position: relative;
+  padding: 2rem;
+  background: white;
+  border-radius: 1.5rem;
+  @include shadow-modern;
+  overflow: hidden;
+
+  // Éléments décoratifs
+  &::before {
+    content: '';
+    position: absolute;
+    top: -5rem;
+    right: -5rem;
+    width: 12rem;
+    height: 12rem;
+    @include gradient-primary;
+    border-radius: 50%;
+    opacity: 0.1;
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: -3rem;
+    left: -3rem;
+    width: 8rem;
+    height: 8rem;
+    background-color: rgba($green, 0.05);
+    border-radius: 50%;
+  }
+
+  .headerContent {
+    position: relative;
+    z-index: 1;
+
+    .title {
+      font-family: 'Quicksand', sans-serif;
+      font-size: 2.5rem;
+      font-weight: 700;
+      @include gradient-primary;
+      background-clip: text;
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin: 0 0 0.5rem 0;
+      letter-spacing: -0.02em;
+
+      @media (max-width: 768px) {
+        font-size: 2rem;
+      }
+    }
+
+    .subtitle {
+      font-family: 'Nunito', sans-serif;
+      font-size: 1.125rem;
+      color: $brown;
+      margin: 0;
+      font-weight: 400;
+
+      @media (max-width: 768px) {
+        font-size: 1rem;
+      }
+    }
+  }
+
+  .periodSelector {
+    display: flex;
+    gap: 0.25rem;
+    background-color: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(10px);
+    border-radius: $radius;
+    padding: 0.4rem;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    @include shadow-modern;
+    margin: 2rem auto 0 auto;
+    width: fit-content;
+
+    .periodButton {
+      padding: 0.75rem 1.25rem;
+      border-radius: calc($radius - 2px);
+      font-size: 0.875rem;
+      font-weight: 600;
+      font-family: 'Nunito', sans-serif;
+      border: none;
+      cursor: pointer;
+      @include transition-smooth;
+      color: $brown;
+      background-color: transparent;
+      white-space: nowrap;
+      position: relative;
+
+      &:hover {
+        color: white;
+        background-color: rgba(74, 164, 220, 0.5);
+        transform: translateY(-1px);
+      }
+
+      &.active {
+        background-color: $blue;
+        color: white;
+        @include shadow-modern;
+        transform: translateY(-2px);
+        
+        &::before {
+          content: '';
+          position: absolute;
+          inset: -1px;
+          border-radius: inherit;
+          background: linear-gradient(45deg, $blue);
+          z-index: -1;
+          opacity: 0.5;
+        }
+      }
+
+      &:active {
+        transform: translateY(0);
+      }
+    }
+  }
+
+  @media (max-width: 768px) {
+    padding: 1.5rem;
+
+    .headerContent {
+      .titleSection {
+        margin-bottom: 1.5rem;
+
+        .title {
+          font-size: 2rem;
+        }
+
+        .subtitle {
+          font-size: 1rem;
+        }
+      }
+    }
+
+    .periodSelector {
+      width: 100%;
+      justify-content: center;
+
+      .periodButton {
+        flex: 1;
+        padding: 0.625rem 1rem;
+        font-size: 0.8125rem;
+      }
+    }
+  }
+
+  @media (max-width: 480px) {
+    .periodSelector {
+      .periodButton {
+        padding: 0.5rem 0.75rem;
+        font-size: 0.75rem;
+      }
+    }
+  }
+}
+
+// Stats summary grid
+.summaryGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+
+  @media (min-width: 768px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  @media (min-width: 1024px) {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.summaryCard {
+  background: white;
+  border-radius: $radius;
+  padding: 1.5rem;
+  box-shadow: $shadow;
+  border: 1px solid $border-color;
+
+  &.blue {
+    background: linear-gradient(135deg, $blue);
+    color: white;
+
+    .cardLabel {
+      color: rgba(255, 255, 255, 0.8);
+    }
+  }
+
+  &.green {
+    background: linear-gradient(135deg, $green);
+    color: white;
+
+    .cardLabel {
+      color: rgba(255, 255, 255, 0.8);
+    }
+  }
+
+  &.purple {
+    background: linear-gradient(135deg, $purple);
+    color: white;
+
+    .cardLabel {
+      color: rgba(255, 255, 255, 0.8);
+    }
+  }
+
+  &.yellow {
+    background: linear-gradient(135deg, $yellow);
+    color: white;
+
+    .cardLabel {
+      color: rgba(255, 255, 255, 0.8);
+    }
+  }
+
+  .cardContent {
+    display: flex;
+    align-items: center;
+
+    .cardIcon {
+      font-size: 2rem;
+      margin-right: 0.75rem;
+    }
+
+    .cardText {
+      .cardLabel {
+        font-size: 0.875rem;
+        margin-bottom: 0.25rem;
+      }
+
+      .cardValue {
+        font-size: 2rem;
+        font-weight: 700;
+        line-height: 1;
+      }
+    }
+  }
+}
+
+// Charts grid
+.chartsGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+
+  @media (min-width: 1024px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.chartCard {
+  background: white;
+  border-radius: $radius;
+  box-shadow: $shadow;
+  border: 1px solid $border-color;
+  padding: 1.5rem;
+
+  h3 {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: $text-primary;
+    margin: 0 0 1rem 0;
+  }
+}
+
+// Distribution chart special styling
+.distributionContent {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+
+  .distributionItem {
+    display: flex;
+    align-items: center;
+
+    .dateLabel {
+      width: 4rem;
+      font-size: 0.875rem;
+      color: $text-secondary;
+    }
+
+    .barContainer {
+      flex: 1;
+      margin: 0 1rem;
+
+      .bar {
+        display: flex;
+        height: 1.5rem;
+        background-color: #f3f4f6;
+        border-radius: 4px;
+        overflow: hidden;
+
+        .clientBar {
+          background-color: $blue;
+        }
+
+        .artisanBar {
+          background-color: $green;
+        }
+      }
+    }
+
+    .totalLabel {
+      font-size: 0.875rem;
+      color: $text-secondary;
+    }
+  }
+
+  .legend {
+    display: flex;
+    gap: 1rem;
+    margin-top: 1rem;
+    font-size: 0.875rem;
+
+    .legendItem {
+      display: flex;
+      align-items: center;
+
+      .legendColor {
+        width: 0.75rem;
+        height: 0.75rem;
+        border-radius: 50%;
+        margin-right: 0.5rem;
+
+        &.blue {
+          background-color: $blue;
+        }
+
+        &.green {
+          background-color: $green;
+        }
+      }
+    }
+  }
+}
+
+// Detailed table
+.tableCard {
+  background: white;
+  border-radius: $radius;
+  box-shadow: $shadow;
+  border: 1px solid $border-color;
+
+  .tableHeader {
+    padding: 1.5rem;
+    border-bottom: 1px solid $border-color;
+
+    h3 {
+      font-size: 1.125rem;
+      font-weight: 600;
+      color: $text-primary;
+      margin: 0;
+    }
+  }
+
+  .tableContainer {
+    overflow-x: auto;
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+
+      thead {
+        background-color: #f9fafb;
+
+        th {
+          padding: 0.75rem 1.5rem;
+          text-align: left;
+          font-size: 0.75rem;
+          font-weight: 500;
+          color: $text-light;
+          text-transform: uppercase;
+          letter-spacing: 0.05em;
+          border-bottom: 1px solid $border-color;
+        }
+      }
+
+      tbody {
+        background: white;
+
+        tr {
+          border-bottom: 1px solid $border-color;
+          transition: background-color 0.15s ease;
+
+          &:hover {
+            background-color: #f9fafb;
+          }
+
+          td {
+            padding: 1rem 1.5rem;
+            white-space: nowrap;
+            font-size: 0.875rem;
+
+            &:first-child {
+              font-weight: 500;
+              color: $text-primary;
+            }
+
+            &:not(:first-child) {
+              color: $text-secondary;
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+// Responsive adjustments
+@media (max-width: 768px) {
+  .header {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: flex-start;
+
+    .periodSelector {
+      width: 100%;
+      justify-content: center;
+    }
+  }
+
+  .summaryCard {
+    .cardContent {
+      .cardIcon {
+        margin-right: 0.5rem;
+      }
+
+      .cardText {
+        .cardValue {
+          font-size: 1.5rem;
+        }
+      }
+    }
+  }
+
+  .tableContainer {
+    table {
+      min-width: 700px;
+    }
+  }
+}
