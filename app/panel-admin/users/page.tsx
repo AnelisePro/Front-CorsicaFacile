@@ -130,27 +130,35 @@ export default function AdminUsers() {
         {/* Stats Cards */}
         <div className={styles.statsContainer}>
           <div className={styles.statCard}>
-            <span className={`${styles.statIcon} ${styles.total}`}>📊</span>
+            <div className={styles.statHeader}>
+              <span className={`${styles.statIcon} ${styles.total}`}>📊</span>
+              <div className={styles.statLabel}>Total Utilisateurs</div>
+            </div>
             <div className={styles.statValue}>{totalUsers}</div>
-            <div className={styles.statLabel}>Total Utilisateurs</div>
           </div>
           
           <div className={styles.statCard}>
-            <span className={`${styles.statIcon} ${styles.clients}`}>👤</span>
+            <div className={styles.statHeader}>
+              <span className={`${styles.statIcon} ${styles.clients}`}>👤</span>
+              <div className={styles.statLabel}>Clients</div>
+            </div>
             <div className={styles.statValue}>{clientsCount}</div>
-            <div className={styles.statLabel}>Clients</div>
           </div>
           
           <div className={styles.statCard}>
-            <span className={`${styles.statIcon} ${styles.artisans}`}>🔨</span>
+            <div className={styles.statHeader}>
+              <span className={`${styles.statIcon} ${styles.artisans}`}>🔨</span>
+              <div className={styles.statLabel}>Artisans</div>
+            </div>
             <div className={styles.statValue}>{artisansCount}</div>
-            <div className={styles.statLabel}>Artisans</div>
           </div>
           
           <div className={styles.statCard}>
-            <span className={`${styles.statIcon} ${styles.banned}`}>⛔</span>
+            <div className={styles.statHeader}>
+              <span className={`${styles.statIcon} ${styles.banned}`}>⛔</span>
+              <div className={styles.statLabel}>Utilisateurs Bannis</div>
+            </div>
             <div className={styles.statValue}>{bannedCount}</div>
-            <div className={styles.statLabel}>Utilisateurs Bannis</div>
           </div>
         </div>
 

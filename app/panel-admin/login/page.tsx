@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useAdminAuth } from '../../lib/admin/useAdminAuth';
+import styles from './page.module.scss';
 
 export default function AdminLogin() {
   const [email, setEmail] = useState('');
@@ -29,80 +30,74 @@ export default function AdminLogin() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
-        <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            Administration Corsica Facile
-          </h2>
-          <p className="mt-2 text-center text-sm text-gray-600">
-            Connectez-vous à votre espace administrateur
-          </p>
-        </div>
-        
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-          {error && (
-            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
-              {error}
-            </div>
-          )}
-          
-          <div className="space-y-4">
-            <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                Email
-              </label>
-              <input
-                id="email"
-                name="email"
-                type="email"
-                autoComplete="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
-                placeholder="admin@corsicafacile.com"
-              />
-            </div>
-            
-            <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-                Mot de passe
-              </label>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                autoComplete="current-password"
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
-                placeholder="••••••••"
-              />
-            </div>
+      <div className={styles.container}>
+        <div className={styles.card}>
+          <div className={styles.imageSection}>
+            <img src="/images/img5.jpeg" alt="Image de fond" />
           </div>
 
-          <div>
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {isLoading ? (
-                <span className="flex items-center">
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                  Connexion...
-                </span>
-              ) : (
-                'Se connecter'
+          <div className={styles['form-section']}>
+            <h1 className={styles.title}>Connexion</h1>
+            <p className={styles.subtitle}>Accédez à votre espace sécurisé</p>
+
+            <form className={styles.form} onSubmit={handleSubmit}>
+              {error && (
+                <div className={styles['error-message']}>
+                  <svg className={styles['error-icon']} fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293-1.293a1 1 0 00-1.414-1.414L10 9.586 8.586 1.293a1 1 0 001.414-1.414L11.414 8l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.586z" clipRule="evenodd" />
+                  </svg>
+                  <p>{error}</p>
+                </div>
               )}
-            </button>
+
+              <div className={styles['input-group']}>
+                <label htmlFor="email">Email</label>
+                <input
+                  id="email"
+                  name="email"
+                  type="email"
+                  autoComplete="email"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="admin@corsicafacile.com"
+                />
+              </div>
+
+              <div className={styles['input-group']}>
+                <label htmlFor="password">Mot de passe</label>
+                <input
+                  id="password"
+                  name="password"
+                  type="password"
+                  autoComplete="current-password"
+                  required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="••••••••"
+                />
+              </div>
+
+              <button
+                type="submit"
+                disabled={isLoading}
+                className={styles['submit-button']}
+              >
+                {isLoading ? (
+                  <>
+                    <span className={styles.spinner}></span>
+                    Connexion en cours...
+                  </>
+                ) : (
+                  'Se connecter'
+                )}
+              </button>
+            </form>
           </div>
-        </form>
+        </div>
       </div>
-    </div>
   );
 }
+
 
 

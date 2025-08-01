@@ -8,11 +8,11 @@ $brown: #5E3E23;
 
 // Couleurs pour les cartes
 $colors: (
-  'blue': ($blue, lighten($blue, 10%)),
-  'green': ($green, lighten($green, 10%)),
-  'yellow': (#f39c12, lighten(#f39c12, 10%)),
-  'purple': (#9b59b6, lighten(#9b59b6, 10%)),
-  'red': (#e74c3c, lighten(#e74c3c, 10%))
+  'blue': $blue,
+  'green': $green,
+  'yellow': #f39c12,
+  'purple': #9b59b6,
+  'red': #e74c3c
 );
 
 // Mixins utiles
@@ -113,21 +113,78 @@ $colors: (
     margin-right: 1rem;
     @include transition-smooth;
 
-    // Génération des couleurs dynamiquement
-    @each $name, $color-pair in $colors {
-      &.#{$name} {
-        background: linear-gradient(135deg, nth($color-pair, 1) 0%, nth($color-pair, 2) 100%);
+    // ✅ CLASSES DE COULEUR SANS LIGHTEN
+    &.blue {
+      background: linear-gradient(135deg, #3498db 0%, #5dade2 100%);
+      box-shadow: 0 4px 15px rgba(52, 152, 219, 0.3);
+
+      &::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, transparent 100%);
+        border-radius: 1rem;
+      }
+    }
+
+    &.green {
+      background: linear-gradient(135deg, #81A04A 0%, #9bb85f 100%);
+      box-shadow: 0 4px 15px rgba(129, 160, 74, 0.3);
+
+      &::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, transparent 100%);
+        border-radius: 1rem;
+      }
+    }
+
+    &.yellow {
+      background: linear-gradient(135deg, #f39c12 0%, #f5b041 100%);
+      box-shadow: 0 4px 15px rgba(243, 156, 18, 0.3);
+
+      &::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, transparent 100%);
+        border-radius: 1rem;
+      }
+    }
+
+    &.purple {
+      background: linear-gradient(135deg, #9b59b6 0%, #bb8fce 100%);
+      box-shadow: 0 4px 15px rgba(155, 89, 182, 0.3);
+
+      &::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, transparent 100%);
+        border-radius: 1rem;
+      }
+    }
+
+    &.red {
+      background: linear-gradient(135deg, #e74c3c 0%, #ec7063 100%);
+      box-shadow: 0 4px 15px rgba(231, 76, 60, 0.3);
+
+      &::before {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.2) 0%, transparent 100%);
+        border-radius: 1rem;
       }
     }
 
     .icon {
       font-size: 1.25rem;
       position: relative;
-      z-index: 1;
+      z-index: 2;
       @include transition-smooth;
       color: white;
-
-      // Effet de filtre pour les emojis
       filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
     }
   }
@@ -136,10 +193,10 @@ $colors: (
     flex: 1;
 
     .title {
-      font-family: 'Quicksand', sans-serif;
+      font-family: 'Nunito', sans-serif;
       font-size: 0.875rem;
-      font-weight: 800;
-      color: $brown;
+      font-weight: 600;
+      color: rgba($brown, 0.8);
       margin: 0 0 0.25rem 0;
       text-transform: uppercase;
       letter-spacing: 0.5px;
@@ -147,9 +204,9 @@ $colors: (
 
     .subtitle {
       font-family: 'Nunito', sans-serif;
-      font-weight: 600;
+      font-weight: 400;
       font-size: 0.75rem;
-      color: rgba($brown, 0.8);
+      color: rgba($brown, 0.6);
       margin: 0;
     }
   }

@@ -33,7 +33,7 @@ export const adminAuth = {
       const data = await response.json();
       
       return {
-        token: data.token,
+        token: data.token || data.jwt,
         admin: {
           id: data.admin.id,
           name: data.admin.first_name && data.admin.last_name 

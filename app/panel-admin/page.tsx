@@ -2,6 +2,7 @@
 
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import styles from './page.module.scss';
 
 export default function AdminIndex() {
   const router = useRouter();
@@ -9,16 +10,17 @@ export default function AdminIndex() {
   useEffect(() => {
     const timer = setTimeout(() => {
       router.replace('/panel-admin/dashboard');
-    }, 100); // Petit délai pour permettre le render
+    }, 100);
     
     return () => clearTimeout(timer);
   }, [router]);
 
+  // Loading spinner
   return (
-    <div className="flex justify-center items-center h-64">
+    <div className={styles.loading}>
       <div className="text-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-        <p className="mt-4 text-gray-600">Redirection vers le dashboard...</p>
+        <div className={styles.spinner}></div>
+        <p className={styles.loadingText}>Redirection vers le dashboard...</p>
       </div>
     </div>
   );

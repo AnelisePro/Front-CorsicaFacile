@@ -242,6 +242,7 @@ $radius: 8px;
   padding: 1.5rem;
   box-shadow: $shadow;
   border: 1px solid $border-color;
+  font-weight: 600;
 
   &.blue {
     background: linear-gradient(135deg, $blue);
@@ -314,165 +315,1309 @@ $radius: 8px;
   }
 }
 
+.chartsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  gap: 1.5rem;
+  margin-top: 2rem;
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+}
+
 .chartCard {
   background: white;
   border-radius: $radius;
   box-shadow: $shadow;
-  border: 1px solid $border-color;
-  padding: 1.5rem;
+  padding: 0;
+  overflow: hidden;
+  transition: all 0.3s ease;
+  position: relative;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+  }
+}
+
+.chartHeader {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.5rem 1.5rem 1rem 1.5rem;
+  border-bottom: 1px solid #f1f5f9;
+  background: linear-gradient(135deg, #fafbfc 0%, #f8fafc 100%);
 
   h3 {
     font-size: 1.125rem;
     font-weight: 600;
-    color: $text-primary;
-    margin: 0 0 1rem 0;
+    color: $brown;
+    margin: 0;
+    line-height: 1.4;
   }
 }
+
+.chartSubtitle {
+  font-size: 0.875rem;
+  color: $brown;
+  margin: 0.25rem 0 0 0;
+  font-weight: 400;
+}
+
+.chartIcon {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: $blue;
+  color: white;
+  flex-shrink: 0;
+  box-shadow: 0 4px 12px rgba($blue, 0.3);
+
+  svg {
+    width: 20px;
+    height: 20px;
+  }
+}
+
+.chartContainer {
+  padding: 1.5rem;
+  position: relative;
+}
+
+// Animation d'apparition
+.chartCard {
+  animation: slideInUp 0.6s ease-out;
+
+  &:nth-child(2) {
+    animation-delay: 0.1s;
+  }
+
+  &:nth-child(3) {
+    animation-delay: 0.2s;
+  }
+}
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// États de chargement
+.chartCard.loading {
+  .chartContainer {
+    position: relative;
+    min-height: 200px;
+
+    &::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 40px;
+      height: 40px;
+      border: 3px solid #f3f3f3;
+      border-top: 3px solid $blue;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+  }
+}
+
+@keyframes spin {
+  0% { transform: translate(-50%, -50%) rotate(0deg); }
+  100% { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
 
 // Distribution chart special styling
 .distributionContent {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+}
 
-  .distributionItem {
+.distributionItem {
+  display: flex;
+  align-items: center;
+  padding: 0.75rem 0;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  position: relative; // Important pour les tooltips
+
+  &:hover {
+    transform: translateX(4px);
+  }
+
+  .dateLabel {
+    width: 4rem;
+    font-size: 0.875rem;
+    color: $brown;
+    font-weight: 500;
+    flex-shrink: 0;
+  }
+
+  .barContainer {
+    flex: 1;
+    margin: 0 1rem;
+    position: relative; // Important pour les tooltips
+
+    .bar {
+      display: flex;
+      height: 1.5rem;
+      background-color: #f3f4f6;
+      border-radius: 8px;
+      overflow: visible;
+      box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+      position: relative;
+      transition: all 0.3s ease;
+
+      &::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+        pointer-events: none;
+        border-radius: 8px;
+      }
+
+      .clientBar, .artisanBar {
+        transition: all 0.3s ease;
+        position: relative;
+        cursor: pointer;
+
+        &::after {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: linear-gradient(180deg, rgba(255, 255, 255, 0.2), transparent);
+        }
+
+        // Tooltip au survol
+        &::before {
+          content: attr(data-tooltip);
+          position: absolute;
+          bottom: calc(100% + 8px);
+          left: 50%;
+          transform: translateX(-50%);
+          background: rgba(0, 0, 0, 0.9);
+          color: white;
+          padding: 0.5rem 0.75rem;
+          border-radius: 6px;
+          font-size: 0.75rem;
+          font-weight: 600;
+          white-space: nowrap;
+          opacity: 0;
+          visibility: hidden;
+          transition: all 0.3s ease;
+          z-index: 10;
+          
+          // Petite flèche du tooltip
+          &::after {
+            content: '';
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            border: 4px solid transparent;
+            border-top-color: rgba(0, 0, 0, 0.9);
+          }
+        }
+
+        &:hover {
+          filter: brightness(1.15);
+          transform: scaleY(1.05);
+
+          &::before {
+            opacity: 1;
+            visibility: visible;
+            transform: translateX(-50%) translateY(-2px);
+          }
+        }
+      }
+
+      .clientBar {
+        background: #3b82f6;
+        border-radius: 8px 0 0 8px;
+
+        &:only-child {
+          border-radius: 8px 0 0 8px;
+        }
+      }
+
+      .artisanBar {
+        background: $green;
+        border-radius: 0 8px 8px 0;
+
+        &:only-child {
+          border-radius: 8px 0 0 8px;
+        }
+      }
+    }
+
+    &:hover .bar {
+      transform: scaleY(1.1);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+  }
+
+  .totalLabel {
+    font-size: 0.875rem;
+    color: $brown;
+    font-weight: 800;
+    min-width: 2rem;
+    text-align: right;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    flex-shrink: 0;
+  }
+
+  // Animation d'apparition séquentielle
+  &:nth-child(1) { animation: slideInLeft 0.6s ease-out 0.1s both; }
+  &:nth-child(2) { animation: slideInLeft 0.6s ease-out 0.2s both; }
+  &:nth-child(3) { animation: slideInLeft 0.6s ease-out 0.3s both; }
+  &:nth-child(4) { animation: slideInLeft 0.6s ease-out 0.4s both; }
+  &:nth-child(5) { animation: slideInLeft 0.6s ease-out 0.5s both; }
+  &:nth-child(6) { animation: slideInLeft 0.6s ease-out 0.6s both; }
+  &:nth-child(7) { animation: slideInLeft 0.6s ease-out 0.7s both; }
+}
+
+.legend {
+  display: flex;
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e2e8f0;
+  font-size: 0.875rem;
+  justify-content: center;
+
+  .legendItem {
     display: flex;
     align-items: center;
+    padding: 0.5rem 1rem;
+    transition: all 0.2s ease;
+    font-weight: 500;
+    color: $brown;
+    background: rgba(193, 195, 198, 0.14);
+    border-radius: 20px;
 
+    &:hover {
+      background: rgba(193, 195, 198, 0.25);
+      transform: translateY(-1px);
+    }
+
+    .legendColor {
+      width: 0.875rem;
+      height: 0.875rem;
+      border-radius: 50%;
+      margin-right: 0.5rem;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+      position: relative;
+
+      &::after {
+        content: '';
+        position: absolute;
+        top: 1px;
+        left: 1px;
+        right: 1px;
+        height: 40%;
+        background: linear-gradient(180deg, rgba(255, 255, 255, 0.3), transparent);
+        border-radius: 50% 50% 0 0;
+      }
+
+      &.blue {
+        background: #3b82f6;
+      }
+
+      &.green {
+        background: $green;
+      }
+    }
+  }
+}
+
+// Animations
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+// Responsive design
+@media (max-width: 568px) {
+  .distributionItem {
     .dateLabel {
-      width: 4rem;
-      font-size: 0.875rem;
-      color: $text-secondary;
+      width: 3rem;
+      font-size: 0.8rem;
     }
 
     .barContainer {
-      flex: 1;
-      margin: 0 1rem;
+      margin: 0 0.5rem;
 
       .bar {
-        display: flex;
-        height: 1.5rem;
-        background-color: #f3f4f6;
-        border-radius: 4px;
-        overflow: hidden;
-
-        .clientBar {
-          background-color: $blue;
-        }
-
-        .artisanBar {
-          background-color: $green;
+        height: 1.25rem;
+        
+        .clientBar, .artisanBar {
+          &::before {
+            font-size: 0.7rem;
+            padding: 0.375rem 0.5rem;
+          }
         }
       }
     }
 
     .totalLabel {
-      font-size: 0.875rem;
-      color: $text-secondary;
+      font-size: 0.8rem;
+      min-width: 1.5rem;
     }
   }
 
   .legend {
-    display: flex;
-    gap: 1rem;
-    margin-top: 1rem;
-    font-size: 0.875rem;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
 
     .legendItem {
-      display: flex;
-      align-items: center;
-
-      .legendColor {
-        width: 0.75rem;
-        height: 0.75rem;
-        border-radius: 50%;
-        margin-right: 0.5rem;
-
-        &.blue {
-          background-color: $blue;
-        }
-
-        &.green {
-          background-color: $green;
-        }
-      }
+      padding: 0.375rem 0.75rem;
     }
   }
 }
+
 
 // Detailed table
 .tableCard {
   background: white;
   border-radius: $radius;
   box-shadow: $shadow;
-  border: 1px solid $border-color;
+  animation: slideInUp 0.6s ease-out 0.8s both;
+  transition: all 0.3s ease;
 
-  .tableHeader {
-    padding: 1.5rem;
-    border-bottom: 1px solid $border-color;
+  &:hover {
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+    transform: translateY(-2px);
+  }
+}
 
-    h3 {
-      font-size: 1.125rem;
-      font-weight: 600;
-      color: $text-primary;
-      margin: 0;
+.tableControls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  gap: 1rem;
+}
+
+.searchBox {
+  position: relative;
+  flex: 1;
+  max-width: 350px;
+  display: flex;
+  align-items: center;
+  background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+  border: 1.5px solid #e2e8f0;
+  border-radius: 16px;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 
+    0 2px 8px rgba(0, 0, 0, 0.04),
+    0 1px 2px rgba(0, 0, 0, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+
+  &:hover {
+    border-color: #cbd5e1;
+    box-shadow: 
+      0 4px 12px rgba(0, 0, 0, 0.08),
+      0 2px 4px rgba(0, 0, 0, 0.06),
+      inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  }
+
+  &:focus-within {
+    border-color: $blue;
+    box-shadow: 
+      0 0 0 4px rgba($blue, 0.12),
+      0 4px 16px rgba($blue, 0.15),
+      inset 0 1px 0 rgba(255, 255, 255, 1);
+    transform: scale(1.02);
+  }
+
+  svg {
+    position: absolute;
+    left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 20px;
+    height: 20px;
+    color: #64748b;
+    transition: all 0.3s ease;
+    z-index: 2;
+  }
+
+  &:focus-within svg {
+    color: $blue;
+    transform: translateY(-50%) scale(1.1);
+  }
+
+  input {
+    width: 100%;
+    height: 48px;
+    padding: 0 3rem 0 3rem;
+    border: none;
+    background: transparent;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: $brown;
+    outline: none;
+    transition: all 0.3s ease;
+
+    &::placeholder {
+      color: #94a3b8;
+      transition: all 0.3s ease;
+    }
+
+    &:focus::placeholder {
+      color: rgba($brown, 0.4);
+    }
+  }
+}
+
+// Styles séparés pour le bouton clear
+.clearSearch {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 
+    0 2px 4px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  z-index: 3;
+  animation: slideInRight 0.3s ease-out;
+
+  svg {
+    position: static;
+    transform: none;
+    width: 16px;
+    height: 16px;
+    color: #64748b;
+    transition: all 0.3s ease;
+  }
+
+  &:hover {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    transform: translateY(-50%) scale(1.1) rotate(90deg);
+    box-shadow: 
+      0 4px 12px rgba(239, 68, 68, 0.3),
+      inset 0 1px 0 rgba(255, 255, 255, 0.2);
+
+    svg {
+      color: white;
     }
   }
 
-  .tableContainer {
-    overflow-x: auto;
+  &:active {
+    transform: translateY(-50%) scale(1.05) rotate(90deg);
+  }
 
-    table {
-      width: 100%;
-      border-collapse: collapse;
+  // Effet de ripple
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 8px;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.4) 0%, transparent 70%);
+    transform: scale(0);
+    transition: transform 0.3s ease;
+  }
 
-      thead {
-        background-color: #f9fafb;
+  &:active::after {
+    transform: scale(1);
+  }
+}
 
-        th {
-          padding: 0.75rem 1.5rem;
-          text-align: left;
-          font-size: 0.75rem;
-          font-weight: 500;
-          color: $text-light;
-          text-transform: uppercase;
-          letter-spacing: 0.05em;
-          border-bottom: 1px solid $border-color;
-        }
+.searchResults {
+  position: absolute;
+  top: calc(100% + 12px);
+  left: 0;
+  right: 0;
+  z-index: 100;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+  transform: translateY(-10px);
+}
+
+.resultsCount {
+  display: inline-block;
+  padding: 0.5rem 0.75rem;
+  background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+  color: #475569;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border-radius: 8px;
+  box-shadow: 
+    0 4px 12px rgba(0, 0, 0, 0.1),
+    0 2px 4px rgba(0, 0, 0, 0.06);
+  border: 1px solid #e2e8f0;
+  backdrop-filter: blur(10px);
+  animation: slideInDown 0.3s ease-out;
+}
+
+// Affichage conditionnel des résultats
+.searchBox:focus-within + .searchResults,
+.searchBox:hover + .searchResults {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+// Animation pour le bouton clear
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(20px) scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+
+@keyframes slideInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// États de chargement
+.searchBox.loading {
+  .searchIcon svg {
+    animation: spin 1s linear infinite;
+  }
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+// Responsive
+@media (max-width: 768px) {
+  .searchBox {
+    max-width: 100%;
+    border-radius: 12px;
+
+    .searchInput {
+      font-size: 0.8125rem;
+      
+      &::placeholder {
+        font-size: 0.8125rem;
+      }
+    }
+
+    .searchIcon svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    .clearSearch {
+      width: 32px;
+      height: 32px;
+      margin-right: 4px;
+
+      svg {
+        width: 14px;
+        height: 14px;
+      }
+    }
+
+    .searchResults .resultsCount {
+      font-size: 0.6875rem;
+      padding: 0.375rem 0.625rem;
+    }
+  }
+}
+
+// État de recherche vide
+.searchBox.empty {
+  .searchIcon svg {
+    color: #cbd5e1;
+  }
+}
+
+// Feedback visuel pour les résultats
+.searchBox.hasResults {
+  border-color: #10b981;
+  
+  &:focus-within {
+    border-color: #10b981;
+    box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.12);
+  }
+
+  .searchIcon svg {
+    color: #10b981;
+  }
+}
+
+.searchBox.noResults {
+  border-color: #f59e0b;
+  
+  &:focus-within {
+    border-color: #f59e0b;
+    box-shadow: 0 0 0 4px rgba(245, 158, 11, 0.12);
+  }
+
+  .searchIcon svg {
+    color: #f59e0b;
+  }
+}
+
+
+.tableActions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+// Bouton d'export
+.exportBtn {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.875rem 1.25rem;
+  background: $blue;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 
+    0 4px 14px rgba($blue, 0.25),
+    0 2px 4px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+
+  // Effet de brillance au hover
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, 0.2),
+      transparent
+    );
+    transition: left 0.6s ease;
+  }
+
+  &:hover:not(.disabled) {
+    transform: translateY(-2px) scale(1.02);
+    box-shadow: 
+      0 8px 25px rgba($blue, 0.35),
+      0 4px 10px rgba(0, 0, 0, 0.15),
+      inset 0 1px 0 rgba(255, 255, 255, 0.3);
+
+    &::before {
+      left: 100%;
+    }
+
+    .btnIconWrapper {
+      transform: scale(1.1) rotate(-5deg);
+    }
+
+    .btnCounter {
+      transform: scale(1.1);
+      background: rgba(255, 255, 255, 0.3);
+    }
+  }
+
+  &:active:not(.disabled) {
+    transform: translateY(-1px) scale(1.01);
+    transition: all 0.1s ease;
+  }
+
+  &.disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    filter: grayscale(0.3);
+    transform: none;
+    
+    &:hover {
+      transform: none;
+      box-shadow: 0 4px 14px rgba($blue, 0.25);
+    }
+  }
+
+  .btnIconWrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+
+    svg {
+      width: 20px;
+      height: 20px;
+      filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.2));
+    }
+  }
+
+  .btnText {
+    font-weight: 600;
+    letter-spacing: 0.025em;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  }
+
+  .btnCounter {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    font-size: 0.75rem;
+    font-weight: 700;
+    padding: 0.25rem 0.5rem;
+    border-radius: 20px;
+    line-height: 1;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: all 0.3s ease;
+    min-width: 24px;
+    text-align: center;
+  }
+}
+
+// Dropdown d'export
+.exportDropdown {
+  position: relative;
+}
+
+.exportDropdownBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 
+    0 2px 8px rgba(0, 0, 0, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.6);
+
+  &:hover {
+    background: linear-gradient(135deg, #e2e8f0 0%, #cbd5e1 100%);
+    transform: translateY(-1px);
+    box-shadow: 
+      0 4px 12px rgba(0, 0, 0, 0.15),
+      inset 0 1px 0 rgba(255, 255, 255, 0.8);
+
+    .dropdownIconWrapper svg {
+      transform: rotate(180deg);
+      color: $blue;
+    }
+  }
+
+  .dropdownIconWrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    svg {
+      width: 18px;
+      height: 18px;
+      color: #64748b;
+      transition: all 0.3s ease;
+    }
+  }
+}
+
+.exportDropdownMenu {
+  position: absolute;
+  top: calc(100% + 12px);
+  right: 0;
+  min-width: 280px;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+  box-shadow: 
+    0 20px 25px -5px rgba(0, 0, 0, 0.1),
+    0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-10px) scale(0.95);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 1000;
+  backdrop-filter: blur(20px);
+  overflow: hidden;
+
+  // Flèche du dropdown
+  &::before {
+    content: '';
+    position: absolute;
+    top: -6px;
+    right: 20px;
+    width: 12px;
+    height: 12px;
+    background: white;
+    border-left: 1px solid #e2e8f0;
+    border-top: 1px solid #e2e8f0;
+    transform: rotate(45deg);
+  }
+
+  .dropdownHeader {
+    padding: 1.25rem 1.5rem 0.75rem;
+    border-bottom: 1px solid #f1f5f9;
+    background: linear-gradient(135deg, #fafbfc 0%, #f8fafc 100%);
+
+    span {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: $brown;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+  }
+
+  .dropdownContent {
+    padding: 0.75rem;
+  }
+}
+
+// Affichage du dropdown au hover
+.exportDropdown:hover .exportDropdownMenu {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0) scale(1);
+}
+
+.dropdownItem {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 1rem;
+  background: none;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-align: left;
+  margin-bottom: 0.5rem;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+
+  &:hover {
+    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    transform: translateX(4px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+
+    .itemIcon {
+      background: $blue;
+      transform: scale(1.1);
+
+      svg {
+        color: white;
+      }
+    }
+
+    .itemBadge {
+      transform: scale(1.05);
+    }
+  }
+
+  .itemIcon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+    border-radius: 10px;
+    margin-right: 1rem;
+    transition: all 0.3s ease;
+    border: 1px solid #e2e8f0;
+
+    svg {
+      width: 20px;
+      height: 20px;
+      color: #64748b;
+      transition: all 0.3s ease;
+    }
+  }
+
+  .itemContent {
+    flex: 1;
+
+    .itemTitle {
+      display: block;
+      font-size: 0.9375rem;
+      font-weight: 600;
+      color: $brown;
+      margin-bottom: 0.25rem;
+    }
+
+    .itemDesc {
+      display: block;
+      font-size: 0.8125rem;
+      color: $brown;
+      line-height: 1.3;
+    }
+  }
+}
+
+// Animation d'entrée
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.exportBtn,
+.exportDropdown {
+  animation: slideInUp 0.6s ease-out;
+}
+
+// Responsive
+@media (max-width: 768px) {
+  .exportBtn {
+    padding: 0.75rem 1rem;
+    font-size: 0.8125rem;
+    
+    .btnText {
+      display: none;
+    }
+
+    .btnIconWrapper svg {
+      width: 18px;
+      height: 18px;
+    }
+  }
+
+  .exportDropdownMenu {
+    min-width: 240px;
+    right: -20px;
+
+    &::before {
+      right: 32px;
+    }
+  }
+
+  .dropdownItem {
+    padding: 0.875rem;
+
+    .itemIcon {
+      width: 36px;
+      height: 36px;
+      margin-right: 0.75rem;
+
+      svg {
+        width: 18px;
+        height: 18px;
+      }
+    }
+
+    .itemContent {
+      .itemTitle {
+        font-size: 0.875rem;
       }
 
-      tbody {
-        background: white;
-
-        tr {
-          border-bottom: 1px solid $border-color;
-          transition: background-color 0.15s ease;
-
-          &:hover {
-            background-color: #f9fafb;
-          }
-
-          td {
-            padding: 1rem 1.5rem;
-            white-space: nowrap;
-            font-size: 0.875rem;
-
-            &:first-child {
-              font-weight: 500;
-              color: $text-primary;
-            }
-
-            &:not(:first-child) {
-              color: $text-secondary;
-            }
-          }
-        }
+      .itemDesc {
+        font-size: 0.75rem;
       }
     }
   }
 }
 
-// Responsive adjustments
+.tableWrapper {
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid #e5e7eb;
+  background: white;
+}
+
+.dataTable {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+
+  thead {
+    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    border-bottom: 1px solid #e5e7eb;
+
+    th {
+      padding: 1rem 1.5rem;
+      text-align: center;
+      font-weight: 600;
+      color: $blue;
+      white-space: nowrap;
+      position: relative;
+
+      &.sortable {
+        cursor: pointer;
+        user-select: none;
+        transition: all 0.2s ease;
+
+        &:hover {
+          background: rgba($blue, 0.05);
+          color: $blue;
+        }
+
+        span {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+        }
+      }
+    }
+  }
+
+  tbody {
+    tr {
+      border-bottom: 1px solid #f3f4f6;
+      transition: all 0.2s ease;
+      animation: fadeInRow 0.6s ease-out forwards;
+
+      &:nth-child(even) {
+        background: #fafbfc;
+      }
+
+      &:hover {
+        background: #f0f9ff;
+        transform: scale(1.01);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      }
+
+      &:last-child {
+        border-bottom: none;
+      }
+
+      // Animation échelonnée
+      @for $i from 1 through 20 {
+        &:nth-child(#{$i}) {
+          animation-delay: #{$i * 0.05}s;
+        }
+      }
+    }
+
+    td {
+      padding: 1rem 1.5rem;
+      vertical-align: middle;
+    }
+  }
+}
+
+.dateColumn {
+  .dateWrapper {
+    display: flex;
+    flex-direction: column;
+
+    .dateMain {
+      font-weight: 600;
+      color: $brown;
+      font-size: 0.875rem;
+    }
+
+    .dateDay {
+      font-size: 0.75rem;
+      color: $brown;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+  }
+}
+
+.numberColumn {
+  .numberWrapper {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .numberValue {
+    font-weight: 600;
+    color: $brown;
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+.badgeColumn {
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 2rem;
+    padding: 0.25rem 0.75rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    border-radius: 9999px;
+    text-align: center;
+
+    &.clientBadge {
+      background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+      color: $blue;
+      border: 1px solid #93c5fd;
+    }
+
+    &.artisanBadge {
+      background: #80a04a5b;
+      color: #047857;
+      border: 1px solid #80a04a5b;
+    }
+  }
+}
+
+.tablePagination {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.5rem;
+
+  .paginationInfo {
+    font-size: 0.875rem;
+    color: $brown;
+    font-style: italic;
+  }
+
+  .paginationControls {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+
+    .paginationBtn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 2rem;
+      height: 2rem;
+      border: 1px solid #e5e7eb;
+      background: white;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+
+      svg {
+        width: 14px;
+        height: 14px;
+        color: #6b7280;
+      }
+
+      &:not(:disabled):hover {
+        background: $blue;
+        border-color: $green;
+        
+        svg {
+          color: white;
+        }
+      }
+
+      &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    .currentPage {
+      margin: 0 0.5rem;
+      font-weight: 600;
+      color: $blue;
+    }
+  }
+}
+
+@keyframes fadeInRow {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// Responsive
+@media (max-width: 768px) {
+  .tableControls {
+    flex-direction: column;
+    align-items: stretch;
+
+    .searchBox {
+      max-width: 100%;
+    }
+  }
+
+  .tableWrapper {
+    overflow-x: auto;
+  }
+
+  .dataTable {
+    min-width: 800px;
+
+    thead th,
+    tbody td {
+      padding: 0.75rem 1rem;
+      font-size: 0.8rem;
+    }
+  }
+
+  .tablePagination {
+    padding: 0.75rem 1rem;
+    flex-direction: column;
+    gap: 1rem;
+    text-align: center;
+  }
+}
+
+
+// Responsive global
 @media (max-width: 768px) {
   .header {
     flex-direction: column;
@@ -496,12 +1641,6 @@ $radius: 8px;
           font-size: 1.5rem;
         }
       }
-    }
-  }
-
-  .tableContainer {
-    table {
-      min-width: 700px;
     }
   }
 }

@@ -1,0 +1,143 @@
+// Variables
+$color-primary: #3498db;
+$color-success: #81A04A;
+$color-background: #ffffff;
+$color-background-secondary: #f8fafc;
+$color-border: #e2e8f0;
+$color-text-primary: #1e293b;
+$color-text-secondary: #64748b;
+$color-text-muted: #94a3b8;
+
+$font-headings: 'Quicksand', sans-serif;
+$font-body: 'Nunito', sans-serif;
+
+.chartContainer {
+  width: 100%;
+  background: $color-background;
+  border-radius: 16px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  border: 1px solid $color-border;
+}
+
+.chartHeader {
+  margin-bottom: 1.5rem;
+
+  .chartSubtitle {
+    font-family: $font-body;
+    font-size: 0.875rem;
+    color: #5E3E23;
+    margin: 0;
+    font-style: italic;
+  }
+}
+
+.legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  background: $color-background-secondary;
+  border-radius: 8px;
+
+  .legendItem {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+
+    .legendColor {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+    }
+
+    .legendLabel {
+      font-family: $font-body;
+      font-size: 0.875rem;
+      color: #5E3E23;
+      font-weight: 500;
+    }
+  }
+}
+
+.chartWrapper {
+  background: $color-background;
+  border: 1px solid $color-border;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.chartSvg {
+  width: 100%;
+  height: auto;
+}
+
+.axisLabel {
+  font-family: $font-body;
+  font-size: 11px;
+  fill: #5E3E23;
+}
+
+.dateLabel {
+  font-family: $font-body;
+  font-size: 10px;
+  fill: #5E3E23;
+}
+
+.dataPoint {
+  cursor: pointer;
+  transition: r 0.2s ease;
+}
+
+.dataBar {
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+
+  &:hover {
+    opacity: 0.8;
+  }
+}
+
+.connectionLine {
+  fill: none;
+  stroke-linecap: round;
+}
+
+.emptyState {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 300px;
+  background: $color-background-secondary;
+  border-radius: 12px;
+  border: 2px dashed $color-border;
+
+  .emptyContent {
+    text-align: center;
+
+    .emptyIcon {
+      font-size: 2rem;
+      display: block;
+      margin-bottom: 0.5rem;
+    }
+
+    .emptyText {
+      font-family: $font-body;
+      color: $color-text-secondary;
+      margin: 0;
+    }
+  }
+}
+
+// Responsive
+@media (max-width: 768px) {
+  .chartContainer {
+    padding: 1rem;
+  }
+  
+  .legend {
+    gap: 0.5rem;
+  }
+}
+

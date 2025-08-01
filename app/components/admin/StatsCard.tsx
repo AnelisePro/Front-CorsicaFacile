@@ -31,7 +31,7 @@ export default function StatsCard({
   useEffect(() => {
     if (typeof value === 'number' && !isLoading) {
       setIsAnimating(true);
-      const duration = 1000; // 1 seconde
+      const duration = 1000;
       const steps = 60;
       const increment = value / steps;
       let current = 0;

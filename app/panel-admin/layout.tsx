@@ -3,6 +3,7 @@
 import { usePathname } from 'next/navigation';
 import AdminSidebar from '../components/admin/AdminSidebar';
 import { useAdminAuth } from '../lib/admin/useAdminAuth';
+import styles from './AdminLayout.module.scss';
 
 export default function AdminLayout({
   children,
@@ -15,13 +16,12 @@ export default function AdminLayout({
   // Ne pas afficher la sidebar sur la page de login
   const showSidebar = isAuthenticated && pathname !== '/panel-admin/login';
 
+  // ✅ Votre loading spinner personnalisé
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Chargement...</p>
-        </div>
+      <div className={styles.loading}>
+        <div className={styles.spinner}></div>
+        <p className={styles.loadingText}>Chargement du panel admin...</p>
       </div>
     );
   }

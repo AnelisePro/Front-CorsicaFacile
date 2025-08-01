@@ -50,7 +50,7 @@ return (
             <div className={styles.name}>{getUserDisplayName(user)}</div>
             <div className={styles.email}>{user.email}</div>
             <div className={`${styles.badge} ${user.type === 'client' ? styles.client : styles.artisan}`}>
-              {user.type === 'client' ? '👤 Client' : '🔨 Artisan'}
+              {user.type === 'client' ? 'Client' : 'Artisan'}
             </div>
           </div>
         </div>
@@ -65,14 +65,14 @@ return (
           <div className={styles.row}>
             <div>
               <div className={styles.label}>Type de compte</div>
-              <div className={`${styles.badge} ${user.type === 'client' ? styles.client : styles.artisan}`}>
-                {user.type === 'client' ? '👤 Client' : '🔨 Artisan'}
+              <div className={`${styles.badgeType} ${user.type === 'client' ? styles.client : styles.artisan}`}>
+                {user.type === 'client' ? 'Client' : 'Artisan'}
               </div>
             </div>
             <div>
               <div className={styles.label}>Statut</div>
-              <div className={`${styles.badge} ${user.banned ? styles.ban : styles.unban}`}>
-                {user.banned ? '❌ Banni' : '✅ Actif'}
+              <div className={`${styles.badgeStat} ${user.banned ? styles.ban : styles.unban}`}>
+                {user.banned ? 'Banni' : 'Actif'}
               </div>
             </div>
           </div>
@@ -142,7 +142,7 @@ return (
             )}
             {user.city && (
               <div>
-                <div className={styles.label}>Ville</div>
+                <div className={styles.label}>Adresse</div>
                 <div className={styles.value}>{user.city}</div>
               </div>
             )}
@@ -186,7 +186,7 @@ return (
           }}
           className={`${styles.button} ${user.banned ? styles.unban : styles.ban}`}
         >
-          {user.banned ? '✅ Débannir l\'utilisateur' : '❌ Bannir l\'utilisateur'}
+          {user.banned ? 'Débannir l\'utilisateur' : 'Bannir l\'utilisateur'}
         </button>
 
         <button

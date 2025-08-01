@@ -12,15 +12,25 @@ $light-gray: #f5f5f5;
 
 .modal {
   position: fixed;
-  inset: 0;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   z-index: 999;
-  overflow-y: auto;
   font-family: 'Nunito', sans-serif;
+  display: flex;
+  justify-content: center;
+  padding-top: 80px;
+  box-sizing: border-box;
+  overflow-y: auto;
 }
 
 .overlay {
-  position: absolute;
-  inset: 0;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
   background: rgba(0, 0, 0, 0.5);
   z-index: -1;
 }
@@ -28,13 +38,22 @@ $light-gray: #f5f5f5;
 .content {
   background: white;
   border-radius: 12px;
-  margin: 2rem auto;
-  max-width: 800px;
   width: 90%;
-  overflow: hidden;
+  max-width: 800px;
   display: flex;
   flex-direction: column;
   animation: fadeIn 0.3s ease;
+  max-height: calc(100vh - 120px);
+  margin: 20px auto;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.scrollable-content {
+  overflow-y: auto;
+  max-height: calc(100vh - 220px);
+  padding: 0 1.5rem;
 }
 
 .header {
@@ -42,7 +61,7 @@ $light-gray: #f5f5f5;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: $beige;
+  background: #3498db24;
   font-family: 'Quicksand', sans-serif;
 }
 
@@ -56,7 +75,7 @@ $light-gray: #f5f5f5;
   width: 48px;
   height: 48px;
   border-radius: 9999px;
-  background: linear-gradient(135deg, $blue, $green);
+  background: $blue;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -77,7 +96,7 @@ $light-gray: #f5f5f5;
 
 .email {
   font-size: 0.875rem;
-  color: $gray;
+  color: $brown;
 }
 
 .badge {
@@ -87,15 +106,42 @@ $light-gray: #f5f5f5;
   padding: 2px 8px;
   border-radius: 12px;
   display: inline-block;
+  max-width: 60px;
+  text-align: center;
   
   &.client {
     background: #e3f1fc;
     color: $blue;
+    border: 1px solid #3498db;
   }
   
   &.artisan {
     background: #eef6e7;
     color: $green;
+    border: 1px solid #81A04A;
+  }
+}
+
+.badgeType {
+  margin-top: 4px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 12px;
+  display: inline-block;
+  max-width: 80px;
+  text-align: center;
+
+  &.client {
+    background: #e3f1fc;
+    color: $blue;
+    border: 1px solid #3498db;
+  }
+  
+  &.artisan {
+    background: #eef6e7;
+    color: $green;
+    border: 1px solid #81A04A;
   }
 }
 
@@ -122,7 +168,7 @@ $light-gray: #f5f5f5;
 
 .sectionTitle {
   font-size: 0.875rem;
-  color: $gray;
+  color: $brown;
   font-weight: 600;
   font-family: 'Quicksand', sans-serif;
   margin-bottom: 0.5rem;
@@ -139,14 +185,26 @@ $light-gray: #f5f5f5;
 
 .label {
   font-size: 0.75rem;
-  font-weight: 600;
+  font-weight: 500;
   margin-bottom: 0.25rem;
-  color: $gray;
+  color: $brown;
+}
+
+.badgeStat {
+  margin-top: 4px;
+  font-size: 0.8rem;
+  font-weight: 800;
+  padding: 2px 8px;
+  border-radius: 12px;
+  display: inline-block;
+  max-width: 80px;
+  text-align: center;
 }
 
 .value {
-  font-size: 0.875rem;
-  color: #000;
+  font-size: 0.9rem;
+  color: $brown;
+  font-weight: 600;
 }
 
 .actions {
@@ -195,7 +253,8 @@ $light-gray: #f5f5f5;
   border: 1px solid #ccc;
 
   &:hover {
-    background: #f0f0f0;
+    background: #3498db24;
+    border: 1px solid #3498db;
   }
 }
 

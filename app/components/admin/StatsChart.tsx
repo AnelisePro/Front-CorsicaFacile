@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import styles from './StatsChart.module.scss';
 
 interface ChartData {
   date: string;
@@ -13,114 +14,151 @@ interface StatsChartProps {
   height?: number;
 }
 
-export default function StatsChart({ data, type, height = 300 }: StatsChartProps) {
+export default function StatsChart({ data, type, height = 400 }: StatsChartProps) {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
 
   if (!data || data.length === 0) {
     return (
-      <div className="flex items-center justify-center h-64 text-gray-500">
-        <div className="text-center">
-          <span className="text-4xl mb-2 block">📊</span>
-          <p>Aucune donnée disponible</p>
+      <div className={styles.emptyState}>
+        <div className={styles.emptyContent}>
+          <span className={styles.emptyIcon}>📊</span>
+          <p className={styles.emptyText}>Aucune donnée disponible</p>
         </div>
       </div>
     );
   }
 
-  // Extraire les clés (sauf 'date')
   const keys = Object.keys(data[0]).filter(key => key !== 'date');
-  const colors = ['#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6'];
+  const colors = ['#3498db', '#81A04A', '#f59e0b', '#ef4444', '#8b5cf6'];
   
-  // Calculer les valeurs min/max pour la mise à l'échelle
-  const allValues = data.flatMap(item => keys.map(key => item[key] as number));
+  const allValues = data.flatMap(item => keys.map(key => Number(item[key]) || 0));
   const maxValue = Math.max(...allValues);
   const minValue = Math.min(...allValues, 0);
+  const range = maxValue - minValue || 1;
+
+  const chartWidth = 600;
+  const chartHeight = height - 160;
+  const padding = { top: 40, right: 40, bottom: 60, left: 60 };
 
   return (
-    <div className="w-full" style={{ height }}>
-      <div className="mb-4 flex flex-wrap gap-4">
+    <div className={styles.chartContainer}>
+      {/* Header */}
+      <div className={styles.chartHeader}>
+        <p className={styles.chartSubtitle}>Analyse des données sur la période sélectionnée</p>
+      </div>
+
+      {/* Legend */}
+      <div className={styles.legend}>
         {keys.map((key, index) => (
-          <div key={key} className="flex items-center">
+          <div key={key} className={styles.legendItem}>
             <div 
-              className="w-3 h-3 rounded-full mr-2"
+              className={styles.legendColor}
               style={{ backgroundColor: colors[index] }}
-            ></div>
-            <span className="text-sm font-medium text-gray-700">{key}</span>
+            />
+            <span className={styles.legendLabel}>{key}</span>
           </div>
         ))}
       </div>
 
-      <div className="relative bg-gray-50 rounded-lg p-4" style={{ height: height - 60 }}>
-        <svg width="100%" height="100%" className="overflow-visible">
-          {/* Grille de fond */}
+      {/* Chart */}
+      <div className={styles.chartWrapper}>
+        <svg 
+          width="100%" 
+          height={height - 100}
+          viewBox={`0 0 ${chartWidth + padding.left + padding.right} ${chartHeight + padding.top + padding.bottom}`}
+          className={styles.chartSvg}
+        >
+          {/* Background */}
+          <rect 
+            width="100%" 
+            height="100%" 
+            fill="#ffffff" 
+          />
+          
+          {/* Grid lines */}
           <defs>
-            <pattern id="grid" width="40" height="30" patternUnits="userSpaceOnUse">
-              <path d="M 40 0 L 0 0 0 30" fill="none" stroke="#e5e7eb" strokeWidth="1" opacity="0.5"/>
+            <pattern id="grid" width="50" height="40" patternUnits="userSpaceOnUse">
+              <path d="M 50 0 L 0 0 0 40" fill="none" stroke="#f1f5f9" strokeWidth="1"/>
             </pattern>
           </defs>
-          <rect width="100%" height="100%" fill="url(#grid)" />
+          <rect 
+            x={padding.left} 
+            y={padding.top} 
+            width={chartWidth} 
+            height={chartHeight} 
+            fill="url(#grid)" 
+          />
 
-          {/* Lignes de valeurs */}
-          {[0.25, 0.5, 0.75, 1].map((ratio, index) => {
-            const y = height - 120 - (ratio * (height - 120));
-            const value = Math.round(minValue + (maxValue - minValue) * ratio);
+          {/* Y-axis */}
+          <line
+            x1={padding.left}
+            y1={padding.top}
+            x2={padding.left}
+            y2={padding.top + chartHeight}
+            stroke="#d1d5db"
+            strokeWidth="2"
+          />
+
+          {/* X-axis */}
+          <line
+            x1={padding.left}
+            y1={padding.top + chartHeight}
+            x2={padding.left + chartWidth}
+            y2={padding.top + chartHeight}
+            stroke="#d1d5db"
+            strokeWidth="2"
+          />
+
+          {/* Y-axis labels */}
+          {[0, 0.25, 0.5, 0.75, 1].map((ratio, index) => {
+            const y = padding.top + chartHeight - (ratio * chartHeight);
+            const value = Math.round(minValue + (range * ratio));
             return (
               <g key={index}>
                 <line
-                  x1="40"
+                  x1={padding.left - 5}
                   y1={y}
-                  x2="100%"
+                  x2={padding.left + chartWidth}
                   y2={y}
-                  stroke="#d1d5db"
+                  stroke="#e5e7eb"
                   strokeWidth="1"
                   strokeDasharray="2,2"
                 />
                 <text
-                  x="35"
-                  y={y + 4}
+                  x={padding.left - 10}
+                  y={y + 5}
                   textAnchor="end"
-                  className="text-xs fill-gray-500"
+                  className={styles.axisLabel}
                 >
-                  {value.toLocaleString()}
+                  {value}
                 </text>
               </g>
             );
           })}
 
-          {/* Données */}
+          {/* Data visualization */}
           {data.map((item, dataIndex) => {
-            const x = 50 + (dataIndex * (100 - 60) / (data.length - 1)) + '%';
-            const xNum = 50 + (dataIndex * (document.querySelector('svg')?.clientWidth || 500 - 60) / (data.length - 1));
-
+            const x = padding.left + (dataIndex * chartWidth / (data.length - 1));
+            
             return (
               <g key={dataIndex}>
-                {/* Lignes verticales pour les dates */}
-                <line
-                  x1={x}
-                  y1="10"
-                  x2={x}
-                  y2={height - 60}
-                  stroke="#f3f4f6"
-                  strokeWidth="1"
-                />
-
-                {/* Étiquettes des dates */}
+                {/* X-axis labels */}
                 <text
                   x={x}
-                  y={height - 40}
+                  y={padding.top + chartHeight + 20}
                   textAnchor="middle"
-                  className="text-xs fill-gray-600"
+                  className={styles.dateLabel}
                 >
-                  {new Date(item.date).toLocaleDateString('fr-FR', { 
-                    day: '2-digit', 
-                    month: '2-digit' 
+                  {new Date(item.date).toLocaleDateString('fr-FR', {
+                    day: '2-digit',
+                    month: '2-digit'
                   })}
                 </text>
 
-                {/* Points de données pour chaque série */}
+                {/* Data points */}
                 {keys.map((key, keyIndex) => {
-                  const value = item[key] as number;
-                  const y = height - 60 - ((value - minValue) / (maxValue - minValue)) * (height - 120);
+                  const value = Number(item[key]) || 0;
+                  const y = padding.top + chartHeight - ((value - minValue) / range * chartHeight);
                   
                   if (type === 'line') {
                     return (
@@ -128,18 +166,19 @@ export default function StatsChart({ data, type, height = 300 }: StatsChartProps
                         key={`${dataIndex}-${keyIndex}`}
                         cx={x}
                         cy={y}
-                        r={hoveredIndex === dataIndex ? "6" : "4"}
+                        r={hoveredIndex === dataIndex ? 8 : 5}
                         fill={colors[keyIndex]}
-                        stroke="white"
+                        stroke="#ffffff"
                         strokeWidth="2"
-                        className="transition-all duration-200 cursor-pointer"
+                        className={styles.dataPoint}
                         onMouseEnter={() => setHoveredIndex(dataIndex)}
                         onMouseLeave={() => setHoveredIndex(null)}
                       />
                     );
                   } else {
-                    const barWidth = Math.min(30, (100 - 60) / data.length / keys.length - 2);
-                    const barX = xNum - (keys.length * barWidth) / 2 + keyIndex * barWidth;
+                    const barWidth = Math.max(20, chartWidth / data.length / keys.length - 4);
+                    const barX = x - (keys.length * barWidth) / 2 + keyIndex * barWidth;
+                    const barHeight = Math.max(2, (value - minValue) / range * chartHeight);
                     
                     return (
                       <rect
@@ -147,9 +186,9 @@ export default function StatsChart({ data, type, height = 300 }: StatsChartProps
                         x={barX}
                         y={y}
                         width={barWidth}
-                        height={height - 60 - y}
+                        height={barHeight}
                         fill={colors[keyIndex]}
-                        className="transition-all duration-200 cursor-pointer hover:opacity-80"
+                        className={styles.dataBar}
                         onMouseEnter={() => setHoveredIndex(dataIndex)}
                         onMouseLeave={() => setHoveredIndex(null)}
                       />
@@ -157,35 +196,38 @@ export default function StatsChart({ data, type, height = 300 }: StatsChartProps
                   }
                 })}
 
-                {/* Tooltip au survol */}
+                {/* Tooltip */}
                 {hoveredIndex === dataIndex && (
-                  <g>
+                  <g className={styles.tooltip}>
                     <rect
-                      x={xNum - 60}
-                      y="10"
-                      width="120"
-                      height={20 + keys.length * 18}
-                      fill="rgba(0, 0, 0, 0.8)"
-                      rx="4"
-                      ry="4"
+                      x={x - 70}
+                      y={padding.top - 10}
+                      width="140"
+                      height={40 + keys.length * 18}
+                      fill="rgba(0, 0, 0, 0.9)"
+                      rx="6"
+                      stroke="none"
                     />
                     <text
-                      x={xNum}
-                      y="25"
+                      x={x}
+                      y={padding.top + 10}
                       textAnchor="middle"
-                      className="text-xs fill-white font-medium"
+                      fill="white"
+                      fontSize="12"
+                      fontWeight="600"
                     >
                       {new Date(item.date).toLocaleDateString('fr-FR')}
                     </text>
                     {keys.map((key, keyIndex) => (
                       <text
                         key={key}
-                        x={xNum}
-                        y={40 + keyIndex * 18}
+                        x={x}
+                        y={padding.top + 25 + keyIndex * 18}
                         textAnchor="middle"
-                        className="text-xs fill-white"
+                        fill="white"
+                        fontSize="11"
                       >
-                        {key}: {(item[key] as number).toLocaleString()}
+                        {key}: {Number(item[key]).toLocaleString()}
                       </text>
                     ))}
                   </g>
@@ -194,13 +236,13 @@ export default function StatsChart({ data, type, height = 300 }: StatsChartProps
             );
           })}
 
-          {/* Lignes de connexion pour le graphique linéaire */}
+          {/* Connection lines for line chart */}
           {type === 'line' && keys.map((key, keyIndex) => {
             const points = data.map((item, dataIndex) => {
-              const x = 50 + (dataIndex * (100 - 60) / (data.length - 1));
-              const value = item[key] as number;
-              const y = height - 60 - ((value - minValue) / (maxValue - minValue)) * (height - 120);
-              return `${x}%,${y}`;
+              const x = padding.left + (dataIndex * chartWidth / (data.length - 1));
+              const value = Number(item[key]) || 0;
+              const y = padding.top + chartHeight - ((value - minValue) / range * chartHeight);
+              return `${x},${y}`;
             }).join(' ');
 
             return (
@@ -210,7 +252,7 @@ export default function StatsChart({ data, type, height = 300 }: StatsChartProps
                 stroke={colors[keyIndex]}
                 strokeWidth="2"
                 points={points}
-                className="transition-all duration-300"
+                className={styles.connectionLine}
               />
             );
           })}
@@ -219,3 +261,5 @@ export default function StatsChart({ data, type, height = 300 }: StatsChartProps
     </div>
   );
 }
+
+
