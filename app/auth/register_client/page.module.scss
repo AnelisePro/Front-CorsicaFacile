@@ -140,7 +140,7 @@
   transform: scale(0.95);
 }
 
-// ✅ CORRIGÉ : Firefox desktop - propriétés compatibles
+// Firefox desktop - propriétés compatibles
 scrollbar-width: thin; // ✅ 'thin' au lieu de 'auto'
 scrollbar-color: rgba(129, 160, 74, 0.7) rgba(255, 255, 255, 0.1);
 
@@ -184,7 +184,7 @@ scrollbar-color: rgba(129, 160, 74, 0.7) rgba(255, 255, 255, 0.1);
       inset 0 1px 0 rgba(255, 255, 255, 0.25);
   }
   
-  // ✅ CORRIGÉ : Firefox tablettes
+  // Firefox tablettes
   scrollbar-width: thin;
   scrollbar-color: rgba(15, 120, 177, 0.6) rgba(255, 255, 255, 0.08);
 }
@@ -239,7 +239,7 @@ scrollbar-color: rgba(129, 160, 74, 0.7) rgba(255, 255, 255, 0.1);
   -webkit-overflow-scrolling: touch;
   overscroll-behavior-y: contain;
   
-  // ✅ CORRIGÉ : Firefox mobile
+  // Firefox mobile
   scrollbar-width: thin;
   scrollbar-color: rgba(94, 62, 35, 0.5) rgba(255, 255, 255, 0.05);
 }
@@ -276,7 +276,7 @@ scrollbar-color: rgba(129, 160, 74, 0.7) rgba(255, 255, 255, 0.1);
     );
   }
   
-  // ✅ CORRIGÉ : Firefox petits mobiles
+  // Firefox petits mobiles
   scrollbar-width: thin;
   scrollbar-color: rgba(94, 62, 35, 0.4) rgba(255, 255, 255, 0.03);
 }
@@ -302,7 +302,7 @@ scrollbar-color: rgba(129, 160, 74, 0.7) rgba(255, 255, 255, 0.1);
     background: rgba(94, 62, 35, 0.5);
   }
   
-  // ✅ CORRIGÉ : Firefox ultra petits écrans
+  // Firefox ultra petits écrans
   scrollbar-width: thin;
   scrollbar-color: rgba(94, 62, 35, 0.35) rgba(255, 255, 255, 0.02);
 }

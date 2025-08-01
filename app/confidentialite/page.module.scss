@@ -32,7 +32,7 @@ $secondary-color: #81A04A;
 .section {
   margin-bottom: 2.5rem;
   font-family: 'Quicksand', sans-serif;
-  color: scale-color($primary-color, $lightness: -15%);
+  color: #4A3119;
 }
 
 .sectionTitle {
@@ -52,7 +52,8 @@ $secondary-color: #81A04A;
   font-size: 1.1rem;
   line-height: 1.6;
   margin-bottom: 0.6rem;
-  color: scale-color($primary-color, $lightness: 5%);
+  color: #73492D;
+  font-family: 'Nunito', sans-serif;
 
   strong {
     color: $primary-color;
@@ -65,7 +66,7 @@ $secondary-color: #81A04A;
 
     &:hover,
     &:focus {
-      color: scale-color($secondary-color, $lightness: -10%);
+      color: #6D8A3E;
     }
   }
 }
@@ -78,4 +79,5 @@ $secondary-color: #81A04A;
     width: 50%;
   }
 }
+
 
