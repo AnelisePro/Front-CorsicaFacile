@@ -197,12 +197,15 @@ export default function ClientInscription() {
             {/* Carte d'informations intégrée */}
             <div className={styles.infoBox}>
               <p>
-                L'inscription est <strong>totalement gratuite</strong>. À chaque intervention validée, récoltez des points pour obtenir des cadeaux !
+                L'inscription est <strong>totalement gratuite</strong>.
+              </p>
+              <p>
+                <strong>Prochainement</strong> : Récoltez des points pour obtenir des cadeaux ou plus !
               </p>
               <div className={styles.benefitsList}>
                 <div className={styles.benefit}>
                   <span className={styles.benefitIcon}>✅</span>
-                  <span>1 intervention = 10 points</span>
+                  <span>1 intervention validée = 10 points</span>
                 </div>
                 <div className={styles.benefit}>
                   <span className={styles.benefitIcon}>🎯</span>
