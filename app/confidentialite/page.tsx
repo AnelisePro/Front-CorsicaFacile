@@ -65,7 +65,7 @@ export default function Confidentialite() {
           <li>Droit de retirer votre consentement à tout moment</li>
         </ul>
         <p className={styles.sectionText}>
-          Pour exercer vos droits, vous pouvez nous contacter à l'adresse : <a href="mailto:contact@corsicafacile.com">contact@corsicafacile.com</a>.
+          Pour exercer vos droits, vous pouvez nous contacter à l'adresse : <a href="mailto:support@corsicafacile.fr">support@corsicafacile.fr</a>.
         </p>
       </section>
 

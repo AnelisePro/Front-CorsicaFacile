@@ -12,16 +12,14 @@ export default function MentionsLegales() {
         <p className={styles.sectionText}><strong>CorsicaFacile</strong></p>
         <p className={styles.sectionText}>Adresse : 12 Rue de l'Artisanat, 20000 Ajaccio, Corse, France</p>
         <p className={styles.sectionText}>Téléphone : 04 95 00 00 00</p>
-        <p className={styles.sectionText}>Email : contact@corsicafacile.com</p>
+        <p className={styles.sectionText}>Email : support@corsicafacile.fr</p>
         <p className={styles.sectionText}>Directeur de la publication : Jean Dupont</p>
       </section>
 
       <section className={styles.section}>
         <h2 className={styles.sectionTitle}>Hébergement</h2>
         <p className={styles.sectionText}>Le site CorsicaFacile est hébergé par :</p>
-        <p className={styles.sectionText}><strong>Nom de l'hébergeur</strong></p>
-        <p className={styles.sectionText}>Adresse de l'hébergeur</p>
-        <p className={styles.sectionText}>Téléphone : 01 23 45 67 89</p>
+        <p className={styles.sectionText}><strong>Render pour le backend et Vercel pour le frontend</strong></p>
       </section>
 
       <section className={styles.section}>
