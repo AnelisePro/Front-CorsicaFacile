@@ -1,7 +1,6 @@
 'use client'
 
 import { useEffect, useState, useMemo } from 'react'
-import Image from 'next/image'
 import styles from './page.module.scss'
 import { loadStripe } from '@stripe/stripe-js'
 import { toast, ToastContainer } from 'react-toastify'

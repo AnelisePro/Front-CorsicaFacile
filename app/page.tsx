@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import styles from './page.module.scss'
 import SearchForm from './components/SearchForm'
 import Image from 'next/image'
+import PremiumArtisansSection from './components/PremiumArtisansSection'
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState('clients')
@@ -127,6 +128,11 @@ export default function Home() {
         </div>
       </section>
 
+      {/* Artisans Premium mis en avant */}
+      <section>
+        <PremiumArtisansSection />
+      </section>
+     
       {/* À propos */}
       <section className={styles.about}>
         <div className={styles.aboutContainer}>

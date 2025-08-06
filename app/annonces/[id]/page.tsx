@@ -4,9 +4,10 @@ import { useEffect, useState } from 'react'
 import axios from 'axios'
 import { useParams, useRouter } from 'next/navigation'
 import { FiMapPin, FiUser, FiMail, FiPhone, FiClock, FiArrowLeft} from 'react-icons/fi'
-import { FaCheckCircle, FaStar } from 'react-icons/fa'
+import { FaCheckCircle } from 'react-icons/fa'
 import styles from './page.module.scss'
 import NotificationButton from '../../components/NotificationButton'
+import UsageBanner from '../../components/UsageBanner'
 
 const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
 
@@ -36,6 +37,15 @@ type Besoin = {
   }
 }
 
+// Interface pour les stats d'usage
+interface UsageStats {
+  membership_plan: string
+  responses_used: number
+  response_limit: number
+  can_respond: boolean
+  usage_percentage: number
+}
+
 export default function AnnonceDetailPage() {
   const { id } = useParams()
   const router = useRouter()
@@ -46,6 +56,7 @@ export default function AnnonceDetailPage() {
   const [artisanToken, setArtisanToken] = useState<string | null>(null)
   const [hasResponded, setHasResponded] = useState(false)
   const [selectedImage, setSelectedImage] = useState(0)
+  const [usageStats, setUsageStats] = useState<UsageStats | null>(null)
 
   useEffect(() => {
     const token = localStorage.getItem('artisanToken')
@@ -55,6 +66,7 @@ export default function AnnonceDetailPage() {
     }
     setArtisanToken(token)
 
+    // Charger l'annonce
     axios
       .get(`${apiUrl}/annonces/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
@@ -65,7 +77,42 @@ export default function AnnonceDetailPage() {
       })
       .catch(() => setError('Annonce non trouvée ou accès non autorisé.'))
       .finally(() => setLoading(false))
+
+    // Charger les stats d'usage en parallèle
+    axios.get(`${apiUrl}/announcement_responses/usage_stats`, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then(res => {
+        setUsageStats(res.data)
+      })
+      .catch(() => {
+        console.log('Stats non disponibles')
+        // Optionnel : définir des stats par défaut
+        // setUsageStats(null)
+      })
   }, [id, router])
+
+  const refreshUsageStats = async () => {
+    if (!artisanToken) return
+
+    try {
+      const response = await axios.get(`${apiUrl}/announcement_responses/usage_stats`, {
+        headers: {
+          'Authorization': `Bearer ${artisanToken}`,
+          'Content-Type': 'application/json'
+        }
+      })
+      
+      setUsageStats(response.data)
+    } catch (error) {
+      console.error('Erreur lors de la récupération des stats:', error)
+    }
+  }
+
+  const handleStatsUpdate = (newStats: any) => {
+    setUsageStats(newStats)
+    setHasResponded(true)
+  }
 
   const checkIfResponded = async (token: string, clientId: number) => {
     try {
@@ -148,6 +195,9 @@ export default function AnnonceDetailPage() {
         </button>
       </header>
 
+      {/* Banner d'usage - Utilisation du composant */}
+      {usageStats && <UsageBanner usageStats={usageStats} />}
+
       <div className={styles.container}>
         <div className={styles.mainContent}>
           {/* Card principale de l'annonce */}
@@ -226,62 +276,53 @@ export default function AnnonceDetailPage() {
             <div className={styles.contactInfo}>
               <div className={styles.contactItem}>
                 <FiMail className={styles.contactIcon} />
-                <div>
-                  <span className={styles.contactLabel}>Email</span>
-                  <a href={`mailto:${besoin.client.email}`} className={styles.contactValue}>
-                    {besoin.client.email}
-                  </a>
-                </div>
+                <span>{besoin.client.email}</span>
               </div>
-
               <div className={styles.contactItem}>
                 <FiPhone className={styles.contactIcon} />
-                <div>
-                  <span className={styles.contactLabel}>Téléphone</span>
-                  <a href={`tel:${besoin.client.phone}`} className={styles.contactValue}>
-                    {besoin.client.phone}
-                  </a>
-                </div>
+                <span>{besoin.client.phone}</span>
               </div>
             </div>
-          </div>
 
-          {/* Card CTA */}
-          <div className={styles.ctaCard}>
-            {hasResponded ? (
-              <div className={styles.respondedState}>
-                <FaCheckCircle className={styles.checkIcon} />
-                <div>
-                  <h3>Réponse envoyée</h3>
-                  <p>Vous avez déjà manifesté votre intérêt pour cette annonce. 
-                     Le client vous contactera s'il souhaite discuter avec vous.</p>
+            {/* Card CTA */}
+            <div className={styles.ctaCard}>
+              {hasResponded ? (
+                <div className={styles.respondedState}>
+                  <FaCheckCircle className={styles.checkIcon} />
+                  <div>
+                    <h3>Réponse envoyée</h3>
+                    <p>Vous avez déjà manifesté votre intérêt pour cette annonce. 
+                       Le client vous contactera s'il souhaite discuter avec vous.</p>
+                  </div>
                 </div>
-              </div>
-            ) : (
-              <div className={styles.ctaContent}>
-                <div className={styles.ctaHeader}>
-                  <h3>Intéressé par ce projet ?</h3>
-                  <p>Manifestez votre intérêt et le client pourra vous contacter directement.</p>
+              ) : (
+                <div className={styles.ctaContent}>
+                  <div className={styles.ctaHeader}>
+                    <h3>Intéressé par ce projet ?</h3>
+                    <p>Manifestez votre intérêt et le client pourra vous contacter directement.</p>
+                  </div>
+                  
+                  {artisanToken && (
+                    <NotificationButton
+                      besoinId={besoin.id}
+                      clientId={besoin.client.id}
+                      artisanToken={artisanToken}
+                      disabled={hasResponded || (usageStats ? !usageStats.can_respond : false)}
+                      className={styles.interestButton}
+                      onStatsUpdate={handleStatsUpdate} // Callback prioritaire
+                      onSuccess={refreshUsageStats} // Fallback
+                    />
+                  )}
                 </div>
-                
-                {artisanToken && (
-                  <NotificationButton
-                    besoinId={besoin.id}
-                    clientId={besoin.client.id}
-                    artisanToken={artisanToken}
-                    disabled={hasResponded}
-                    className={styles.interestButton}
-                  />
-                )}
-              </div>
-            )}
+              )}
+            </div>
           </div>
-
         </div>
       </div>
     </div>
   )
 }
+
 
 
 

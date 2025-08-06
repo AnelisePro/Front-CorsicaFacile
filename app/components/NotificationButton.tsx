@@ -10,12 +10,25 @@ interface Props {
   besoinId: number
   clientId: number
   artisanToken: string
-  disabled?: boolean
+  disabled?: boolean | null
   className?: string
+  onSuccess?: () => void
+  onStatsUpdate?: (stats: any) => void
 }
 
-export default function NotificationButton({ besoinId, clientId, artisanToken, disabled = false, className }: Props) {
+export default function NotificationButton({ 
+  besoinId, 
+  clientId, 
+  artisanToken, 
+  disabled = false, 
+  className,
+  onSuccess,      // ← Ajouté
+  onStatsUpdate   // ← Ajouté
+}: Props) {
   const [loading, setLoading] = useState(false)
+  
+  // Convertir disabled en boolean pour éviter les null/undefined
+  const isDisabled = Boolean(disabled)
 
   const fetchArtisanInfo = async () => {
     try {
@@ -30,45 +43,48 @@ export default function NotificationButton({ besoinId, clientId, artisanToken, d
   }
 
   const handleInterest = async () => {
-    if (disabled) {
+    if (isDisabled) {
       toast.info("Vous avez déjà répondu à cette annonce")
       return
     }
 
     setLoading(true)
+
     try {
-      if (!artisanToken) {
-        toast.error("Token artisan manquant.")
-        setLoading(false)
-        return
-      }
-
-      const artisan = await fetchArtisanInfo()
-      if (!artisan) {
-        toast.error("Impossible de récupérer les infos artisan.")
-        setLoading(false)
-        return
-      }
-
-      await axios.post(
-        `${apiUrl}/client_notifications`,
+      const response = await axios.post(
+        `${apiUrl}/announcement_responses`,
         {
-          client_notification: {
-            client_id: clientId,
+          announcement_response: {
             besoin_id: besoinId,
-            message: `Un artisan est intéressé par votre annonce.`,
-            link: `/artisan-profile/${artisan.id}`,
-          },
+            client_id: clientId
+          }
         },
         {
-          headers: { Authorization: `Bearer ${artisanToken}` },
+          headers: {
+            'Authorization': `Bearer ${artisanToken}`,
+            'Content-Type': 'application/json'
+          }
         }
       )
 
-      toast.success('Notification envoyée au client.')
-    } catch (error) {
-      console.error(error)
-      toast.error('Erreur lors de l’envoi de la notification.')
+      toast.success('Votre intérêt a été envoyé avec succès!')
+      
+      // Utiliser les stats retournées directement
+      if (response.data.usage_stats && onStatsUpdate) {
+        onStatsUpdate(response.data.usage_stats)
+      } else if (onSuccess) {
+        onSuccess()
+      }
+      
+    } catch (error: any) {
+      console.error('Erreur:', error)
+      
+      if (error.response?.status === 422 || error.response?.status === 403) {
+        const errorData = error.response.data
+        toast.error(errorData.error || 'Limite atteinte')
+      } else {
+        toast.error('Erreur lors de l\'envoi de la notification.')
+      }
     } finally {
       setLoading(false)
     }
@@ -77,13 +93,11 @@ export default function NotificationButton({ besoinId, clientId, artisanToken, d
   return (
     <button
       onClick={handleInterest}
-      disabled={disabled || loading}
+      disabled={isDisabled || loading}
       className={className}
     >
       {loading ? 'Envoi...' : 'Je suis intéressé par cette annonce'}
     </button>
   )
 }
-
-
 

@@ -3,7 +3,6 @@ import styles from './ArtisanEdit.module.scss'
 import Image from 'next/image'
 import axios from 'axios'
 
-// Types
 type Artisan = {
   company_name: string
   address: string

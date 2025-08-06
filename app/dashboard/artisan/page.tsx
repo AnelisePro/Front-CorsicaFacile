@@ -338,7 +338,7 @@ export default function ArtisanDashboard() {
     }
   }
 
-  // 🎯 Gestion des états de chargement avec spinner
+  // Gestion des états de chargement avec spinner
   if (loading) return (
     <div className={styles.loadingContainer}>
       <div className={styles.spinner}></div>
