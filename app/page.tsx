@@ -316,9 +316,9 @@ export default function Home() {
               <h2 className={styles.cardTitle}>Standard</h2>
               <div className={styles.cardContent}>
                 <ul className={styles.cardList}>
-                  <li><span className={styles.bullet}>✔</span> Accès aux annonces</li>
-                  <li><span className={styles.bullet}>✔</span> Réponse limitée à 3 annonces par mois</li>
-                  <li><span className={styles.bullet}>✔</span> Visibilité de base sur la plateforme</li>
+                  <li><span className={styles.bullet}>✔</span> Accès aux annonces </li>
+                  <li><span className={styles.bullet}>✔</span> Réponse limitée à 3 annonces par mois </li>
+                  <li><span className={styles.bullet}>✔</span> Visibilité de base sur la plateforme </li>
                 </ul>
               </div>
               <p className={styles.cardPrice}>29,99 € / mois</p>
@@ -329,10 +329,10 @@ export default function Home() {
               <h2 className={styles.cardTitle}>Pro</h2>
               <div className={styles.cardContent}>
                 <ul className={styles.cardList}>
-                  <li><span className={styles.bullet}>✔</span> Accès aux annonces</li>
-                  <li><span className={styles.bullet}>✔</span> Réponse limitée à 6 annonces par mois</li>
-                  <li><span className={styles.bullet}>✔</span> Visibilité prioritaire dans les recherches</li>
-                  <li><span className={styles.bullet}>✔</span> Statistiques limitées</li>
+                  <li><span className={styles.bullet}>✔</span> Accès aux annonces </li>
+                  <li><span className={styles.bullet}>✔</span> Réponse limitée à 6 annonces par mois </li>
+                  <li><span className={styles.bullet}>✔</span> Visibilité renforcée dans les recherches </li>
+                  <li><span className={styles.bullet}>✔</span> Statistiques limitées </li>
                 </ul>
               </div>
               <p className={styles.cardPrice}>49,99 € / mois</p>
@@ -342,12 +342,13 @@ export default function Home() {
               <h2 className={styles.cardTitle}>Premium</h2>
               <div className={styles.cardContent}>
                 <ul className={styles.cardList}>
-                  <li><span className={styles.bullet}>✔</span> Accès aux annonces</li>
-                  <li><span className={styles.bullet}>✔</span> Réponse illimitée aux annonces</li>
-                  <li><span className={styles.bullet}>✔</span> Mise en avant sur la page d'accueil</li>
-                  <li><span className={styles.bullet}>✔</span> Statistiques complètes</li>
-                  <li><span className={styles.bullet}>✔</span> Badge Premium sur votre profil</li>
-                  <li><span className={styles.bullet}>✔</span> Accompagnement personnalisé</li>
+                  <li><span className={styles.bullet}>✔</span> Accès aux annonces </li>
+                  <li><span className={styles.bullet}>✔</span> Réponse illimitée aux annonces </li>
+                  <li><span className={styles.bullet}>✔</span> Visibilité prioritaire dans les recherches </li>
+                  <li><span className={styles.bullet}>✔</span> Statistiques complètes </li>
+                  <li><span className={styles.bullet}>✔</span> Mise en avant sur la page d'accueil </li>
+                  <li><span className={styles.bullet}>✔</span> Badge Premium sur votre profil </li>
+                  <li><span className={styles.bullet}>✔</span> Accompagnement personnalisé </li>
                 </ul>
               </div>
               <p className={styles.cardPrice}>69,99 € / mois</p>

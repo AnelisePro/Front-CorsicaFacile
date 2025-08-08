@@ -1,0 +1,179 @@
+@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&family=Nunito:wght@400;500;600;700&display=swap');
+
+.statisticsTab {
+  padding: 2rem;
+}
+
+.header {
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.periodSelector {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.periodSelector button {
+  padding: 0.5rem 1rem;
+  border: 1px solid #ddd;
+  background: white;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 600;
+
+  &:hover {
+    background-color: #0f78b13b;
+    color: #212121;
+  }
+}
+
+.periodSelector button.active {
+  background: linear-gradient(135deg, #3498db 0%, #0f78b1ad 100%);
+  color: #FEFBF4;
+  font-size: 0.9rem;
+  font-weight: 800;
+}
+
+.basicStats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.statCard {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  text-align: center;
+}
+
+.statCard h3 {
+  margin: 0 0 0.5rem 0;
+  font-size: 0.9rem;
+  color: #5E3E23;
+}
+
+.statValue {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #81A04A ;
+  margin-bottom: 0.5rem;
+}
+
+.statPeriod {
+  font-size: 0.8rem;
+  color: #5E3E23;
+}
+
+.chartSection {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  margin-bottom: 2rem;
+}
+
+.chartContainer {
+  height: 300px;
+  margin-top: 1rem;
+}
+
+.locationSection {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  margin-bottom: 2rem;
+}
+
+.locationList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+.locationItem {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.5rem;
+  border-radius: 4px;
+  background: #f8f9fa;
+}
+
+.advancedMetrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.metricCard {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  text-align: center;
+}
+
+.upgradePrompt {
+  background: #d6d8d97a;
+  color: #5E3E23;
+  padding: 2rem;
+  border-radius: 12px;
+  text-align: center;
+    box-shadow: 0 4px 8px rgba(33, 33, 33, 0.2);
+}
+
+.planComparison {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1rem;
+  margin: 2rem 0;
+}
+
+.planCard {
+  background: rgba(255, 255, 255, 0.1);
+  padding: 1.5rem;
+  border-radius: 8px;
+  backdrop-filter: blur(10px);
+}
+
+.planCard ul {
+  text-align: left;
+  list-style: none;
+  padding: 0;
+}
+
+.planCard li {
+  padding: 0.25rem 0;
+}
+
+.upgradeButton {
+  background: #81A04A;
+  color: #FEFBF4;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+  margin-top: 2rem;
+  font-family: Nunito;
+  font-size: 1rem;
+}
+
+.upgradeButton:hover {
+  background: #5b7431;
+}
+
+.loading, .error {
+  text-align: center;
+  padding: 2rem;
+  font-size: 1.1rem;
+}
+
+.error {
+  color: #dc3545;
+}

@@ -2,6 +2,7 @@
 
 import React from 'react'
 import styles from './ArtisanView.module.scss'
+import { Artisan } from '../types/artisan'
 import Image from 'next/image'
 import PremiumBadge from './PremiumBadge'
 
@@ -9,20 +10,6 @@ type PlanInfo = {
   amount: number
   currency: string
   interval: string
-}
-
-type Artisan = {
-  company_name: string
-  address: string
-  expertise_names: string[]
-  description?: string
-  siren: string
-  email: string
-  phone: string
-  membership_plan: string
-  avatar_url?: string
-  kbis_url?: string
-  insurance_url?: string
 }
 
 type ArtisanViewProps = {

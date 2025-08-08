@@ -1,23 +1,8 @@
 import React, { useState } from 'react'
 import styles from './ArtisanEdit.module.scss'
+import { Artisan } from '../types/artisan';
 import Image from 'next/image'
 import axios from 'axios'
-
-type Artisan = {
-  company_name: string
-  address: string
-  expertise_names: string[]
-  description?: string
-  siren: string
-  email: string
-  phone: string
-  membership_plan: string
-  avatar_url?: string
-  kbis_url?: string
-  insurance_url?: string
-  password?: string
-  password_confirmation?: string
-}
 
 type ArtisanEditProps = {
   artisan: Artisan | null

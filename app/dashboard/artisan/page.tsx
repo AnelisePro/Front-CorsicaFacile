@@ -5,6 +5,7 @@ import axios from 'axios'
 import { useAuth } from '../../auth/AuthContext'
 import { ToastContainer, toast } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
+import { Artisan } from '../../types/artisan'; 
 import ArtisanView from '../../components/ArtisanView'
 import ArtisanEdit from '../../components/ArtisanEdit'
 import AvailabilitySlots from '../../components/AvailabilitySlots'
@@ -12,23 +13,10 @@ import NotificationList from '../../components/NotificationList'
 import ProjectImagesManager from '../../components/ProjectImagesManager'
 import ImageModal from '../../components/ImageModal'
 import MessagingTab from '../../components/MessagingTab'
+import StatisticsTab from '../../components/StatisticsTab';
 import styles from './page.module.scss'
 
 const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
-
-type Artisan = {
-  company_name: string
-  address: string
-  expertise_names: string[]
-  description?: string
-  siren: string
-  email: string
-  phone: string
-  membership_plan: string
-  avatar_url?: string
-  kbis_url?: string
-  insurance_url?: string
-}
 
 type PlanInfo = {
   amount: number
@@ -46,6 +34,8 @@ type ProjectImage = {
   image_url: string
 }
 
+type ActiveTab = 'notifications' | 'creneaux' | 'realisations' | 'messagerie' | 'statistiques';
+
 const membershipPlans = ['Standard', 'Pro', 'Premium']
 const intervalTranslations = {
   day: 'jour',
@@ -56,8 +46,25 @@ const intervalTranslations = {
 
 export default function ArtisanDashboard() {
   const { user, setUser } = useAuth()
-  const [activeTab, setActiveTab] = useState<'notifications' | 'creneaux' | 'realisations' | 'messagerie'>('creneaux')
+  const [activeTab, setActiveTab] = useState<'notifications' | 'creneaux' | 'realisations' | 'messagerie' | 'statistiques'>('creneaux')
   const [token, setToken] = useState<string | null>(null)
+    const mapApiToArtisan = (apiData: any): Artisan => {
+    return {
+      id: apiData.id || Math.random(),
+      company_name: apiData.company_name || '',
+      address: apiData.address || '',
+      expertise_names: apiData.expertise_names || [],
+      description: apiData.description,
+      siren: apiData.siren || '',
+      email: apiData.email || '',
+      phone: apiData.phone || '',
+      membership_plan: apiData.membership_plan || 'Standard',
+      avatar_url: apiData.avatar_url,
+      kbis_url: apiData.kbis_url,
+      insurance_url: apiData.insurance_url,
+      name: apiData.company_name,
+    };
+  };
   const [artisan, setArtisan] = useState<Artisan | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -87,7 +94,6 @@ export default function ArtisanDashboard() {
       }
 
       try {
-        // Récupérer les données de l'artisan et les expertises en parallèle
         const [artisanRes, expertisesRes] = await Promise.all([
           axios.get(`${apiUrl}/artisans/me`, {
             headers: { Authorization: `Bearer ${token}` },
@@ -98,8 +104,10 @@ export default function ArtisanDashboard() {
           })
         ])
 
-        // Traiter les données artisan
-        setArtisan(artisanRes.data.artisan)
+        // ✅ Utiliser la fonction de mapping
+        const mappedArtisan = mapApiToArtisan(artisanRes.data.artisan)
+        setArtisan(mappedArtisan)
+        
         setExpertises(expertisesRes.data)
 
         if (artisanRes.data.plan_info) {
@@ -437,6 +445,14 @@ export default function ArtisanDashboard() {
         >
           Messagerie
         </button>
+        {artisan && ['Pro', 'Premium'].includes(artisan.membership_plan as string) && (
+          <button
+            className={`${styles.tab} ${activeTab === 'statistiques' ? styles.active : ''}`}
+            onClick={() => setActiveTab('statistiques')}
+          >
+            Statistiques
+          </button>
+        )}
       </nav>
 
       {/* Contenu des onglets */}
@@ -468,6 +484,26 @@ export default function ArtisanDashboard() {
         {activeTab === 'messagerie' && (
           <div className={styles.messagerieContent}>
             <MessagingTab />
+          </div>
+        )}
+
+        {activeTab === 'statistiques' && artisan && ['Pro', 'Premium'].includes(artisan.membership_plan as string) && (
+          <div className={styles.statisticsContent}>
+            <StatisticsTab artisan={artisan} token={token || ''} />
+          </div>
+        )}
+
+        {/* Message d'upgrade pour les utilisateurs Standard */}
+        {activeTab === 'statistiques' && artisan && !['Pro', 'Premium'].includes(artisan.membership_plan as string) && (
+          <div className={styles.upgradeMessage}>
+            <h3>🔒 Fonctionnalité Premium</h3>
+            <p>Accédez à vos statistiques détaillées avec les formules Pro et Premium.</p>
+            <button 
+              className={styles.upgradeButton}
+              onClick={() => setActiveTab('creneaux')} // Retour aux créneaux
+            >
+              Découvrir nos formules
+            </button>
           </div>
         )}
       </section>
