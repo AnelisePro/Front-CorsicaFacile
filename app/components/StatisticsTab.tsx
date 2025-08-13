@@ -212,141 +212,385 @@ const StatisticsTab: React.FC<StatisticsTabProps> = ({ artisan, token }) => {
       {canViewAdvanced && isAdvancedStatistics(statistics) && (
         <>
           {/* Graphique d'évolution */}
-          <div className={styles.chartSection}>
-            <h3>📊 Évolution des vues et contacts</h3>
-            <div className={styles.chartContainer}>
-              <Line
-                data={{
-                  labels: Object.keys(statistics.data.views_evolution),
-                  datasets: [
-                    {
-                      label: 'Vues du profil',
-                      data: Object.values(statistics.data.views_evolution),
-                      borderColor: 'rgb(54, 162, 235)',
-                      backgroundColor: 'rgba(54, 162, 235, 0.2)',
+            <div className={styles.chartSection}>
+              <div className={styles.chartHeader}>
+                <div className={styles.chartTitleContainer}>
+                  <h3>Évolution des performances</h3>
+                </div>
+                <div className={styles.chartLegend}>
+                  <div className={styles.legendItem}>
+                    <div className={`${styles.legendDot} ${styles.viewsDot}`}></div>
+                    <span>Vues du profil</span>
+                  </div>
+                  <div className={styles.legendItem}>
+                    <div className={`${styles.legendDot} ${styles.contactsDot}`}></div>
+                    <span>Contacts reçus</span>
+                  </div>
+                </div>
+              </div>
+              
+              <div className={styles.modernChartContainer}>
+                <Line
+                  data={{
+                    labels: Object.keys(statistics.data.views_evolution),
+                    datasets: [
+                      {
+                        label: 'Vues du profil',
+                        data: Object.values(statistics.data.views_evolution),
+                        borderColor: '#3498db',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4,
+                        pointBackgroundColor: '#3498db',
+                        pointBorderColor: '#ffffff',
+                        pointBorderWidth: 2,
+                        pointRadius: 6,
+                        pointHoverRadius: 8,
+                      },
+                      {
+                        label: 'Contacts reçus',
+                        data: Object.values(statistics.data.contacts_evolution),
+                        borderColor: '#81A04A',
+                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                        borderWidth: 3,
+                        fill: true,
+                        tension: 0.4,
+                        pointBackgroundColor: '#81A04A',
+                        pointBorderColor: '#ffffff',
+                        pointBorderWidth: 2,
+                        pointRadius: 6,
+                        pointHoverRadius: 8,
+                      },
+                    ],
+                  }}
+                  options={{
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: {
+                      mode: 'index' as const,
+                      intersect: false,
                     },
-                    {
-                      label: 'Contacts reçus',
-                      data: Object.values(statistics.data.contacts_evolution),
-                      borderColor: 'rgb(255, 99, 132)',
-                      backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                    plugins: {
+                      legend: {
+                        display: false,
+                      },
+                      tooltip: {
+                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                        titleColor: '#ffffff',
+                        bodyColor: '#ffffff',
+                        borderColor: 'rgba(255, 255, 255, 0.1)',
+                        borderWidth: 1,
+                        cornerRadius: 12,
+                        displayColors: true,
+                        titleFont: { 
+                          size: 14, 
+                          weight: 'bold' as const 
+                        },
+                        bodyFont: { 
+                          size: 13 
+                        },
+                      },
                     },
-                  ],
-                }}
-                options={{
-                  responsive: true,
-                  plugins: {
-                    legend: { position: 'top' as const },
-                    title: { display: true, text: 'Évolution dans le temps' },
-                  },
-                }}
-              />
+                    scales: {
+                      x: {
+                        display: true,
+                        title: {
+                          display: true,
+                          text: 'Période',
+                          color: '#5E3E23',
+                          font: {
+                            size: 14,
+                            weight: 'bold' as const,
+                          },
+                          padding: {
+                            top: 10
+                          }
+                        },
+                        grid: { 
+                          display: false 
+                        },
+                        ticks: {
+                          color: '#5E3E23',
+                          font: { 
+                            size: 12, 
+                            weight: 500 
+                          },
+                        },
+                      },
+                      y: {
+                        display: true,
+                        title: {
+                          display: true,
+                          text: 'Nombre de vues / contacts',
+                          color: '#5E3E23',
+                          font: {
+                            size: 14,
+                            weight: 'bold' as const,
+                          },
+                          padding: {
+                            bottom: 10
+                          }
+                        },
+                        beginAtZero: true,
+                        grid: {
+                          color: 'rgba(107, 114, 128, 0.1)',
+                        },
+                        ticks: {
+                          color: '#5E3E23',
+                          font: { 
+                            size: 12, 
+                            weight: 500 
+                          },
+                          padding: 12,
+                        },
+                      },
+                    },
+                  }}
+                />
+              </div>
             </div>
-          </div>
 
           {/* Géolocalisation */}
           <div className={styles.locationSection}>
-            <h3>🌍 Provenance des visiteurs</h3>
-            <div className={styles.locationList}>
-              {statistics.data.visitor_locations.map(([location, count]) => (
-                <div key={location} className={styles.locationItem}>
-                  <span>{location}</span>
-                  <span className={styles.locationCount}>{count} vues</span>
+            <div className={styles.locationHeader}>
+              <div className={styles.locationTitleContainer}>
+                <h3>Provenance des visiteurs</h3>
+              </div>
+            </div>
+            
+            <div className={styles.locationGrid}>
+              {statistics.data.visitor_locations.map(([location, count], index) => (
+                <div key={location} className={`${styles.locationCard} ${styles[`locationRank${Math.min(index + 1, 3)}`]}`}>
+                  <div className={styles.locationCardHeader}>
+                    <div className={styles.locationRank}>#{index + 1}</div>
+                  </div>
+                  <div className={styles.locationName}>{location}</div>
+                  <div className={styles.locationStats}>
+                    <span className={styles.locationCount}>{count}</span>
+                    <span className={styles.locationLabel}>vues</span>
+                  </div>
+                  <div className={styles.locationProgress}>
+                    <div 
+                      className={styles.locationProgressBar}
+                      style={{ 
+                        width: `${(count / Math.max(...statistics.data.visitor_locations.map(([, c]) => c))) * 100}%` 
+                      }}
+                    ></div>
+                  </div>
                 </div>
               ))}
             </div>
           </div>
 
           {/* Répartition par dispositif */}
-          <div className={styles.chartSection}>
-            <h3>📱 Dispositifs utilisés</h3>
-            <div className={styles.chartContainer}>
-              <Doughnut
-                data={{
-                  labels: Object.keys(statistics.data.device_breakdown),
-                  datasets: [
-                    {
-                      data: Object.values(statistics.data.device_breakdown),
-                      backgroundColor: [
-                        'rgba(255, 99, 132, 0.8)',
-                        'rgba(54, 162, 235, 0.8)',
-                        'rgba(255, 205, 86, 0.8)',
-                        'rgba(75, 192, 192, 0.8)',
-                        'rgba(153, 102, 255, 0.8)',
-                      ],
+          <div className={styles.deviceSection}>
+            <div className={styles.deviceHeader}>
+              <div className={styles.deviceTitleContainer}>
+                <h3>Dispositifs utilisés</h3>
+              </div>
+            </div>
+            
+            <div className={styles.deviceContent}>
+              {/* Graphique compact à gauche */}
+              <div className={styles.compactChart}>
+                <Doughnut
+                  data={{
+                    labels: Object.keys(statistics.data.device_breakdown),
+                    datasets: [
+                      {
+                        data: Object.values(statistics.data.device_breakdown),
+                        backgroundColor: [
+                          '#3498db',
+                          '#81A04A',
+                          '#e74c3c',
+                          '#f39c12',
+                          '#9b59b6',
+                        ],
+                        borderWidth: 0,
+                        hoverBorderWidth: 0,
+                        hoverBackgroundColor: [
+                          '#3498db',
+                          '#81A04A',
+                          '#e74c3c',
+                          '#f39c12',
+                          '#9b59b6',
+                        ],
+                      },
+                    ],
+                  }}
+                  options={{
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '60%',
+                    interaction: {
+                      intersect: false,
+                      mode: 'index' as const,
                     },
-                  ],
-                }}
-                options={{
-                  responsive: true,
-                  plugins: {
-                    legend: { position: 'bottom' as const },
-                  },
-                }}
-              />
+                    plugins: {
+                      legend: {
+                        display: false,
+                      },
+                      tooltip: {
+                        enabled: false,
+                      },
+                    },
+                    onHover: (event, elements) => {
+                      if (event.native?.target) {
+                        (event.native.target as HTMLElement).style.cursor = 'default';
+                      }
+                    },
+                    elements: {
+                      arc: {
+                        hoverBorderWidth: 0,
+                      },
+                    },
+                  }}
+                />
+              </div>
+
+              {/* Statistiques détaillées à droite */}
+              <div className={styles.deviceStats}>
+                {Object.entries(statistics.data.device_breakdown).map(([device, count], index) => {
+                  const total = Object.values(statistics.data.device_breakdown).reduce((a: number, b: number) => a + b, 0);
+                  const percentage = ((count / total) * 100).toFixed(1);
+                  const colors = ['#3498db', '#81A04A', '#e74c3c', '#f39c12', '#9b59b6'];
+                  
+                  return (
+                    <div key={device} className={styles.deviceItem}>
+                      <div className={styles.deviceItemHeader}>
+                        <div className={styles.deviceDot} style={{ backgroundColor: colors[index] }}></div>
+                        <span className={styles.deviceName}>
+                          {device === 'desktop' ? '🖥️ Ordinateur' :
+                          device === 'mobile' ? '📱 Mobile' :
+                          device === 'tablet' ? '📱 Tablette' :
+                          device}
+                        </span>
+                      </div>
+                      <div className={styles.deviceValues}>
+                        <span className={styles.deviceCount}>{count}</span>
+                        <span className={styles.devicePercentage}>{percentage}%</span>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           </div>
 
-          {/* Distribution des avis */}
-          <div className={styles.chartSection}>
-            <h3>💬 Répartition des avis</h3>
-            <div className={styles.chartContainer}>
-              <Bar
-                data={{
-                  labels: ['5⭐', '4⭐', '3⭐', '2⭐', '1⭐'],
-                  datasets: [
-                    {
-                      label: 'Nombre d\'avis',
-                      data: [
-                        statistics.data.reviews_distribution[5] || 0,
-                        statistics.data.reviews_distribution[4] || 0,
-                        statistics.data.reviews_distribution[3] || 0,
-                        statistics.data.reviews_distribution[2] || 0,
-                        statistics.data.reviews_distribution[1] || 0,
-                      ],
-                      backgroundColor: [
-                        'rgba(255, 193, 7, 0.8)',   // 5 étoiles - doré
-                        'rgba(40, 167, 69, 0.8)',   // 4 étoiles - vert
-                        'rgba(255, 193, 7, 0.6)',   // 3 étoiles - jaune
-                        'rgba(255, 108, 53, 0.8)',  // 2 étoiles - orange
-                        'rgba(220, 53, 69, 0.8)',   // 1 étoile - rouge
-                      ],
-                    },
-                  ],
-                }}
-                options={{
-                  responsive: true,
-                  plugins: {
-                    legend: { display: false },
-                  },
-                  scales: {
-                    y: {
-                      beginAtZero: true,
-                      ticks: {
-                        stepSize: 1
-                      }
-                    }
-                  }
-                }}
-              />
+          <div className={styles.reviewsSection}>
+            <div className={styles.reviewsHeader}>
+              <h3>Répartition des avis</h3>
+            </div>
+            
+            <div className={styles.reviewsContent}>
+              {/* Résumé général à gauche */}
+              <div className={styles.reviewsSummary}>
+                <div className={styles.averageRating}>
+                  <span className={styles.ratingNumber}>
+                    {(() => {
+                      const ratings = statistics.data.reviews_distribution;
+                      const total = Object.values(ratings).reduce((a: number, b: number) => a + b, 0);
+                      if (total === 0) return '0.0';
+                      const sum = Object.entries(ratings).reduce((acc, [star, count]) => acc + (Number(star) * count), 0);
+                      return (sum / total).toFixed(1);
+                    })()}
+                  </span>
+                  <div className={styles.starsDisplay}>
+                    {[1, 2, 3, 4, 5].map(star => (
+                      <span key={star} className={styles.star}>⭐</span>
+                    ))}
+                  </div>
+                  <span className={styles.totalReviews}>
+                    {Object.values(statistics.data.reviews_distribution).reduce((a: number, b: number) => a + b, 0)} avis
+                  </span>
+                </div>
+              </div>
+
+              {/* Barres de progression à droite */}
+              <div className={styles.reviewsBars}>
+                {[5, 4, 3, 2, 1].map(rating => {
+                  const count = statistics.data.reviews_distribution[rating] || 0;
+                  const total = Object.values(statistics.data.reviews_distribution).reduce((a: number, b: number) => a + b, 0);
+                  const percentage = total > 0 ? (count / total) * 100 : 0;
+                  
+                  const colors: { [key: number]: string } = {
+                    5: '#FFD700',
+                    4: '#28a745',
+                    3: '#ffc107',
+                    2: '#ff6c35',
+                    1: '#dc3545',
+                  };
+
+                  return (
+                    <div key={rating} className={styles.reviewBar}>
+                      <div className={styles.reviewBarLabel}>
+                        <span className={styles.starLabel}>{rating}⭐</span>
+                        <span className={styles.reviewCount}>{count}</span>
+                      </div>
+                      <div className={styles.progressBar}>
+                        <div 
+                          className={styles.progressFill}
+                          style={{ 
+                            width: `${percentage}%`,
+                            backgroundColor: colors[rating],
+                            animationDelay: `${(5 - rating) * 0.1}s`
+                          }}
+                        ></div>
+                      </div>
+                      <span className={styles.percentage}>{percentage.toFixed(1)}%</span>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           </div>
 
           {/* Métriques avancées */}
           <div className={styles.advancedMetrics}>
             <div className={styles.metricCard}>
-              <h4>⏱️ Temps de session moyen</h4>
-              <div className={styles.metricValue}>{statistics.data.avg_session_duration}s</div>
+              <div className={styles.metricHeader}>
+                <div className={styles.metricIcon}>
+                  <span className={styles.iconBackground} style={{ backgroundColor: 'rgba(59, 130, 246, 0.1)' }}>
+                    ⏱️
+                  </span>
+                </div>
+                <h4 className={styles.metricTitle}>Temps de session moyen</h4>
+              </div>
+              <div className={styles.metricStats}>
+                <div className={styles.metricValue}>{statistics.data.avg_session_duration}s</div>
+                <div className={styles.metricSubtext}>par visiteur</div>
+              </div>
             </div>
 
             <div className={styles.metricCard}>
-              <h4>🔁 Taux de retour</h4>
-              <div className={styles.metricValue}>{statistics.data.return_visitor_rate}%</div>
+              <div className={styles.metricHeader}>
+                <div className={styles.metricIcon}>
+                  <span className={styles.iconBackground} style={{ backgroundColor: 'rgba(129, 160, 74, 0.1)' }}>
+                    🔁
+                  </span>
+                </div>
+                <h4 className={styles.metricTitle}>Taux de retour</h4>
+              </div>
+              <div className={styles.metricStats}>
+                <div className={styles.metricValue}>{statistics.data.return_visitor_rate}%</div>
+                <div className={styles.metricSubtext}>visiteurs fidèles</div>
+              </div>
             </div>
 
             <div className={styles.metricCard}>
-              <h4>⚡ Temps avant contact</h4>
-              <div className={styles.metricValue}>{statistics.data.avg_time_to_contact}</div>
+              <div className={styles.metricHeader}>
+                <div className={styles.metricIcon}>
+                  <span className={styles.iconBackground} style={{ backgroundColor: 'rgba(245, 158, 11, 0.1)' }}>
+                    ⚡
+                  </span>
+                </div>
+                <h4 className={styles.metricTitle}>Temps avant contact</h4>
+              </div>
+              <div className={styles.metricStats}>
+                <div className={styles.metricValue}>{statistics.data.avg_time_to_contact}</div>
+                <div className={styles.metricSubtext}>temps moyen</div>
+              </div>
             </div>
           </div>
         </>
@@ -355,11 +599,49 @@ const StatisticsTab: React.FC<StatisticsTabProps> = ({ artisan, token }) => {
       {/* Message d'upgrade pour les Pro */}
       {!canViewAdvanced && artisan?.membership_plan === 'Pro' && (
         <div className={styles.upgradePrompt}>
-          <h3>Débloquez les statistiques avancées avec Premium !</h3>
-          <p>Graphiques détaillés, géolocalisation, analyse comportementale et plus encore...</p>
-          <button className={styles.upgradeButton}>
-            Passer à Premium
-          </button>
+          <div className={styles.upgradeIcon}>
+            <span className={styles.iconGradient}>🚀</span>
+          </div>
+          
+          <div className={styles.upgradeContent}>
+            <h3 className={styles.upgradeTitle}>
+              Débloquez les <span className={styles.highlight}>statistiques avancées</span> avec Premium !
+            </h3>
+            
+            <p className={styles.upgradeDescription}>
+              Graphiques détaillés, géolocalisation, analyse comportementale et plus encore...
+            </p>
+            
+            <div className={styles.featuresList}>
+              <div className={styles.feature}>
+                <span className={styles.featureIcon}>📊</span>
+                <span>Graphiques interactifs</span>
+              </div>
+              <div className={styles.feature}>
+                <span className={styles.featureIcon}>🌍</span>
+                <span>Géolocalisation visiteurs</span>
+              </div>
+              <div className={styles.feature}>
+                <span className={styles.featureIcon}>🔍</span>
+                <span>Analyse comportementale</span>
+              </div>
+              <div className={styles.feature}>
+                <span className={styles.featureIcon}>📈</span>
+                <span>Rapports détaillés</span>
+              </div>
+            </div>
+            
+            <div className={styles.upgradeButton}>
+              <span className={styles.buttonIcon}>⭐</span>
+              Passer à Premium en modifiant votre formule 
+            </div>
+          </div>
+          
+          <div className={styles.decorativeElements}>
+            <div className={styles.floatingShape1}></div>
+            <div className={styles.floatingShape2}></div>
+            <div className={styles.floatingShape3}></div>
+          </div>
         </div>
       )}
     </div>

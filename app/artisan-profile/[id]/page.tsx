@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import { useParams, useRouter, useSearchParams } from 'next/navigation'
 import axios from 'axios'
 import { FaMapMarkerAlt, FaArrowLeft} from 'react-icons/fa'
@@ -11,6 +11,7 @@ import { useAuth } from '../../auth/AuthContext'
 import { toast } from 'react-toastify'
 import PremiumBadge from '../../components/PremiumBadge'
 import ReviewsSection from '../../components/ReviewsSection'
+import ArtisanTracker from '../../utils/ArtisanTracker'
 
 type ProjectImageType = {
   id: number
@@ -49,6 +50,10 @@ export default function ArtisanProfilePage() {
   const [availabilitySlots, setAvailabilitySlots] = useState<AvailabilitySlotType[]>([])
   const [selectedImage, setSelectedImage] = useState<string | null>(null)
   const [messageContent, setMessageContent] = useState('')
+  
+  // ✅ Ref pour le tracker
+  const trackerRef = useRef<any>(null)
+  
   const expertise = searchParams.get('expertise')
   const location = searchParams.get('location')
 
@@ -63,6 +68,7 @@ export default function ArtisanProfilePage() {
     }
   }
 
+  // ✅ Chargement du profil artisan
   useEffect(() => {
     if (!params?.id) return
 
@@ -89,6 +95,14 @@ export default function ArtisanProfilePage() {
         setLoading(false)
       })
   }, [params?.id])
+
+  // ✅ Initialisation du tracking
+  useEffect(() => {
+    if (artisan && !trackerRef.current) {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
+      trackerRef.current = new ArtisanTracker(artisan.id, apiUrl)
+    }
+  }, [artisan])
 
   const formatSlot = (startISO: string, endISO: string) => {
     const days = ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi']
@@ -118,12 +132,17 @@ export default function ArtisanProfilePage() {
 
   const dayIndexMondayFirst = (day: number) => (day === 0 ? 7 : day)
 
-  // Fonction pour créer/récupérer une conversation et envoyer un message
+  // ✅ Fonction pour créer/récupérer une conversation et envoyer un message avec tracking
   const sendMessage = async (message: string) => {
     try {
       if (!artisan) {
         toast.error('Informations artisan non disponibles')
         return
+      }
+
+      // 🎯 TRACKER LE CONTACT
+      if (trackerRef.current) {
+        trackerRef.current.trackContact()
       }
 
       const token = localStorage.getItem('clientToken')
@@ -134,20 +153,21 @@ export default function ArtisanProfilePage() {
 
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
 
-      // 1. Créer ou récupérer la conversation
+      // Créer ou récupérer la conversation
       const conversationResponse = await axios.post(
         `${apiUrl}/clients/conversations`,
+        { artisan_id: artisan.id },
         {
-          artisan_id: artisan.id
-        },
-        {
-          headers: { Authorization: `Bearer ${token}` }
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
         }
       )
 
       const conversationId = conversationResponse.data.id
 
-      // 2. Envoyer le message dans cette conversation
+      // Envoyer le message
       const messageResponse = await axios.post(
         `${apiUrl}/clients/conversations/${conversationId}/send_message`,
         {
@@ -156,20 +176,57 @@ export default function ArtisanProfilePage() {
           }
         },
         {
-          headers: { Authorization: `Bearer ${token}` }
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
         }
       )
 
       toast.success('Message envoyé avec succès !')
-      setMessageContent('') // Réinitialiser le state
+      setMessageContent('')
       return messageResponse.data
+
     } catch (error) {
       console.error('Erreur lors de l\'envoi du message:', error)
-      toast.error('Erreur lors de l\'envoi du message')
+      if (axios.isAxiosError(error)) {
+        const status = error.response?.status
+        const message = error.response?.data?.error || error.response?.data?.message || 'Erreur inconnue'
+        
+        if (status === 401) {
+          toast.error('Session expirée. Veuillez vous reconnecter.')
+          router.push('/auth/login_client')
+        } else if (status === 422) {
+          toast.error(`Erreur de validation: ${message}`)
+        } else {
+          toast.error(`Erreur: ${message}`)
+        }
+      } else {
+        toast.error('Erreur lors de l\'envoi du message')
+      }
     }
   }
 
-  // 🎯 Spinner intégré
+  // Handlers pour tracker les contacts directs
+  const handleEmailClick = () => {
+    if (trackerRef.current) {
+      trackerRef.current.trackContact()
+    }
+  }
+
+  const handlePhoneClick = () => {
+    if (trackerRef.current) {
+      trackerRef.current.trackContact()
+    }
+  }
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (messageContent.trim()) {
+      sendMessage(messageContent.trim())
+    }
+  }
+
   if (loading) return (
     <div className={styles.loadingContainer}>
       <div className={styles.spinner}></div>
@@ -177,48 +234,29 @@ export default function ArtisanProfilePage() {
     </div>
   )
 
-  // Gestion d'erreur améliorée
-  if (error) return (
-    <div className={styles.errorContainer}>
-      <div className={styles.errorContent}>
-        <h2>Oups ! Une erreur est survenue</h2>
-        <p>{error}</p>
-        <button 
-          onClick={handleGoBack}
-          className={styles.backToSearchButton}
-        >
-          Retour à la recherche
-        </button>
+  if (error || !artisan) {
+    return (
+      <div className={styles.errorContainer}>
+        <div className={styles.errorContent}>
+          <p>{error || 'Artisan non trouvé'}</p>
+          <button onClick={handleGoBack} className={styles.backToSearchButton}>
+            Retour à la recherche
+          </button>
+        </div>
       </div>
-    </div>
-  )
-
-  if (!artisan) return (
-    <div className={styles.errorContainer}>
-      <div className={styles.errorContent}>
-        <h2>Artisan non trouvé</h2>
-        <p>Le profil que vous cherchez n'existe pas ou n'est plus disponible.</p>
-        <button 
-          onClick={handleGoBack}
-          className={styles.backToSearchButton}
-        >
-          Retour à la recherche
-        </button>
-      </div>
-    </div>
-  )
+    )
+  }
 
   return (
     <div className={styles.pageWrapper}>
       <div className={styles.container}>
-        <button
-          onClick={handleGoBack}
-          className={styles.backButton}
-          aria-label="Retour aux résultats de recherche"
-        >
-          <FaArrowLeft />
-          <span>Retour</span>
-        </button>
+        {/* Header avec bouton retour */}
+        <div className={styles.header}>
+          <button onClick={handleGoBack} className={styles.backButton}>
+            <FaArrowLeft />
+            <span>Retour</span>
+          </button>
+        </div>
 
         {/* Hero Section - Profil principal */}
         <div className={styles.heroCard}>
@@ -328,7 +366,7 @@ export default function ArtisanProfilePage() {
                         <FiMail className={styles.contactIcon} />
                         <div className={styles.contactDetails}>
                           <span className={styles.contactLabel}>Email</span>
-                          <a href={`mailto:${artisan.email}`} className={styles.contactLink}>
+                          <a href={`mailto:${artisan.email}`} className={styles.contactLink} onClick={handleEmailClick}>
                             {artisan.email}
                           </a>
                         </div>
@@ -338,7 +376,7 @@ export default function ArtisanProfilePage() {
                         <FiPhone className={styles.contactIcon} />
                         <div className={styles.contactDetails}>
                           <span className={styles.contactLabel}>Téléphone</span>
-                          <a href={`tel:${artisan.phone}`} className={styles.contactLink}>
+                          <a href={`tel:${artisan.phone}`} className={styles.contactLink} onClick={handlePhoneClick}>
                             {artisan.phone}
                           </a>
                         </div>
@@ -390,15 +428,12 @@ export default function ArtisanProfilePage() {
             </div>
           </div>
 
-          {/* Colonne droite - Maintenant uniquement les disponibilités */}
+          {/* Colonne droite - Disponibilités */}
           <div className={styles.rightColumn}>
-            {/* Section disponibilités */}
             {availabilitySlots.length > 0 && (
               <div className={styles.card}>
                 <div className={styles.cardHeader}>
-                  <h2>
-                    Créneaux disponibles
-                  </h2>
+                  <h2>Créneaux disponibles</h2>
                 </div>
                 <div className={styles.cardContent}>
                   <div className={styles.availabilityList}>
@@ -457,6 +492,7 @@ export default function ArtisanProfilePage() {
     </div>
   )
 }
+
 
 
 
