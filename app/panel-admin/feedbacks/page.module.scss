@@ -1,0 +1,583 @@
+@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&family=Nunito:wght@300;400;500;600;700;800&display=swap');
+
+// Variables de couleurs
+$blue: #3498db;
+$green: #81A04A;
+$beige: #FEFBF4;
+$brown: #5E3E23;
+$purple: #9b59b6;
+$yellow: #f39c12;
+
+// Variables communes
+$border-color: #e5e7eb;
+$text-primary: #111827;
+$text-secondary: #6b7280;
+$text-light: #9ca3af;
+$shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+$radius: 8px;
+
+@mixin shadow-modern {
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08), 
+              0 6px 12px rgba(0, 0, 0, 0.06);
+}
+
+@mixin transition-smooth {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@mixin gradient-primary {
+  background: linear-gradient(135deg, $blue 0%, $green 100%);
+}
+
+.feedbacksPage {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  padding: 2rem 8rem;
+}
+
+.header {
+  margin-bottom: 2rem;
+  position: relative;
+  padding: 2rem;
+  background: white;
+  border-radius: 1.5rem;
+  @include shadow-modern;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: -5rem;
+    right: -5rem;
+    width: 12rem;
+    height: 12rem;
+    @include gradient-primary;
+    border-radius: 50%;
+    opacity: 0.1;
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: -3rem;
+    left: -3rem;
+    width: 8rem;
+    height: 8rem;
+    background-color: rgba($green, 0.05);
+    border-radius: 50%;
+  }
+
+  // Correction pour le titre
+  h1, .title {
+    position: relative;
+    z-index: 1;
+    font-family: 'Quicksand', sans-serif;
+    font-size: 2.5rem;
+    font-weight: 700;
+    // CORRECTION : utiliser background-image au lieu de background
+    background-image: linear-gradient(135deg, $blue 0%, $green 100%);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent; // Fallback pour les navigateurs qui ne supportent pas background-clip
+    margin: 0 0 0.5rem 0;
+    letter-spacing: -0.02em;
+
+    @media (max-width: 768px) {
+      font-size: 2rem;
+    }
+  }
+
+  // Style pour le sous-titre
+  p {
+    position: relative;
+    z-index: 1;
+    font-family: 'Nunito', sans-serif;
+    font-size: 1.125rem;
+    color: $brown;
+    margin: 0 0 2rem 0;
+    font-weight: 400;
+
+    @media (max-width: 768px) {
+      font-size: 1rem;
+    }
+  }
+}
+
+// Nouveau design pour les filtres
+.filters {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-top: 2rem;
+  padding: 0.5rem;
+  background: rgba($beige, 0.8);
+  border-radius: 1rem;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba($brown, 0.1);
+  position: relative;
+  z-index: 1;
+}
+
+.filterBtn {
+  position: relative;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  background: transparent;
+  border-radius: 0.75rem;
+  font-weight: 600;
+  color: $brown;
+  cursor: pointer;
+  @include transition-smooth;
+  font-size: 0.9rem;
+  font-family: 'Nunito', sans-serif;
+  overflow: hidden;
+  
+  // Effet de survol
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, rgba($blue, 0.1) 0%, rgba($green, 0.1) 100%);
+    border-radius: 0.75rem;
+    opacity: 0;
+    @include transition-smooth;
+    z-index: -1;
+  }
+  
+  &:hover {
+    color: $blue;
+    transform: translateY(-2px);
+    
+    &::before {
+      opacity: 1;
+    }
+  }
+  
+  // État actif avec un design moderne
+  &.active {
+    background: #3498db;
+    color: white;
+    box-shadow: 0 4px 15px rgba($blue, 0.3);
+    transform: translateY(-2px);
+    
+    &::before {
+      opacity: 0;
+    }
+    
+    // Effet brillant pour le bouton actif
+    &::after {
+      content: '';
+      position: absolute;
+      top: -2px;
+      left: -100%;
+      width: 100%;
+      height: calc(100% + 4px);
+      background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255, 255, 255, 0.3),
+        transparent
+      );
+      @include transition-smooth;
+      animation: shine 2s infinite;
+    }
+  }
+}
+
+// Animation brillante
+@keyframes shine {
+  0% {
+    left: -100%;
+  }
+  50% {
+    left: 100%;
+  }
+  100% {
+    left: 100%;
+  }
+}
+
+.feedbacksList {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.feedbackCard {
+  background: white;
+  border-radius: 1rem;
+  padding: 1.5rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  border: 1px solid #e2e8f0;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    border-color: #3498db;
+  }
+}
+
+.feedbackHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.userInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.userName {
+  font-weight: 700;
+  color: #5E3E23;
+  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.userEmail {
+  color: #5E3E23;
+  font-size: 0.9rem;
+}
+
+.userType {
+  display: inline-block;
+  background: #e0e7ff;
+  color: #3730a3;
+  padding: 0.25rem 0.75rem;
+  border-radius: 0.5rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  width: fit-content;
+}
+
+.meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.5rem;
+}
+
+.date {
+  color: #94a3b8;
+  font-size: 0.85rem;
+}
+
+.badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 0.5rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  
+  &.pending {
+    background: #fef3c7;
+    color: #d97706;
+  }
+  
+  &.responded {
+    background: #d1fae5;
+    color: #81A04A;
+  }
+  
+  &.archived {
+    background: #f1f5f9;
+    color: #475569;
+  }
+}
+
+.feedbackContent {
+  margin-bottom: 1.5rem;
+}
+
+.feedbackTitle {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #3498db;
+  margin-bottom: 0.75rem;
+}
+
+.feedbackText {
+  color: #5E3E23;
+  line-height: 1.6;
+  background: #f8fafc;
+  padding: 1rem;
+  border-radius: 0.75rem;
+  border-left: 4px solid #3498db;
+}
+
+.existingResponse {
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: 0.75rem;
+  padding: 1rem;
+}
+
+.responseHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+  
+  h4 {
+    color: #065f46;
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 0;
+  }
+  
+  small {
+    color: #059669;
+    font-size: 0.8rem;
+  }
+}
+
+.responseText {
+  color: #047857;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.responseSection {
+  border-top: 1px solid #e2e8f0;
+  padding-top: 1rem;
+}
+
+.responseForm {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.responseTextarea {
+  width: 100%;
+  padding: 1rem;
+  border: 2px solid #e2e8f0;
+  border-radius: 0.75rem;
+  font-size: 1rem;
+  line-height: 1.5;
+  resize: vertical;
+  min-height: 100px;
+  font-family: inherit;
+  
+  &:focus {
+    outline: none;
+    border-color: #3498db;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  }
+  
+  &::placeholder {
+    color: #5E3E23;
+  }
+}
+
+.responseActions {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+}
+
+.cancelBtn, .sendBtn, .respondBtn {
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: none;
+  font-size: 0.9rem;
+  
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.cancelBtn {
+  background: #f1f5f9;
+  color: #475569;
+  
+  &:hover:not(:disabled) {
+    background: #e2e8f0;
+  }
+}
+
+.sendBtn {
+  background: #81A04A;
+  color: white;
+  
+  &:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4);
+  }
+}
+
+.respondBtn {
+  background: #3498db;
+  color: white;
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+  }
+}
+
+.emptyState {
+  text-align: center;
+  padding: 4rem 2rem;
+  background: white;
+  border-radius: 1rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+
+.emptyIcon {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+  opacity: 0.7;
+}
+
+.emptyState h3 {
+  color: #5E3E23;
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.emptyState p {
+  color: #5E3E23;
+  font-size: 1rem;
+}
+
+.errorContainer {
+  text-align: center;
+  padding: 4rem 2rem;
+  background: white;
+  border-radius: 1rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  
+  h2 {
+    color: #dc2626;
+    font-size: 1.8rem;
+    margin-bottom: 1rem;
+  }
+  
+  p {
+    color: #5E3E23;
+    font-size: 1.1rem;
+  }
+}
+
+// Responsive
+@media (max-width: 768px) {
+  .feedbacksPage {
+    padding: 1rem;
+  }
+  
+  .header h1 {
+    font-size: 2rem;
+  }
+  
+  .stats {
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  
+  .filters {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .filterBtn {
+    width: 100%;
+  }
+  
+  .feedbackHeader {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .meta {
+    align-items: flex-start;
+    flex-direction: row;
+    gap: 1rem;
+  }
+  
+  .userType {
+    margin-top: 0.5rem;
+  }
+  
+  .responseActions {
+    flex-direction: column;
+  }
+  
+  .cancelBtn, .sendBtn, .respondBtn {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .feedbackCard {
+    padding: 1rem;
+  }
+  
+  .feedbackTitle {
+    font-size: 1.1rem;
+  }
+  
+  .feedbackText {
+    font-size: 0.9rem;
+    padding: 0.75rem;
+  }
+}
+
+// Loading states et animations
+.feedbackCard {
+  animation: slideInUp 0.6s ease-out;
+}
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// Animation pour les boutons
+.filterBtn, .respondBtn, .sendBtn, .cancelBtn {
+  position: relative;
+  overflow: hidden;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, 0.2),
+      transparent
+    );
+    transition: left 0.5s;
+  }
+  
+  &:hover::before {
+    left: 100%;
+  }
+}

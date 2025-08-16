@@ -19,6 +19,28 @@ interface DashboardStats {
     usersGrowth: number;
     announcementsGrowth: number;
     messagesGrowth: number;
+    feedbackGrowth?: number;
+  };
+  totalFeedbacks?: number;
+  pendingFeedbacks?: number;
+  recentFeedbacks?: Array<{
+    id: number;
+    title: string;
+    userName: string;
+    userType: string;
+    status: string;
+    createdAt: string;
+    urgency: 'high' | 'normal';
+  }>;
+  feedbackStats?: {
+    total: number;
+    pending: number;
+    responded: number;
+    thisWeek: number;
+    byUserType: {
+      clients: number;
+      artisans: number;
+    };
   };
 }
 
@@ -30,6 +52,19 @@ interface StatisticData {
   artisanSignups: number;
   messagesSent: number;
   announcementsPosted: number;
+}
+
+interface Feedback {
+  id: number;
+  title: string;
+  content: string;
+  user_name: string;
+  user_email: string;
+  user_type: string;
+  status: string;
+  admin_response: string | null;
+  created_at: string;
+  responded_at: string | null;
 }
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
@@ -73,26 +108,48 @@ class AdminApi {
         usersGrowth: 0,
         announcementsGrowth: 0,
         messagesGrowth: 0,
-      }
+        feedbackGrowth: data.growth_stats?.feedbacks_growth || 0,
+      },
+       totalFeedbacks: data.total_feedbacks,
+      pendingFeedbacks: data.pending_feedbacks,
+      recentFeedbacks: data.recent_feedbacks?.map((feedback: any) => ({
+        id: feedback.id,
+        title: feedback.title,
+        userName: feedback.user_name,
+        userType: feedback.user_type,
+        status: feedback.status,
+        createdAt: feedback.created_at,
+        urgency: feedback.urgency
+      })),
+      feedbackStats: data.feedback_stats ? {
+        total: data.feedback_stats.total,
+        pending: data.feedback_stats.pending,
+        responded: data.feedback_stats.responded,
+        thisWeek: data.feedback_stats.this_week,
+        byUserType: {
+          clients: data.feedback_stats.by_user_type?.clients || 0,
+          artisans: data.feedback_stats.by_user_type?.artisans || 0,
+        }
+      } : undefined
     };
   }
 
   async getUsers(filters?: {
-  type?: 'client' | 'artisan';
-  status?: 'active' | 'banned';
-  search?: string;
-  page?: number;
-  limit?: number;
-}): Promise<{ users: User[]; total: number; totalPages: number }> {
-  const params = new URLSearchParams();
-  
-  if (filters) {
-    Object.entries(filters).forEach(([key, value]) => {
-      if (value !== undefined) {
-        params.append(key, value.toString());
-      }
-    });
-  }
+    type?: 'client' | 'artisan';
+    status?: 'active' | 'banned';
+    search?: string;
+    page?: number;
+    limit?: number;
+  }): Promise<{ users: User[]; total: number; totalPages: number }> {
+    const params = new URLSearchParams();
+    
+    if (filters) {
+      Object.entries(filters).forEach(([key, value]) => {
+        if (value !== undefined) {
+          params.append(key, value.toString());
+        }
+      });
+    }
 
   const url = `${API_BASE_URL}/admin/users?${params.toString()}`;
   console.log('🌐 URL appelée:', url);
@@ -122,7 +179,6 @@ class AdminApi {
     console.log('📊 Nombre d\'users:', data.users?.length);
     
     return {
-        // ✅ Mapping mis à jour pour correspondre aux données du contrôleur Rails
         users: data.users?.map((user: any) => ({
           id: user.id,
           type: user.type,
@@ -228,8 +284,7 @@ class AdminApi {
     }
 
     const data = await response.json();
-    
-    // ✅ Transformation mise à jour
+
     const baseUser: UserDetails = {
       id: data.user.id,
       type: data.user.type,
@@ -259,6 +314,97 @@ class AdminApi {
     };
 
     return baseUser;
+  }
+
+  async getFeedbacks(filters?: {
+    status?: 'pending' | 'responded' | 'archived';
+    user_type?: 'client' | 'artisan';
+    search?: string;
+    page?: number;
+    per_page?: number;
+  }): Promise<Feedback[]> {
+    const params = new URLSearchParams();
+    
+    if (filters) {
+      Object.entries(filters).forEach(([key, value]) => {
+        if (value !== undefined) {
+          params.append(key, value.toString());
+        }
+      });
+    }
+
+    const response = await fetch(`${API_BASE_URL}/admin/feedbacks?${params.toString()}`, {
+      headers: this.getAuthHeaders()
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Erreur lors du chargement des feedbacks: ${errorText}`);
+    }
+
+    const data = await response.json();
+    
+    // Transformer les données pour correspondre à votre interface
+    return data.feedbacks?.map((feedback: any) => ({
+      id: feedback.id,
+      title: feedback.title,
+      content: feedback.content,
+      user_name: feedback.user?.name || 'Utilisateur inconnu',
+      user_email: feedback.user?.email || 'Email non disponible',
+      user_type: feedback.user_type,
+      status: feedback.status,
+      admin_response: feedback.admin_response,
+      created_at: feedback.created_at,
+      responded_at: feedback.responded_at
+    })) || [];
+  }
+
+  // Répondre à un feedback
+  async respondToFeedback(feedbackId: number, adminResponse: string): Promise<void> {
+    const response = await fetch(`${API_BASE_URL}/admin/feedbacks/${feedbackId}`, {
+      method: 'PATCH', // Utilisez PATCH au lieu de PUT pour correspondre à votre backend
+      headers: this.getAuthHeaders(),
+      body: JSON.stringify({
+        feedback: {
+          admin_response: adminResponse,
+          status: 'responded'
+        }
+      })
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Erreur lors de l'envoi de la réponse: ${errorText}`);
+    }
+
+    const data = await response.json();
+    
+    if (!data.success) {
+      throw new Error(data.errors?.join(', ') || 'Erreur lors de l\'envoi de la réponse');
+    }
+  }
+
+  // Méthode bonus : Actions en masse sur les feedbacks
+  async bulkUpdateFeedbacks(feedbackIds: number[], action: 'archive' | 'mark_responded' | 'mark_pending'): Promise<void> {
+    const response = await fetch(`${API_BASE_URL}/admin/feedbacks/bulk_update`, {
+      method: 'PATCH',
+      headers: this.getAuthHeaders(),
+      body: JSON.stringify({
+        feedback_ids: feedbackIds,
+        bulk_action: action
+      })
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      throw new Error(`Erreur lors de la mise à jour en masse: ${errorText}`);
+    }
+
+    const data = await response.json();
+    
+    if (!data.success) {
+      throw new Error(data.error || 'Erreur lors de la mise à jour en masse');
+    }
   }
 }
 

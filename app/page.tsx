@@ -5,6 +5,7 @@ import styles from './page.module.scss'
 import SearchForm from './components/SearchForm'
 import Image from 'next/image'
 import PremiumArtisansSection from './components/PremiumArtisansSection'
+import FeedbackSection from './components/FeedbackSection'
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState('clients')
@@ -21,21 +22,21 @@ export default function Home() {
   return (
     <div className={styles.page}>
       {/* HERO */}
-<section className={styles.hero}>
-  <Image
-    src="/images/Sartene.JPG"
-    alt="Paysage de Sartène"
-    fill
-    style={{ objectFit: 'cover' }}
-    priority
-  />
-  <div className={styles.heroOverlay}></div>
-  <div className={styles.heroContent}>
-    <h1>Corsica Facile</h1>
-    <p>Le réflexe local à portée de clic.</p>
-    <SearchForm />
-  </div>
-</section>
+      <section className={styles.hero}>
+        <Image
+          src="/images/Sartene.JPG"
+          alt="Paysage de Sartène"
+          fill
+          style={{ objectFit: 'cover' }}
+          priority
+        />
+        <div className={styles.heroOverlay}></div>
+        <div className={styles.heroContent}>
+          <h1>Corsica Facile</h1>
+          <p>Le réflexe local à portée de clic.</p>
+          <SearchForm />
+        </div>
+      </section>
 
       {/* Section Services */}
       <section className={styles.servicesSection}>
@@ -348,13 +349,17 @@ export default function Home() {
                   <li><span className={styles.bullet}>✔</span> Statistiques complètes </li>
                   <li><span className={styles.bullet}>✔</span> Mise en avant sur la page d'accueil </li>
                   <li><span className={styles.bullet}>✔</span> Badge Premium sur votre profil </li>
-                  <li><span className={styles.bullet}>✔</span> Accompagnement personnalisé </li>
                 </ul>
               </div>
               <p className={styles.cardPrice}>69,99 € / mois</p>
             </div>
           </div>
         </div>
+      </section>
+
+      {/* Section Avis utilisateurs */}
+      <section>
+        <FeedbackSection />
       </section>
     </div>
   )

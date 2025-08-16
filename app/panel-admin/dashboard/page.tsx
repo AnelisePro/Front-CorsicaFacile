@@ -25,6 +25,28 @@ interface DashboardStats {
     usersGrowth: number;
     announcementsGrowth: number;
     messagesGrowth: number;
+    feedbackGrowth?: number;
+  };
+  totalFeedbacks?: number;
+  pendingFeedbacks?: number;
+  recentFeedbacks?: Array<{
+    id: number;
+    title: string;
+    userName: string;
+    userType: string;
+    status: string;
+    createdAt: string;
+    urgency: 'high' | 'normal';
+  }>;
+  feedbackStats?: {
+    total: number;
+    pending: number;
+    responded: number;
+    thisWeek: number;
+    byUserType: {
+      clients: number;
+      artisans: number;
+    };
   };
 }
 
@@ -120,9 +142,87 @@ export default function AdminDashboard() {
         />
       </div>
 
-      {/* Section principale */}
+      {/* Section Feedbacks */}
       <div className={styles.mainSection}>
-        
+        {stats?.feedbackStats && (
+          <div className={`${styles.card} ${styles.feedbacksMainCard}`}>
+            <div className={styles.cardHeader}>
+              <span className={styles.cardIcon}>💬</span>
+              <h2 className={styles.cardTitle}>Gestion des Avis</h2>
+              <button 
+                onClick={() => window.location.href = '/panel-admin/feedbacks'}
+                className={styles.viewAllBtn}
+              >
+                Voir tout
+              </button>
+            </div>
+
+            {/* Mini stats cards */}
+            <div className={styles.miniStatsGrid}>
+              <div className={styles.miniStatsCard}>
+                <div className={styles.miniStatsContent}>
+                  <span className={styles.miniStatsIcon}>⭐</span>
+                  <div className={styles.miniStatsText}>
+                    <div className={styles.miniStatsValue}>{stats?.feedbackStats?.total || 0}</div>
+                    <div className={styles.miniStatsLabel}>Total Feedbacks</div>
+                  </div>
+                </div>
+              </div>
+
+              <div className={styles.miniStatsCard}>
+                <div className={styles.miniStatsContent}>
+                  <span className={styles.miniStatsIcon}>⏳</span>
+                  <div className={styles.miniStatsText}>
+                    <div className={styles.miniStatsValue}>{stats?.feedbackStats?.pending || 0}</div>
+                    <div className={styles.miniStatsLabel}>En attente</div>
+                  </div>
+                  {stats?.feedbackStats?.pending > 0 && (
+                    <div className={`${styles.miniStatsChange} ${styles.warning}`}>
+                      Action requise
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Liste des feedbacks récents */}
+            <div className={styles.recentFeedbacksSection}>
+              <h3 className={styles.sectionSubtitle}>Avis récents</h3>
+              <div className={styles.feedbacksList}>
+                {stats.recentFeedbacks && stats.recentFeedbacks.length ? (
+                  stats.recentFeedbacks.slice(0, 3).map((feedback) => (
+                    <div key={feedback.id} className={styles.feedbackItem}>
+                      <div className={styles.feedbackContent}>
+                        <div className={styles.feedbackMeta}>
+                          <span className={styles.userType}>
+                            {feedback.userType === 'Client' ? '👤' : '🔨'} {feedback.userName}
+                          </span>
+                          <span className={`${styles.status} ${styles[feedback.status]}`}>
+                            {feedback.status === 'pending' ? 'En attente' : 'Répondu'}
+                          </span>
+                        </div>
+                        <h4 className={styles.feedbackTitle}>{feedback.title}</h4>
+                        <span className={styles.feedbackDate}>{feedback.createdAt}</span>
+                      </div>
+                      <button 
+                        onClick={() => window.location.href = `/panel-admin/feedbacks`}
+                        className={styles.respondBtn}
+                      >
+                        {feedback.status === 'pending' ? 'Répondre' : 'Voir'}
+                      </button>
+                    </div>
+                  ))
+                ) : (
+                  <div className={styles.emptyState}>
+                    <span className={styles.emptyIcon}>📝</span>
+                    <p>Aucun avis récent</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Inscriptions récentes */}
         <div className={`${styles.card} ${styles.signupsCard}`}>
           <div className={styles.cardHeader}>
@@ -195,6 +295,25 @@ export default function AdminDashboard() {
               </div>
             </button>
             
+            {/* Action Feedbacks */}
+            {stats?.pendingFeedbacks !== undefined && (
+              <button 
+                onClick={() => window.location.href = '/panel-admin/feedbacks'}
+                className={`${styles.actionItem} ${styles.feedbacks}`}
+              >
+                <div className={styles.actionContent}>
+                  <span className={styles.actionIcon}>💬</span>
+                  <div className={styles.actionText}>
+                    <div className={styles.actionTitle}>Gérer les avis</div>
+                    <div className={styles.actionDescription}>
+                      {stats.pendingFeedbacks} avis en attente
+                    </div>
+                  </div>
+                  <span className={styles.actionArrow}>→</span>
+                </div>
+              </button>
+            )}
+            
             <button 
               onClick={() => window.location.href = '/panel-admin/statistics'}
               className={`${styles.actionItem} ${styles.stats}`}
@@ -238,4 +357,6 @@ export default function AdminDashboard() {
     </div>
   );
 }
+
+
 

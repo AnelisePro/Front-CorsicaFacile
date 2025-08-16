@@ -202,11 +202,364 @@ $brown: #5E3E23;
       font-weight: 600;
       color: $brown;
       margin: 0;
+      flex: 1;
+    }
+
+    .viewAllBtn {
+      background: $blue;
+      color: white;
+      border: none;
+      padding: 0.5rem 1rem;
+      border-radius: 0.75rem;
+      font-family: 'Nunito', sans-serif;
+      font-size: 0.875rem;
+      font-weight: 600;
+      cursor: pointer;
+      @include transition-smooth;
+      
+      &:hover {
+        background: darken($blue, 10%);
+        transform: translateY(-1px);
+      }
     }
   }
 
   &:hover .cardHeader .cardIcon {
     transform: scale(1.2) rotate(5deg);
+  }
+}
+
+// Card feedbacks principale (identique aux autres cards)
+.feedbacksMainCard {
+  @extend .card;
+  grid-column: 1 / -1;
+  
+  // Mini stats grid
+  .miniStatsGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+
+    @media (max-width: 768px) {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .miniStatsCard {
+    padding: 1rem;
+    border-radius: 1rem;
+    @include transition-smooth;
+    position: relative;
+    overflow: hidden;
+
+    &:first-child {
+      background: rgba($blue, 0.08);
+    }
+
+    &:nth-child(2) {
+      background: rgba($green, 0.08);
+    }
+
+    &:hover {
+      transform: translateY(-2px);
+      
+      &:first-child {
+        background: rgba($blue, 0.15);
+      }
+
+      &:nth-child(2) {
+        background: rgba($green, 0.15);
+      }
+    }
+
+    // Animation shimmer
+    &::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.3) 50%, transparent 70%);
+      transform: translateX(-100%);
+      transition: transform 0.6s;
+    }
+
+    &:hover::after {
+      transform: translateX(100%);
+    }
+  }
+
+  .miniStatsContent {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .miniStatsIcon {
+    font-size: 1.5rem;
+    width: 2.5rem;
+    height: 2.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.7);
+    border-radius: 0.75rem;
+    flex-shrink: 0;
+  }
+
+  .miniStatsText {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .miniStatsValue {
+    font-family: 'Quicksand', sans-serif;
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: $brown;
+    margin: 0 0 0.25rem 0;
+    line-height: 1;
+  }
+
+  .miniStatsLabel {
+    font-family: 'Nunito', sans-serif;
+    font-size: 0.875rem;
+    color: $brown;
+    margin: 0;
+    opacity: 0.8;
+  }
+
+  .miniStatsChange {
+    font-family: 'Nunito', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 600;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.5rem;
+    white-space: nowrap;
+
+    &.positive {
+      background: rgba($green, 0.2);
+      color: darken($green, 20%);
+    }
+
+    &.warning {
+      background: rgba(255, 165, 0, 0.2);
+      color: darken(orange, 20%);
+      animation: pulse 2s infinite;
+    }
+  }
+
+  // Section des feedbacks récents
+  .recentFeedbacksSection {
+    border-top: 2px solid rgba($brown, 0.1);
+    padding-top: 1.5rem;
+  }
+
+  .sectionSubtitle {
+    font-family: 'Quicksand', sans-serif;
+    font-size: 1rem;
+    font-weight: 600;
+    color: $brown;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+
+    &::before {
+      content: '';
+      width: 4px;
+      height: 1rem;
+      @include gradient-primary;
+      border-radius: 2px;
+    }
+  }
+
+  // Liste des feedbacks
+  .feedbacksList {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .feedbackItem {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem;
+    border-radius: 1rem;
+    @include transition-smooth;
+    position: relative;
+    overflow: hidden;
+    
+    &:nth-child(odd) {
+      background: rgba($blue, 0.06);
+    }
+
+    &:nth-child(even) {
+      background: rgba($green, 0.06);
+    }
+    
+    &:hover {
+      transform: translateX(5px);
+      
+      &:nth-child(odd) {
+        background: rgba($blue, 0.12);
+      }
+
+      &:nth-child(even) {
+        background: rgba($green, 0.12);
+      }
+    }
+
+    // Animation shimmer pour les feedbacks
+    &::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.3) 50%, transparent 70%);
+      transform: translateX(-100%);
+      transition: transform 0.6s;
+    }
+
+    &:hover::after {
+      transform: translateX(100%);
+    }
+  }
+
+  .feedbackContent {
+    flex: 1;
+    min-width: 0;
+    position: relative;
+    z-index: 1;
+  }
+
+  .feedbackMeta {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 0.5rem;
+    flex-wrap: wrap;
+  }
+
+  .userType {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-family: 'Nunito', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: $brown;
+    background: rgba(255, 255, 255, 0.7);
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.5rem;
+  }
+
+  .status {
+    font-family: 'Nunito', sans-serif;
+    font-size: 0.625rem;
+    font-weight: 600;
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.025em;
+
+    &.pending {
+      background: rgba(220, 38, 38, 0.15);
+      color: #dc2626;
+    }
+
+    &.responded {
+      background: rgba($green, 0.2);
+      color: darken($green, 20%);
+    }
+  }
+
+  .urgent {
+    font-size: 0.75rem;
+    animation: blink 1.5s infinite;
+  }
+
+  .feedbackTitle {
+    font-family: 'Quicksand', sans-serif;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: $brown;
+    margin: 0 0 0.25rem 0;
+    line-height: 1.3;
+    
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 300px;
+
+    @media (max-width: 768px) {
+      max-width: none;
+      white-space: normal;
+    }
+  }
+
+  .feedbackDate {
+    font-family: 'Nunito', sans-serif;
+    font-size: 0.75rem;
+    color: rgba($brown, 0.6);
+    font-weight: 400;
+  }
+
+  .respondBtn {
+    background-color: #3498db;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 0.75rem;
+    font-family: 'Nunito', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 600;
+    cursor: pointer;
+    @include transition-smooth;
+    flex-shrink: 0;
+    margin-left: 1rem;
+    position: relative;
+    z-index: 1;
+    
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba($blue, 0.4);
+    }
+    
+    &:active {
+      transform: translateY(0);
+    }
+
+    @media (max-width: 768px) {
+      margin-left: 0;
+      margin-top: 0.75rem;
+    }
+  }
+
+  // Empty state
+  .emptyState {
+    text-align: center;
+    padding: 2rem;
+    color: rgba($brown, 0.5);
+    
+    .emptyIcon {
+      font-size: 2rem;
+      margin-bottom: 1rem;
+      display: block;
+      opacity: 0.5;
+    }
+    
+    p {
+      font-family: 'Nunito', sans-serif;
+      font-size: 1rem;
+      margin: 0;
+      font-weight: 500;
+    }
   }
 }
 
@@ -421,6 +774,16 @@ $brown: #5E3E23;
   100% { transform: rotate(360deg); }
 }
 
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.8; }
+}
+
+@keyframes blink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0.4; }
+}
+
 // Animation d'apparition pour les cards
 .card {
   opacity: 0;
@@ -466,6 +829,20 @@ $brown: #5E3E23;
 }
 
 // Responsive amélioré
+@media (max-width: 768px) {
+  .feedbacksMainCard {
+    .feedbackItem {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.75rem;
+    }
+    
+    .feedbackMeta {
+      flex-wrap: wrap;
+    }
+  }
+}
+
 @media (max-width: 640px) {
   .dashboardContainer {
     padding: 1rem 0.75rem;
@@ -502,3 +879,4 @@ $brown: #5E3E23;
     }
   }
 }
+
