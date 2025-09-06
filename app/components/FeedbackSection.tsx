@@ -67,13 +67,24 @@ export default function FeedbackSection() {
 
       if (response.ok) {
         const data = await response.json();
-        if (data.authenticated) {
+        console.log('Auth response:', data);
+        
+        if (data.authenticated && data.user) {
           setCurrentUser(data.user);
           setIsAuthenticated(true);
+        } else {
+          setCurrentUser(null);
+          setIsAuthenticated(false);
         }
+      } else {
+        console.log('Auth failed:', response.status);
+        setCurrentUser(null);
+        setIsAuthenticated(false);
       }
     } catch (error) {
       console.error('Erreur lors de la vérification de l\'authentification:', error);
+      setCurrentUser(null);
+      setIsAuthenticated(false);
     } finally {
       setIsLoading(false);
     }
@@ -86,7 +97,7 @@ export default function FeedbackSection() {
           'Accept': 'application/json'
         }
       });
-      
+
       if (response.ok) {
         const data = await response.json();
         setFeedbacks(data);
@@ -103,7 +114,7 @@ export default function FeedbackSection() {
 
     try {
       const csrfToken = getCSRFToken();
-      
+
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || ''}/api/v1/feedbacks`, {
         method: 'POST',
         headers: {
@@ -116,7 +127,7 @@ export default function FeedbackSection() {
       });
 
       const data = await response.json();
-      
+
       if (data.success) {
         setMessage(data.message);
         setFormData({ title: '', content: '' });
@@ -166,149 +177,152 @@ export default function FeedbackSection() {
   return (
     <div className={styles.feedbackSection}>
       <div className={styles.container}>
-        <div className={styles.header}>
-          <h2 className={styles.title}>Avis et Suggestions</h2>
-          <p className={styles.subtitle}>
-            Votre opinion compte ! Partagez vos suggestions pour améliorer notre plateforme.
-          </p>
-        </div>
-
-        {/* Formulaire de feedback */}
-        {isAuthenticated && currentUser ? (
-          <div className={styles.feedbackForm}>
-            {!showForm ? (
-              <button 
-                onClick={() => setShowForm(true)}
-                className={styles.showFormBtn}
-              >
-                <span className={styles.icon}>✍️</span>
-                Laisser un avis
-              </button>
-            ) : (
-              <form onSubmit={handleSubmit} className={styles.form}>
-                <div className={styles.userInfo}>
-                  <span className={styles.userName}>
-                    {currentUser.name} 
-                    {currentUser.user_type === 'Client' ? ' (👤 Client)' : ' (🔨 Artisan)'}
-                  </span>
-                </div>
-                
-                <div className={styles.inputGroup}>
-                  <input
-                    type="text"
-                    name="title"
-                    value={formData.title}
-                    onChange={handleInputChange}
-                    placeholder="Titre de votre avis..."
-                    className={styles.input}
-                    required
-                    maxLength={100}
-                  />
-                </div>
-                
-                <div className={styles.inputGroup}>
-                  <textarea
-                    name="content"
-                    value={formData.content}
-                    onChange={handleInputChange}
-                    placeholder="Décrivez votre expérience, suggestions d'amélioration..."
-                    className={styles.textarea}
-                    rows={4}
-                    required
-                    maxLength={1000}
-                  />
-                  <div className={styles.charCount}>
-                    {formData.content.length}/1000 caractères
-                  </div>
-                </div>
-                
-                <div className={styles.formActions}>
-                  <button 
-                    type="button"
-                    onClick={() => {
-                      setShowForm(false);
-                      setMessage('');
-                    }}
-                    className={styles.cancelBtn}
-                    disabled={isSubmitting}
-                  >
-                    Annuler
-                  </button>
-                  <button 
-                    type="submit"
-                    disabled={isSubmitting}
-                    className={styles.submitBtn}
-                  >
-                    {isSubmitting ? 'Envoi...' : 'Envoyer l\'avis'}
-                  </button>
-                </div>
-              </form>
-            )}
-            
-            {message && (
-              <div className={`${styles.message} ${message.includes('succès') ? styles.success : styles.error}`}>
-                {message}
-              </div>
-            )}
-          </div>
-        ) : (
-          <div className={styles.loginPrompt}>
-            <p>
-              Connectez-vous en tant que{' '}
-              <a href="/clients/sign_in" className={styles.loginLink}>Client</a>
-              {' '}ou{' '}
-              <a href="/artisans/sign_in" className={styles.loginLink}>Artisan</a>
-              {' '}pour laisser un avis
+        
+        {/* Header + Formulaire + LoginPrompt */}
+        <div className={styles.feedbackHeader}>
+          {/* Header */}
+          <div className={styles.header}>
+            <h2 className={styles.title}>Avis et Suggestions</h2>
+            <p className={styles.subtitle}>
+              Votre opinion compte ! Partagez vos suggestions pour améliorer notre plateforme.
             </p>
           </div>
-        )}
+
+          {/* Formulaire de feedback ou Prompt de connexion */}
+          {isAuthenticated && currentUser ? (
+            <div className={styles.feedbackForm}>
+              {!showForm ? (
+                <button 
+                  onClick={() => setShowForm(true)}
+                  className={styles.showFormBtn}
+                >
+                  Laisser un avis
+                </button>
+              ) : (
+                <form onSubmit={handleSubmit} className={styles.form}>
+                  <div className={styles.userInfo}>
+                    <span className={styles.userName}>
+                      {currentUser.name} 
+                      {currentUser.user_type === 'Client' ? ' (Client)' : ' (Artisan)'}
+                    </span>
+                  </div>
+
+                  <div className={styles.inputGroup}>
+                    <input
+                      type="text"
+                      name="title"
+                      value={formData.title}
+                      onChange={handleInputChange}
+                      placeholder="Titre de votre avis..."
+                      className={styles.input}
+                      required
+                      maxLength={100}
+                    />
+                  </div>
+
+                  <div className={styles.inputGroup}>
+                    <textarea
+                      name="content"
+                      value={formData.content}
+                      onChange={handleInputChange}
+                      placeholder="Décrivez votre expérience, suggestions d'amélioration..."
+                      className={styles.textarea}
+                      rows={4}
+                      required
+                      maxLength={1000}
+                    />
+                    <div className={styles.charCount}>
+                      {formData.content.length}/1000 caractères
+                    </div>
+                  </div>
+
+                  <div className={styles.formActions}>
+                    <button 
+                      type="button"
+                      onClick={() => {
+                        setShowForm(false);
+                        setMessage('');
+                      }}
+                      className={styles.cancelBtn}
+                      disabled={isSubmitting}
+                    >
+                      Annuler
+                    </button>
+                    <button 
+                      type="submit"
+                      disabled={isSubmitting}
+                      className={styles.submitBtn}
+                    >
+                      {isSubmitting ? 'Envoi...' : 'Envoyer l\'avis'}
+                    </button>
+                  </div>
+                </form>
+              )}
+
+              {message && (
+                <div className={`${styles.message} ${message.includes('succès') ? styles.success : styles.error}`}>
+                  {message}
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className={styles.loginPrompt}>
+              <p>
+                Connectez-vous en tant que{' '}
+                <a href="/auth/login_client" className={styles.loginLink}>Client</a>
+                {' '}ou{' '}
+                <a href="/auth/login_artisan" className={styles.loginLink}>Artisan</a>
+                {' '}pour laisser un avis
+              </p>
+            </div>
+          )}
+        </div>
 
         {/* Affichage des feedbacks avec réponses */}
-        {feedbacks.length > 0 && (
-          <div className={styles.feedbacksList}>
-            <h3 className={styles.listTitle}>💬 Échanges avec l'équipe</h3>
-            {feedbacks.map((feedback) => (
-              <div key={feedback.id} className={styles.feedbackItem}>
-                <div className={styles.feedbackHeader}>
-                  <div className={styles.userBadge}>
-                    <span className={styles.userIcon}>
-                      {feedback.user_type === 'Client' ? '👤' : '🔨'}
-                    </span>
-                    <span className={styles.userName}>{feedback.user_name}</span>
-                    <span className={styles.userType}>
-                      {feedback.user_type}
-                    </span>
-                  </div>
-                  <span className={styles.date}>{feedback.created_at}</span>
-                </div>
-                
-                <div className={styles.feedbackContent}>
-                  <h4 className={styles.feedbackTitle}>{feedback.title}</h4>
-                  <p className={styles.feedbackText}>{feedback.content}</p>
-                </div>
-                
-                {feedback.admin_response && (
-                  <div className={styles.adminResponse}>
-                    <div className={styles.adminHeader}>
-                      <span className={styles.adminBadge}>🏢 Équipe Corsica Facile</span>
-                      <span className={styles.responseDate}>{feedback.responded_at}</span>
+        <div className={styles.feedbacksDisplay}>
+          {feedbacks.length > 0 ? (
+            <div className={styles.scrollableContainer}>
+            <div className={styles.feedbacksList}>
+              {feedbacks.map((feedback) => (
+                <div key={feedback.id} className={styles.feedbackItem}>
+                  <div className={styles.feedbackHeader}>
+                    <div className={styles.userBadge}>
+                      <span className={styles.userName}>{feedback.user_name}</span>
+                      <span className={`${styles.userType} ${feedback.user_type.toLowerCase() === 'client' ? styles.client : styles.artisan}`}>
+                        {feedback.user_type}
+                      </span>
                     </div>
-                    <p className={styles.responseText}>{feedback.admin_response}</p>
+                    <span className={styles.date}>{feedback.created_at}</span>
                   </div>
-                )}
-              </div>
-            ))}
-          </div>
-        )}
 
-        {feedbacks.length === 0 && (
-          <div className={styles.noFeedbacks}>
-            <p>Aucun avis public pour le moment. Soyez le premier à partager votre expérience !</p>
-          </div>
-        )}
+                  <div className={styles.feedbackContent}>
+                    <h4 className={styles.feedbackTitle}>{feedback.title}</h4>
+                    <p className={styles.feedbackText}>{feedback.content}</p>
+                  </div>
+
+                  {feedback.admin_response && (
+                    <div className={styles.adminResponse}>
+                      <div className={styles.adminHeader}>
+                        <span className={styles.adminBadge}>Équipe Corsica Facile</span>
+                        <span className={styles.responseDate}>{feedback.responded_at}</span>
+                      </div>
+                      <p className={styles.responseText}>{feedback.admin_response}</p>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+            </div>
+          ) : (
+            <div className={styles.noFeedbacks}>
+              <p>Aucun avis public pour le moment. Soyez le premier à partager votre expérience !</p>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
 }
+
 
 

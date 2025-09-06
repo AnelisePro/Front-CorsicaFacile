@@ -1,48 +1,81 @@
+@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&family=Nunito:wght@300;400;500;600;700&display=swap');
+
+.feedbackHeader {
+  margin-bottom: 2rem;
+  padding-bottom: 2rem;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.feedbacksDisplay {
+  margin-top: 2rem;
+}
+
+.scrollableContainer {
+  max-height: 600px;
+  overflow-y: auto;
+  padding-right: 10px;
+  
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  &::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 10px;
+    
+    &:hover {
+      background: #555;
+    }
+  }
+}
+
 .feedbackSection {
-  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
   padding: 4rem 0;
   margin: 4rem 0;
-  
+
   .container {
     max-width: 1200px;
     margin: 0 auto;
     padding: 0 2rem;
   }
-  
+
   .header {
     text-align: center;
     margin-bottom: 3rem;
-    
+
     .title {
       font-size: 2.5rem;
-      color: #1a202c;
+      color: #3498db;
       margin-bottom: 1rem;
       font-weight: 700;
     }
-    
+
     .subtitle {
-      font-size: 1.2rem;
-      color: #64748b;
+      color: #5e3e23f1;
       max-width: 600px;
       margin: 0 auto;
     }
   }
-  
+
   .feedbackForm {
-    background: white;
-    border-radius: 16px;
-    padding: 2rem;
+    border-radius: 20px;
+    padding: 1.5rem;
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
     margin-bottom: 3rem;
-    border: 1px solid #e2e8f0;
-    
+    border: 1px solid #dfe3e8;
+
     .showFormBtn {
       width: 100%;
-      background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
-      color: white;
+      background: #81A04A;
+      color: #FEFBF4;
       border: none;
       padding: 1.2rem 2rem;
-      border-radius: 12px;
+      border-radius: 20px;
       font-size: 1.1rem;
       font-weight: 600;
       cursor: pointer;
@@ -51,35 +84,31 @@
       align-items: center;
       justify-content: center;
       gap: 0.8rem;
-      
-      .icon {
-        font-size: 1.3rem;
-      }
-      
+
       &:hover {
         transform: translateY(-2px);
-        box-shadow: 0 8px 25px rgba(59, 130, 246, 0.4);
+        box-shadow: 0 8px 25px #80a04a90;
       }
     }
-    
+
     .form {
       .userInfo {
         background: #f1f5f9;
         padding: 1rem 1.2rem;
         border-radius: 8px;
         margin-bottom: 1.5rem;
-        border-left: 4px solid #3b82f6;
-        
+        border-left: 4px solid #3498db;
+
         .userName {
           font-weight: 600;
-          color: #334155;
+          color: #5E3E23;
         }
       }
-      
+
       .inputGroup {
         margin-bottom: 1.5rem;
         position: relative;
-        
+
         .input, .textarea {
           width: 100%;
           padding: 1rem 1.2rem;
@@ -88,33 +117,59 @@
           font-size: 1rem;
           transition: border-color 0.3s ease;
           font-family: inherit;
-          
+          color: #5E3E23;
+
+          &::placeholder {
+            color: #5E3E23;
+            font-style: italic;
+            opacity: 0.7;
+          }
+
+          // Support pour différents navigateurs
+          &::-webkit-input-placeholder {
+            color: #5E3E23;
+            font-style: italic;
+            opacity: 0.7;
+          }
+
+          &::-moz-placeholder {
+            color: #5E3E23;
+            font-style: italic;
+            opacity: 0.7;
+          }
+
+          &:-ms-input-placeholder {
+            color: #5E3E23;
+            font-style: italic;
+            opacity: 0.7;
+          }
+
           &:focus {
             outline: none;
-            border-color: #3b82f6;
+            border-color: #3498db;
             box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
           }
         }
-        
+
         .textarea {
           resize: vertical;
           min-height: 120px;
         }
-        
+
         .charCount {
           position: absolute;
           bottom: -25px;
           right: 0;
           font-size: 0.8rem;
-          color: #64748b;
+          color: #5E3E23;
         }
       }
-      
+
       .formActions {
         display: flex;
         gap: 1rem;
         margin-top: 2rem;
-        
+
         .cancelBtn, .submitBtn {
           padding: 0.8rem 1.5rem;
           border-radius: 8px;
@@ -123,26 +178,26 @@
           transition: all 0.3s ease;
           border: none;
         }
-        
+
         .cancelBtn {
           background: #f1f5f9;
           color: #64748b;
-          
+
           &:hover {
             background: #e2e8f0;
           }
         }
-        
+
         .submitBtn {
-          background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+          background: #81A04A;
           color: white;
           flex: 1;
-          
+
           &:hover:not(:disabled) {
             transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+            box-shadow: 0 4px 12px #80a04ab4;
           }
-          
+
           &:disabled {
             opacity: 0.6;
             cursor: not-allowed;
@@ -150,19 +205,19 @@
         }
       }
     }
-    
+
     .message {
       margin-top: 1rem;
       padding: 1rem;
       border-radius: 8px;
       font-weight: 500;
-      
+
       &.success {
         background: #d1fae5;
-        color: #065f46;
+        color: #81A04A;
         border: 1px solid #a7f3d0;
       }
-      
+
       &.error {
         background: #fee2e2;
         color: #991b1b;
@@ -170,7 +225,7 @@
       }
     }
   }
-  
+
   .loginPrompt {
     text-align: center;
     background: white;
@@ -178,26 +233,19 @@
     border-radius: 12px;
     border: 2px dashed #cbd5e1;
     margin-bottom: 3rem;
-    
+
     .loginLink {
       color: #3b82f6;
       text-decoration: none;
       font-weight: 600;
-      
+
       &:hover {
         text-decoration: underline;
       }
     }
   }
-  
+
   .feedbacksList {
-    .listTitle {
-      font-size: 1.8rem;
-      color: #1a202c;
-      margin-bottom: 2rem;
-      text-align: center;
-    }
-    
     .feedbackItem {
       background: white;
       border-radius: 16px;
@@ -205,88 +253,94 @@
       margin-bottom: 2rem;
       box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
       border: 1px solid #e2e8f0;
-      
+
       .feedbackHeader {
         display: flex;
         justify-content: space-between;
         align-items: center;
         margin-bottom: 1.5rem;
-        
+
         .userBadge {
           display: flex;
           align-items: center;
           gap: 0.8rem;
-          
-          .userIcon {
-            font-size: 1.2rem;
-          }
-          
+
           .userName {
             font-weight: 600;
-            color: #1a202c;
+            color: #5E3E23;
+            font-size: 1.2rem;
+          }
+
+          .userType {
+          padding: 0.3rem 0.8rem;
+          border-radius: 20px;
+          font-size: 0.8rem;
+          font-weight: 500;
+          
+          &.client {
+            background: #80a04a70;
+            color: #065f46;
           }
           
-          .userType {
-            background: #f1f5f9;
-            color: #475569;
-            padding: 0.3rem 0.8rem;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: 500;
+          &.artisan {
+            background: #3498db43;
+            color: #1e40af;
           }
         }
-        
+      }
+
         .date {
-          color: #64748b;
+          color: #5E3E23;
           font-size: 0.9rem;
+          font-style: italic;
         }
       }
-      
+
       .feedbackContent {
         .feedbackTitle {
           font-size: 1.3rem;
-          color: #1a202c;
+          color: #3498db;
           margin-bottom: 0.8rem;
           font-weight: 600;
         }
-        
+
         .feedbackText {
-          color: #475569;
+          color: #5E3E23;
           line-height: 1.6;
           margin-bottom: 1.5rem;
         }
       }
-      
+
       .adminResponse {
-        background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
-        border-left: 4px solid #3b82f6;
+        background: linear-gradient(135deg, #eff6ff 0%, #dbeafebc 100%);
+        border-left: 4px solid #3498db;
         padding: 1.5rem;
         border-radius: 12px;
         margin-top: 1.5rem;
-        
+
         .adminHeader {
           display: flex;
           justify-content: space-between;
           align-items: center;
           margin-bottom: 1rem;
-          
+
           .adminBadge {
-            background: #3b82f6;
+            background: #3498db;
             color: white;
             padding: 0.4rem 1rem;
             border-radius: 20px;
             font-size: 0.9rem;
             font-weight: 600;
           }
-          
+
           .responseDate {
-            color: #64748b;
+            color: #5E3E23;
             font-size: 0.9rem;
           }
         }
-        
+
         .responseText {
-          color: #1e40af;
+          color: #5E3E23;
           line-height: 1.6;
           font-weight: 500;
         }
@@ -298,27 +352,27 @@
 @media (max-width: 768px) {
   .feedbackSection {
     padding: 2rem 0;
-    
+
     .container {
       padding: 0 1rem;
     }
-    
+
     .header .title {
       font-size: 2rem;
     }
-    
+
     .feedbackForm {
       padding: 1.5rem;
     }
-    
+
     .feedbackItem {
       padding: 1.5rem;
     }
-    
+
     .formActions {
       flex-direction: column;
     }
-    
+
     .feedbackHeader {
       flex-direction: column;
       align-items: flex-start;
@@ -326,5 +380,6 @@
     }
   }
 }
+
 
 
