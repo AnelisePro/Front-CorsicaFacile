@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import styles from './PremiumArtisansSection.module.scss'
 import Image from 'next/image'
@@ -21,7 +21,7 @@ interface Artisan {
   total_reviews?: number
 }
 
-export default function PremiumArtisansSection() {
+function PremiumArtisansContent() {
   const [artisans, setArtisans] = useState<Artisan[]>([])
   const params = useSearchParams()
   const expertise = params.get('expertise') ?? ''
@@ -31,7 +31,7 @@ export default function PremiumArtisansSection() {
 
   useEffect(() => {
     const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'
-    
+
     fetch(`${apiUrl}/api/v1/artisans/premium`)
       .then(res => {
         console.log('Response status:', res.status)
@@ -42,7 +42,7 @@ export default function PremiumArtisansSection() {
       })
       .then((data) => {
         console.log('Data received:', data)
-        
+
         if (Array.isArray(data)) {
           setArtisans(data)
         } else if (data && Array.isArray(data.artisans)) {
@@ -51,7 +51,7 @@ export default function PremiumArtisansSection() {
           console.error('Data is not an array:', data)
           setError('Format de données invalide')
         }
-        
+
         setLoading(false)
       })
       .catch(err => {
@@ -93,7 +93,7 @@ export default function PremiumArtisansSection() {
         <div className={styles.grid}>
           {artisans.map(artisan => (
             <div key={artisan.id} className={styles.card}>
-              {/* Header avec avatar et infos */}
+              {/* Tout votre contenu existant reste identique */}
               <div className={styles.cardHeader}>
                 <div className={styles.avatarContainer}>
                   <Image
@@ -135,7 +135,6 @@ export default function PremiumArtisansSection() {
                 </div>
               </div>
 
-              {/* Body avec adresse */}
               <div className={styles.cardBody}>
                 <div className={styles.addressContainer}>
                   <FaMapMarkerAlt className={styles.locationIcon} />
@@ -143,7 +142,6 @@ export default function PremiumArtisansSection() {
                 </div>
               </div>
 
-              {/* Footer avec avis et bouton */}
               <div className={styles.cardFooter}>
                 <div className={styles.reviewsInfo}>
                   {artisan.total_reviews && artisan.total_reviews > 0 ? (
@@ -162,17 +160,17 @@ export default function PremiumArtisansSection() {
                     <span className={styles.noReviews}>Aucun avis</span>
                   )}
                 </div>
-                
+
                 <button
-                      className={styles.profileButton}
-                      onClick={e => {
-                        e.stopPropagation()
-                        window.open(`/artisan-profile/${artisan.id}?expertise=${encodeURIComponent(expertise)}&location=${encodeURIComponent(location)}`, '_blank')
-                      }}
-                      aria-label={`Voir le profil de ${artisan.company_name}`}
-                    >
-                      <span>Voir le profil</span>
-                    </button>
+                  className={styles.profileButton}
+                  onClick={e => {
+                    e.stopPropagation()
+                    window.open(`/artisan-profile/${artisan.id}?expertise=${encodeURIComponent(expertise)}&location=${encodeURIComponent(location)}`, '_blank')
+                  }}
+                  aria-label={`Voir le profil de ${artisan.company_name}`}
+                >
+                  <span>Voir le profil</span>
+                </button>
               </div>
             </div>
           ))}
@@ -181,6 +179,15 @@ export default function PremiumArtisansSection() {
     </section>
   )
 }
+
+export default function PremiumArtisansSection() {
+  return (
+    <Suspense fallback={<div className={styles.loading}>Chargement des artisans premium...</div>}>
+      <PremiumArtisansContent />
+    </Suspense>
+  )
+}
+
 
 
 
